@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@google/clasp": "^2.4.2",
-    "express": "^4.21.1",
-    "mariadb": "^3.4.0",
     "nodemon": "^3.1.7"
   },
   "nodemonConfig": {
