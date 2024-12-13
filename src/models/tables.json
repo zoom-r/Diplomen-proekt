@@ -1,0 +1,22 @@
+{
+    "monday":{
+        "first-shift":{},
+        "second-shift":{}
+    },
+    "tuesday":{
+        "first-shift":{},
+        "second-shift":{}
+    },
+    "wednesday":{
+        "first-shift":{},
+        "second-shift":{}
+    },
+    "thursday":{
+        "first-shift":{},
+        "second-shift":{}
+    },
+    "friday":{
+        "first-shift":{},
+        "second-shift":{}
+    }
+}
