@@ -5,21 +5,28 @@ class Declaration {
 
     constructor(title, link, status) {
         this.#title = title;
-        
-        this.#link = link;
-        this.#status = status;
+        try{
+            let url = new URL(link);
+            this.#link = url;
+        }catch{
+            throw new Error('Invalid link');
+        }
+        this.status = status;
     }
 
     get title() {
-        return this.title;
+        return this.#title;
     }
     get link() {
-        return this.link;
+        return this.#link;
     }
     get status() {
-        return this.status;
+        return this.#status;
     }
     set status(status) {
-        this.status = status;
+        if(this.#status !== true && this.#status !== false){
+            throw new Error('Invalid status');
+        }
+        this.#status = status;
     }
 }
