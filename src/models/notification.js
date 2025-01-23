@@ -1,28 +1,26 @@
 class Notification {
-    #id;
-    #title;
-    #message;
-    #date;
-    #sender;
 
-    constructor(id, title, message, date, sender) {
-        this.#id = id;
-        this.#title = title;
-        this.#message = message;
-        this.#date = date;
-        this.#sender = sender;
+    constructor(id, title, message, date, sender, user_key) {
+        this._id = id;
+        this._title = title;
+        this._message = message;
+        this._date = date;
+        this._sender = sender;
     }
 
+    get id(){
+      return this._id;
+    }
     get title() {
-        return this.#title;
+        return this._title;
     }
     get message() {
-        return this.#message;
+        return this._message;
     }
     get date() {
-        return this.#date;
+        return this._date;
     }
     get sender() {
-        return this.#sender;
+        return this._sender;
     }
 }

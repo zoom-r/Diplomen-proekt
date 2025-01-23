@@ -1,32 +1,33 @@
 class Declaration {
-    #title;
-    #link;
-    #status; //маркира документа като завършен или не: true - завършен, false - незавършен
 
-    constructor(title, link, status) {
-        this.#title = title;
-        try{
+    constructor(id, title, link, status, user_key) {
+        this._id = id;
+        this._title = title;
+        try {
             let url = new URL(link);
-            this.#link = url;
-        }catch{
+            this._link = url;
+        } catch {
             throw new Error('Invalid link');
         }
-        this.status = status;
+        this.status = status; // маркира документа като завършен или не: true - завършен, false - незавършен
     }
 
+    get id(){
+      return this._id;
+    }
     get title() {
-        return this.#title;
+        return this._title;
     }
     get link() {
-        return this.#link;
+        return this._link;
     }
     get status() {
-        return this.#status;
+        return this._status;
     }
     set status(status) {
-        if(this.#status !== true && this.#status !== false){
+        if (status !== true && status !== false) {
             throw new Error('Invalid status');
         }
-        this.#status = status;
+        this._status = status;
     }
 }

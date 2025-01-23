@@ -1,33 +1,29 @@
 class Room {
-    #name; //Наименование на стаята
-    #shedules; //Масив от обекти Shedule -> кой час и с кой клас е в стаята 
 
     constructor(name, shedules) {
-        this.#name = name;
-        this.#shedules = shedules;
+        this._name = name; //Наименование на стаята
+        this._shedules = shedules; //Масив от обекти Shedule -> кой час и с кой клас е в стаята 
     }
 
     get name(){
-        return this.#name;
+        return this._name;
     }
     get shedules(){
-        return this.#shedules;
+        return this._shedules;
     }
 }
 
 class Shedule{
-    #time; //час
-    #group; //клас
 
     constructor(time, group){
-        this.#time = time;
-        this.#group = group;
+        this._time = time; //час
+        this._group = group; //клас
     }
 
     get time(){
-        return this.#time;
+        return this._time;
     }
     get group(){
-        return this.#group;
+        return this._group;
     }
 }
