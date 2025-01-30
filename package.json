@@ -5,13 +5,9 @@
   "main": "index.js",
   "author": "Radoslav Dimitrov",
   "license": "ISC",
-  "scripts": {
-    "start": "nodemon index.js",
-    "deploy": "clasp push && clasp deploy"
-  },
+  "scripts": {},
   "dependencies": {
-    "@google/clasp": "^2.4.2",
-    "nodemon": "^3.1.7"
+    "@google/clasp": "^2.4.2"
   },
   "nodemonConfig": {
     "ignore": [

@@ -4,7 +4,6 @@ var cache = CacheService.getScriptCache()
 cache.put("/hello", JSON.stringify({date: new Date()}) )
 
 app.use(function(req,res,next){
-  //Logger.log(Session.getActiveUser().getEmail())
   req.user = {email:Session.getActiveUser().getEmail()}
   next()
 })
