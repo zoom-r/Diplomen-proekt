@@ -1,0 +1,14 @@
+<tr>
+  <td colspan=<?= abcent.classes.length.stringify() ?>><?= abcent.name ?></td>
+  <td><?= abcent.classes[0].time ?></td>
+  <td><?= abcent.classes[0].group ?></td>
+  <td><?= abcent.classes[0].substitute ?></td>
+</tr>
+<? for(let i = 1; i < abcent.classes.length; i++){ ?>
+  <tr>
+    <td><?= abcent.classes[i].time ?></td>
+    <td><?= abcent.classes[i].group ?></td>
+    <td><?= abcent.classes[i].substitute ?></td>
+  <tr>
+<? } >?
+

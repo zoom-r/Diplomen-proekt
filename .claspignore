@@ -1,5 +1,15 @@
-.gitignore
-README.md
-node_modules
-package-lock.json
-package.json
+# Ignore everything by default
+**/**
+
+# Allow necessary files
+!appsscript.json
+!**/*.gs
+!**/*.js
+!**/*.ts
+!**/*.html
+
+# Strictly ignore unwanted files
+node_modules/**  
+package.json  
+package-lock.json  
+README.md  
