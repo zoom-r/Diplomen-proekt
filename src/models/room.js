@@ -1,5 +1,4 @@
 class Room {
-
     constructor(name, shedules) {
         this._name = name; //Наименование на стаята
         this._shedules = shedules; //Масив от обекти Shedule -> кой час и с кой клас е в стаята 

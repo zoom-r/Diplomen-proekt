@@ -5,7 +5,8 @@ class Notification {
         this._title = title;
         this._message = message;
         this._date = date;
-        this._sender = sender;
+        this._sender = sender; //име на изпращача (администратора, от който идва съобщението)
+        this._user_key = user_key;
     }
 
     get id(){
@@ -22,5 +23,20 @@ class Notification {
     }
     get sender() {
         return this._sender;
+    }
+    get user_key() {
+        return this._user_key;
+    }
+
+    static createFromResultSet(rs) {
+        let content = JSON.parse(rs.getString('content'));
+        return new Notification(
+            rs.getString('id'),
+            content.title,
+            content.message,
+            content.date,
+            content.sender,
+            rs.getString('user_key')
+        );
     }
 }

@@ -8,7 +8,6 @@ class Table {
             friday: 'friday'
         };
     }
-
     static get shifts() {
         return {
             first: 'first',
@@ -17,16 +16,10 @@ class Table {
     }
 
     constructor(id, day, shift, data) {
-        if (!Object.values(Table.days).includes(day)) {
-            throw new Error(`Invalid day: ${day}`);
-        }
-        if (!Object.values(Table.shifts).includes(shift)) {
-            throw new Error(`Invalid shift: ${shift}`);
-        }
         this._id = id;
         this._day = day;
         this._shift = shift;
-        this._data = data;
+        this._data = data; //масив от обекти от класа Abcent или Room
     }
 
     get id(){
@@ -43,5 +36,14 @@ class Table {
 
     get data() {
         return this._data;
+    }
+
+    static createFromResultSet(rs) {
+        return new Table(
+            rs.getString('id'),
+            rs.getString('day'),
+            rs.getString('shift'),
+            rs.getString('data')
+        );
     }
 }
