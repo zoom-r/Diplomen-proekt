@@ -13,7 +13,7 @@ function checkUserAccess_(){
     let domain = getUserWorkspace();
     let access = false;
     let workspaceId = null;
-    let conn = createDBConnection();
+    let conn = createDBConnection_();
     if (conn == null) {
         return access;
     }

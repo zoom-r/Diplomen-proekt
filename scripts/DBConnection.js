@@ -1,4 +1,4 @@
-function createDBConnection(){
+function createDBConnection_(){
   try {
     let conn = Jdbc.getCloudSqlConnection('jdbc:google:mysql://school-administration-444506:europe-west3:schooladministration2025/schools', 'admin', '{J,Yq<M,gN4vE7rT');
     Logger.log('Database connection created');
@@ -8,4 +8,3 @@ function createDBConnection(){
     return null;
   }
 }
-
