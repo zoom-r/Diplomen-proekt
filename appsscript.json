@@ -22,9 +22,6 @@
   },
   "webapp": {
     "executeAs": "USER_DEPLOYING",
-    "access": "ANYONE"
-  },
-  "executionApi": {
-    "access": "ANYONE"
+    "access": "ANYONE_ANONYMOUS"
   }
 }
