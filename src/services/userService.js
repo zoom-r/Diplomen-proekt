@@ -16,6 +16,23 @@ function getUserFromDB_(){
     }
 }
 
+function getUserInfo_(){
+    let properties = PropertiesService.getUserProperties();
+    try{
+        let user = JSON.parse(properties.getProperty('user'));
+        if(!user){
+            user = getUserFromDB_();
+            if(user){
+                properties.setProperty('user', JSON.stringify(user));
+                return user;
+            }
+        }
+    }catch(e){
+        Logger.log('Error trying to get user info: ' + e.message);
+        return null;
+    }
+}
+
 function createUser_(user){
     let conn = createDBConnection_();
     try{
@@ -75,3 +92,20 @@ function updateUser_(user){
         conn.close();
     }
 }
+
+function getUserPictureUrl(){
+    let defaultPictureUrl = 'https://lh3.googleusercontent.com/a-/AOh14Gj-cdUSUVoEge7rD5a063tQkyTDT3mripEuDZ0v=s100';
+    let userPictureUrl = null;
+    try{
+        let people = People.People.searchDirectoryPeople( {
+            query: getUserEmail(),
+            readMask: 'photos',
+            sources: 'DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE'
+        });
+        userPictureUrl = people?.people[0]?.photos[0]?.url;
+    }catch(e){
+        Logger.log('Error trying to get user picture: ' + e.message);
+    }
+    return userPictureUrl ?? defaultPictureUrl;    
+}
+  
