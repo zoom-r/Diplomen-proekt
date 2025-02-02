@@ -3,3 +3,6 @@ node_modules
 .claspignore
 creds.json
 .clasprc.json
+.claspignore
+package.json
+package-lock.json
