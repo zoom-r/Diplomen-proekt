@@ -18,6 +18,11 @@
         "userSymbol": "Gexpress",
         "version": "36",
         "libraryId": "1Lm_jNmD2FWYF-Kgj7AdHVvLEVXZ4c5AXwzd1KJSb48scn0HLBq64um7S"
+      },
+      {
+        "userSymbol": "ObjectStore",
+        "version": "4",
+        "libraryId": "1vAC2ffoTeBPU6SmGTEBsQuf-XP_Pv-XaTUCNHscyGmiJRCNHZhevGEz6"
       }
     ],
     "enabledAdvancedServices": [

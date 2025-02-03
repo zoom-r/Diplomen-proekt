@@ -3,7 +3,7 @@ class User {
       this._id = id;
       this._name = name;
       this._email = email;
-      this.phone = phone;
+      this._phone = phone;
       this._role = role;
       this._position = position;
       this._timetable = timetable;
@@ -58,17 +58,18 @@ class User {
   }
 
   static createFromResultSet(rs){
-    return new User(
+    let user = new User(
       rs.getString('id'),
-      rs.getString('name'),
+      rs.getString('names'),
       rs.getString('email'),
       rs.getString('phone'),
       rs.getString('role'),
       rs.getString('position'),
-      JSON.parse(rs.getString('timetable')),
+      rs.getObject('timetable'),
       rs.getString('workspace_id'),
       rs.getString('declarations_key'),
       rs.getString('notifications_key')
     );
+    return user
   }
 }
