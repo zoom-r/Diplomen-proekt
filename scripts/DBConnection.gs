@@ -2,7 +2,7 @@
 // Връща null при грешка
 function createDBConnection_(){
   try {
-    let conn = Jdbc.getCloudSqlConnection('jdbc:google:mysql://school-administration-444506:europe-west3:schooladministration2025/schools', 'admin', '{J,Yq<M,gN4vE7rT');
+    let conn = Jdbc.getCloudSqlConnection('jdbc:google:mysql://school-administration-444506:europe-west3:schooladministration2025/schools', 'client', '{J,Yq<M,gN4vE7rT');
     console.log('Database connection created');
     return conn;
   } catch (e) { //TODO: redirect to error page
