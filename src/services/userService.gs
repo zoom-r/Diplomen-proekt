@@ -38,6 +38,8 @@ function getUserInfo_(email = null) {
                     users[email] = user;
                     userStore.set('users', users);
                 }
+            }else{
+              user = users[email]
             }
         } else {
             user = userStore.get('user');
@@ -58,6 +60,7 @@ function getUserInfo_(email = null) {
 // в противен случай връща false
 function createUser_(user){ 
     let conn = createDBConnection_();
+    if(!conn) return false;
     try{
         let stmt = conn.prepareStatement('INSERT INTO users (id, names, email, role, workspace_id, declarations_key, notifications_key) VALUES (?, ?, ?, ?, ?, ?, ?)');
         stmt.setString(1, user.id ? user.id : Utilities.getUuid());
@@ -81,6 +84,7 @@ function createUser_(user){
 // в противен случай връща false
 function updateUser_(user){
     let conn = createDBConnection_();
+    if(!conn) return false;
     try{
         let stmt = conn.prepareStatement('UPDATE users SET names = ?, phone = ?, role = ?, position = ?, timetable = ? WHERE email = ?');
         stmt.setString(1, user.name);
@@ -103,6 +107,7 @@ function updateUser_(user){
 // в противен случай връща false
 function deleteUser_(user){
     let conn = createDBConnection_();
+    if(!conn) return false;
     try{
         let stmt = conn.prepareStatement('DELETE FROM users WHERE email = ?');
         stmt.setString(1, user.email);
@@ -157,6 +162,7 @@ function getUserWorkspace_() {
 function getWorkspaceId_(){
     let domain = getUserWorkspace_();
     let conn = createDBConnection_();
+    if(!conn) return null;
     try{
         let stmt = conn.prepareStatement('SELECT id FROM workspace WHERE domain = ?');
         stmt.setString(1, domain);
