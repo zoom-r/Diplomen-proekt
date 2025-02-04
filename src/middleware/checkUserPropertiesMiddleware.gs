@@ -15,6 +15,5 @@ function checkUserPropertiesMiddleware_(req, res, next) {
       res.send('Error trying to get user info');
       res.end();
     }
-    
   }
 }

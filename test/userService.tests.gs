@@ -70,7 +70,7 @@ function testGetUserFromDB() {
             };
         };
 
-        let user = getUserFromclaspDB_('test@example.com');
+        let user = getUserFromDB_('test@example.com');
         t.notOk(user, 'User should not be retrieved when there is a database query error');
 
         // Restore original function

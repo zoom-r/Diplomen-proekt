@@ -1,28 +1,37 @@
 class User {
-  constructor(id, name, email, phone, role, position, timetable, workspace_id, declarations_key, notifications_key){
-      this._id = id; // uuid -> varhcar(36)
-      this._name = name; // varchar
-      this._email = email; // varchar
-      this._phone = phone; // varchar
-      this._role = role; // varchar
-      this._position = position; // varchar
-      this._timetable = timetable; // json
-      this._workspace_id = workspace_id; // uuid -> varchar(36)
-      this._declarations_key = declarations_key; // uuid -> varchar(36)
-      this._notifications_key = notifications_key; // uuid -> varchar(36)
+  constructor(id, names, email, phone, role, position, timetable, workspace_id, declarations_key, notifications_key){
+    this._id = id; // uuid -> varhcar(36)
+    this._names = names; // varchar
+    this._email = email; // varchar
+    this._phone = phone; // varchar
+    this._role = role; // varchar
+    this._position = position; // varchar
+    this._timetable = timetable; // json
+    this._workspace_id = workspace_id; // uuid -> varchar(36)
+    this._declarations_key = declarations_key; // uuid -> varchar(36)
+    this._notifications_key = notifications_key; // uuid -> varchar(36)
+  }
+
+  //Конструктор с лимитирани параметри за създаване на останалите потребители от базата данни
+  constructor(email, names, phone, role, position){
+    this._email = email;
+    this._names = names;
+    this._phone = phone;
+    this._role = role;
+    this._position = position;
   }
 
   get id(){
     return this._id;
   }
-  get name(){
-      return this._name;
+  get names(){
+    return this._names;
   }
   get email(){
-      return this._email;
+    return this._email;
   }
   get phone(){
-      return this._phone;
+    return this._phone;
   }
   set phone(phone){
     try{
@@ -58,7 +67,7 @@ class User {
   }
 
   static createFromResultSet(rs){
-    let user = new User(
+    let user = rs.getMetaData().getColumnCount() === 10 ? new User(
       rs.getString('id'),
       rs.getString('names'),
       rs.getString('email'),
@@ -69,6 +78,12 @@ class User {
       rs.getString('workspace_id'),
       rs.getString('declarations_key'),
       rs.getString('notifications_key')
+    ) : new User(
+      rs.getString('email'),
+      rs.getString('names'),
+      rs.getString('phone'),
+      rs.getString('role'),
+      rs.getString('position')
     );
     return user
   }

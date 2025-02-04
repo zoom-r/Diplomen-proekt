@@ -1,23 +1,22 @@
 function testDBConnection() {
-
   var test = new GasTap();
 
   test('Test createDBConnection_ function - successful connection', function(t) {
-    // Mock Jdbc.getCloudSqlConnection to simulate a successful connection
+    // Променяме Jdbc.getCloudSqlConnection, за да симулираме успешна връзка
     var originalGetCloudSqlConnection = Jdbc.getCloudSqlConnection;
     Jdbc.getCloudSqlConnection = function() {
-      return { isValid: function() { return true; } }; // Mock connection object
+      return { isValid: function() { return true; } }; // Обект за симулирана връзка
     };
 
     var conn = createDBConnection_();
     t.ok(conn && conn.isValid(), 'Database connection should be created successfully');
 
-    // Restore the original function
+    // Възстановяваме оригиналната функция
     Jdbc.getCloudSqlConnection = originalGetCloudSqlConnection;
   });
 
   test('Test createDBConnection_ function - failed connection', function(t) {
-    // Mock Jdbc.getCloudSqlConnection to simulate a failed connection
+    // Променяме Jdbc.getCloudSqlConnection, за да симулираме неуспешна връзка
     var originalGetCloudSqlConnection = Jdbc.getCloudSqlConnection;
     Jdbc.getCloudSqlConnection = function() {
       throw new Error('Simulated connection failure');
@@ -26,7 +25,7 @@ function testDBConnection() {
     var conn = createDBConnection_();
     t.notOk(conn, 'Database connection should fail and return null');
 
-    // Restore the original function
+    // Възстановяваме оригиналната функция
     Jdbc.getCloudSqlConnection = originalGetCloudSqlConnection;
   });
 

@@ -1,13 +1,14 @@
 var userStore = globalThis.userStore
 
-// Взима потребителя от базата данни
+// Взима текушия потребител от базата данни
 // ако не съществува, връща null
-function getUserFromDB_() { 
+function getUserFromDB_(email) { 
   let conn = createDBConnection_();
   if (!conn) return null;
   try {
-    let stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ?');
-    stmt.setString(1, getUserEmail());
+    stmt = conn.prepareStatement(email ? 'SELECT (email, names, phone, role, position) FROM users WHERE email = ?'
+        : 'SELECT * FROM users WHERE email = ?');
+    stmt.setString(1, email ? email : getUserEmail_());
     let rs = stmt.executeQuery();
     if (rs.next()) {
       return User.createFromResultSet(rs);
@@ -20,20 +21,37 @@ function getUserFromDB_() {
   }
 }
 
-// Взима потребителя от локалното хранилище - ако не съществува, взима данните му от базата данни, 
+// Взима текущия потребител от локалното хранилище - ако не съществува, взима данните му от базата данни, 
 // а ако не съществува и там, връща null
-function getUserInfo_() { 
-  try {
-    let user = userStore.get('user');
-    if (!user) {
-      user = getUserFromDB_();
-      if (user) userStore.set('user', user);
-    }
-    return user;
-  } catch (e) {
-    console.log('Error trying to get user info: ' + e.message);
-    return null;
-  }
+function getUserInfo_(email = null) { 
+    try {
+        let user = null;
+        if (email) {
+            let users = userStore.get('users');
+            if (!users) {
+                userStore.set('users', {});
+                users = userStore.get('users');
+            }
+            if (!users[email]) {
+                user = getUserFromDB_(email);
+                if (user) {
+                    users[email] = user;
+                    userStore.set('users', users);
+                }
+            }
+        } else {
+            user = userStore.get('user');
+            if (!user) {
+                user = getUserFromDB_(email);
+                if (user) userStore.set('user', user);
+            }   
+        }
+        return user;
+    } catch (e) {
+        console.log('Error trying to get user info: ' + e.message);
+        return null;
+    }  
+  
 }
 
 // Създава нов потребител в базата данни и връща true, ако е успешно,
@@ -41,7 +59,7 @@ function getUserInfo_() {
 function createUser_(user){ 
     let conn = createDBConnection_();
     try{
-        let stmt = conn.prepareStatement('INSERT INTO users (id, name, email, role, workspace_id, declarations_key, notifications_key) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        let stmt = conn.prepareStatement('INSERT INTO users (id, names, email, role, workspace_id, declarations_key, notifications_key) VALUES (?, ?, ?, ?, ?, ?, ?)');
         stmt.setString(1, user.id ? user.id : Utilities.getUuid());
         stmt.setString(2, user.name);
         stmt.setString(3, user.email);
@@ -64,7 +82,7 @@ function createUser_(user){
 function updateUser_(user){
     let conn = createDBConnection_();
     try{
-        let stmt = conn.prepareStatement('UPDATE users SET name = ?, phone = ?, role = ?, position = ?, timetable = ? WHERE email = ?');
+        let stmt = conn.prepareStatement('UPDATE users SET names = ?, phone = ?, role = ?, position = ?, timetable = ? WHERE email = ?');
         stmt.setString(1, user.name);
         stmt.setString(2, user.phone);
         stmt.setString(3, user.role);

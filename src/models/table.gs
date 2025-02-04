@@ -15,25 +15,25 @@ class Table {
         };
     }
 
-    constructor(id, day, shift, data) {
+    constructor(id, day, data) {
         this._id = id;
-        this._day = day;
-        this._shift = shift;
+        this.day = day;
         this._data = data; //масив от обекти от класа Abcent или Room
     }
 
     get id(){
       return this._id;
     }
-
     get day() {
         return this._day;
     }
-
-    get shift() {
-        return this._shift;
+    set day(value) {
+        if(Table.days[value]) {
+            this._day = value;
+        } else {
+            throw new Error('Invalid day value');
+        }
     }
-
     get data() {
         return this._data;
     }
@@ -42,7 +42,6 @@ class Table {
         return new Table(
             rs.getString('id'),
             rs.getString('day'),
-            rs.getString('shift'),
             rs.getString('data')
         );
     }
