@@ -1,15 +1,15 @@
 class User {
   constructor(id, name, email, phone, role, position, timetable, workspace_id, declarations_key, notifications_key){
-      this._id = id;
-      this._name = name;
-      this._email = email;
-      this._phone = phone;
-      this._role = role;
-      this._position = position;
-      this._timetable = timetable;
-      this._workspace_id = workspace_id;
-      this._declarations_key = declarations_key;
-      this._notifications_key = notifications_key;
+      this._id = id; // uuid -> varhcar(36)
+      this._name = name; // varchar
+      this._email = email; // varchar
+      this._phone = phone; // varchar
+      this._role = role; // varchar
+      this._position = position; // varchar
+      this._timetable = timetable; // json
+      this._workspace_id = workspace_id; // uuid -> varchar(36)
+      this._declarations_key = declarations_key; // uuid -> varchar(36)
+      this._notifications_key = notifications_key; // uuid -> varchar(36)
   }
 
   get id(){

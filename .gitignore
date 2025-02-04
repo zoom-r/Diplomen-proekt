@@ -6,3 +6,5 @@ creds.json
 .claspignore
 package.json
 package-lock.json
+server-ca.pem
+.vscode
