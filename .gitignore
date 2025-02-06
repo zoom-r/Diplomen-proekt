@@ -8,3 +8,5 @@ package.json
 package-lock.json
 server-ca.pem
 .vscode
+tsconfig.json
+src/models/scheme.json

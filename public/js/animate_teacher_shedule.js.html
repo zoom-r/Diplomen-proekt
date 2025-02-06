@@ -1,0 +1,22 @@
+document.getElementById("toggle-btn").addEventListener("click", () => {
+  const sidePanel = document.getElementById("sidePanel");
+  sidePanel.classList.toggle("hidden");
+});
+
+// Function to update the button position dynamically
+function updateButtonPosition() {
+  const navBar = document.querySelector('nav'); // Assuming 'nav' is your navigation bar element
+  const toggleBtn = document.getElementById("toggle-btn");
+
+  // Get the height of the navigation bar (in pixels)
+  const navHeight = navBar ? navBar.offsetHeight : 0; // Default to 0 if the nav bar isn't found
+
+  // Set the top position of the button dynamically, 10px below the navbar
+  toggleBtn.style.top = `${navHeight + 20}px`;
+}
+
+// Call the function to set the initial position
+updateButtonPosition();
+
+// Call the function whenever the window is resized to adjust the position dynamically
+window.addEventListener('resize', updateButtonPosition);

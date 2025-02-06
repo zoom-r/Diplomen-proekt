@@ -1,0 +1,37 @@
+/* Side Panel: Default visible */
+
+.side-panel {
+  width: 300px;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  right: 0;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(0);
+  /*Default: visible;*/
+  z-index: 1040;
+}
+
+/* Side Panel: Hidden state */
+
+.side-panel.hidden {
+  transform: translateX(100%);
+}
+
+/* Toggle Button: Absolutely fixed positioning */
+
+#toggle-btn {
+  position: fixed !important;
+  top: 10%;
+  right: 300px;
+  transform: translateY(-50%);
+  z-index: 1050;
+  transition: right 0.3s ease-in-out;
+}
+
+/* When the panel is hidden, move the button to the right edge */
+
+.side-panel.hidden ~ #toggle-btn {
+  right: 0;
+}
+

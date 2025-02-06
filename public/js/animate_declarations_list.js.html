@@ -1,0 +1,16 @@
+document.querySelectorAll('.time-section').forEach(function(item) {
+    item.addEventListener('click', function() {
+        item.parentElement.querySelector('.date-list').classList.toggle('collapse');
+        item.querySelector('.collapse-icon').classList.toggle('rotate');
+    });
+});
+document.querySelectorAll('.submit-btn-false').forEach(function(item) {
+    item.addEventListener('click', function() {
+        item.parentElement.setAttribute('data-submitted', 'false');
+    });
+});
+document.querySelectorAll('.submit-btn-true').forEach(function(item) {
+    item.addEventListener('click', function() {
+        item.parentElement.setAttribute('data-submitted', 'true');
+    });
+});

@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="bg">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Замествания</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/4.6.3/css/ionicons.min.css">
+    <style>
+        <? !=includeEssentialHtmlStyles() ?>
+    </style>
+    <style>
+        <? !=include('public/css/add-panel.css') ?>
+    </style>
+    <style>
+        <? !=include('public/css/Bootstrap-Tabs.css') ?>
+    </style>
+    <style>
+        <? !=include('public/css/timetable.css') ?>
+    </style>
+</head>
+
+<body>
+    <div class="d-flex justify-content-center visually-hidden" id="substitute-add-panel" style="position: fixed;background-color: rgba(108,117,125,0.58);width: 100%;height: 100%;">
+        <div class="card shadow mb-3">
+            <div class="card-header py-3">
+                <p class="text-primary m-0 fw-bold">Добавяне на отсъстващ учител</p>
+            </div>
+            <div class="card-body" style="display: block;overflow: auto;">
+                <form>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-3"><label class="form-label" for="email"><strong>Учител</strong></label><select class="form-select"></select></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-3"><label class="form-label" for="first_name"><strong>Дни</strong></label>
+                                <ul class="list-group">
+                                    <li class="list-group-item" data-day="monday">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-monday" data-check="day"><label class="form-check-label" for="formCheck-1">Понеделник</label></div>
+                                        <ul class="list-group collapse" data-shift="monday">
+                                            <li class="list-group-item list-add-panel">
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-first-shift" data-check="shift" data-shift-check="first"><label class="form-check-label" for="formCheck-6">Първа смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="first">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-1" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-1">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-2" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-2">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-7" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-7">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-6" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-6">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-5" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-5">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-4" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-4">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-3" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-3">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-second-shift" data-check="shift" data-shift-check="second"><label class="form-check-label" for="formCheck-7">Втора смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="second">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-8" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-8">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-9" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-9">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-10" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-10">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-11" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-11">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-12" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-12">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-13" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-13">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-14" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-14">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="list-group-item" data-day="tuesday">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-monday-4" data-check="day"><label class="form-check-label" for="formCheck-monday-4">Вторник</label></div>
+                                        <ul class="list-group collapse" data-shift="tuesday">
+                                            <li class="list-group-item list-add-panel">
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-first-shift-4" data-check="shift" data-shift-check="first"><label class="form-check-label" for="formCheck-first-shift-4">Първа смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="first">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-57" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-57">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-58" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-58">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-59" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-59">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-60" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-60">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-61" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-61">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-62" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-62">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-63" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-63">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-second-shift-4" data-check="shift" data-shift-check="second"><label class="form-check-label" for="formCheck-second-shift-4">Втора смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="second">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-64" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-64">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-65" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-65">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-66" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-66">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-67" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-67">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-68" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-68">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-69" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-69">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-70" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-70">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="list-group-item" data-day="wednesday">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-monday-3" data-check="day"><label class="form-check-label" for="formCheck-monday-3">Сряда</label></div>
+                                        <ul class="list-group collapse" data-shift="wednesday">
+                                            <li class="list-group-item list-add-panel">
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-first-shift-3" data-check="shift" data-shift-check="first"><label class="form-check-label" for="formCheck-first-shift-3">Първа смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="first">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-43" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-43">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-44" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-44">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-45" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-45">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-46" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-46">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-47" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-47">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-48" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-48">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-49" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-49">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-second-shift-3" data-check="shift" data-shift-check="second"><label class="form-check-label" for="formCheck-second-shift-3">Втора смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="second">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-50" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-50">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-51" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-51">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-52" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-52">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-53" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-53">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-54" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-54">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-55" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-55">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-56" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-56">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="list-group-item" data-day="thursday">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-monday-2" data-check="day"><label class="form-check-label" for="formCheck-monday-2">Четвъртък</label></div>
+                                        <ul class="list-group collapse" data-shift="thursday">
+                                            <li class="list-group-item list-add-panel">
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-first-shift-2" data-check="shift" data-shift-check="first"><label class="form-check-label" for="formCheck-first-shift-2">Първа смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="first">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-29" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-29">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-30" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-30">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-31" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-31">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-32" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-32">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-33" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-33">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-34" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-34">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-35" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-35">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-second-shift-2" data-check="shift" data-shift-check="second"><label class="form-check-label" for="formCheck-second-shift-2">Втора смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="second">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-36" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-36">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-37" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-37">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-38" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-38">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-39" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-39">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-40" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-40">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-41" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-41">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-42" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-42">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="list-group-item" data-day="friday">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-monday-1" data-check="day"><label class="form-check-label" for="formCheck-monday-1">Петък</label></div>
+                                        <ul class="list-group collapse" data-shift="friday">
+                                            <li class="list-group-item list-add-panel">
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-first-shift-1" data-check="shift" data-shift-check="first"><label class="form-check-label" for="formCheck-first-shift-1">Първа смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="first">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-15" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-15">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-16" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-16">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-17" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-17">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-18" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-18">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-19" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-19">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-20" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-20">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-21" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-21">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                                <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-second-shift-1" data-check="shift" data-shift-check="second"><label class="form-check-label" for="formCheck-second-shift-1">Втора смяна</label></div>
+                                                <ul class="list-group collapse" data-shift="second">
+                                                    <li class="list-group-item list-add-panel">
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-22" data-check="class" data-class-check="1"><label class="form-check-label" for="formCheck-22">1 час</label></div><select class="form-select form-select-sm collapse" data-class="1"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-23" data-check="class" data-class-check="2"><label class="form-check-label" for="formCheck-23">2 час</label></div><select class="form-select form-select-sm collapse" data-class="2"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-24" data-check="class" data-class-check="3"><label class="form-check-label" for="formCheck-24">3 час</label></div><select class="form-select form-select-sm collapse" data-class="3"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-25" data-check="class" data-class-check="4"><label class="form-check-label" for="formCheck-25">4 час</label></div><select class="form-select form-select-sm collapse" data-class="4"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-26" data-check="class" data-class-check="5"><label class="form-check-label" for="formCheck-26">5 час</label></div><select class="form-select form-select-sm collapse" data-class="5"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-27" data-check="class" data-class-check="6"><label class="form-check-label" for="formCheck-27">6 час</label></div><select class="form-select form-select-sm collapse" data-class="6"></select>
+                                                        <div class="form-check"><input class="form-check-input" type="checkbox" id="formCheck-28" data-check="class" data-class-check="7"><label class="form-check-label" for="formCheck-28">7 час</label></div><select class="form-select form-select-sm collapse" data-class="7"></select>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3" style="display: flex;justify-content: center;"><button class="btn btn-primary btn-sm" id="btn-submit-substitute" type="submit">Добавяне</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-lg navbar-light" style="box-shadow:0px 5px 20px;">
+        <div class="container-fluid"><button data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><i class="fas fa-bars"></i></button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent"><a class="navbar-brand mt-2 mt-lg-0" href="#"><img alt="" height="15" src="https://mdbootstrap.com/img/logo/mdb-transaprent-noshadows.png"></a>
+                <ul class="navbar-nav align-items-end me-auto" style="font-size:20px;">
+                    <li class="nav-item"><a class="nav-link active" href="substitute.html" style="font-size:25px;" target="_top">Замествания</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="rooms.html" target="_top">Стаи</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="teacher/declarations.html" target="_top">Декларации</a></li>
+                </ul>
+            </div>
+            <div class="d-flex align-items-center"><a class="text-reset me-3" href="#"><i class="far fa-calendar-alt" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Седмично разписание"></i></a><a class="text-reset me-3" href="#"><i class="fas fa-chalkboard-teacher" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Учители"></i></a><a class="text-reset me-4" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" id="notifications" href="#" role="button" title="Известия"><i class="fas fa-bell"></i><span class="badge rounded-pill bg-danger badge-notification" name="badge-notifications">1</span></a><a class="d-flex align-items-center" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" href="#" role="button" title="Настройки на профила"><img class="rounded-circle" id="profile-pic" src=<?= getUserPictureUrl(getUserEmail()) ?> height="25" alt=""></a></div>
+        </div>
+    </nav>
+    <div class="offcanvas offcanvas-end visible" tabindex="-1" data-bs-backdrop="false" id="notifications-list" style="z-index: 1051;">
+        <div class="offcanvas-header"><span class="fs-4">Известия</span><button class="btn-close" id="close-notifications" type="button" aria-label="Close" data-bs-dismiss="offcanvas"></button></div>
+        <div class="offcanvas-body d-flex flex-column justify-content-between p-0">
+            <div>
+                <hr class="my-0">
+                <div class="list-group list-group-flush border-bottom scrollarea" id="notifications-group"><a class="list-group-item list-group-item-action py-3 lh-tight" href="#" aria-current="true">
+                        <div class="d-flex justify-content-between align-items-center w-100"><strong id="notification-title" class="mb-1">List group item heading</strong><small id="notification-date">Wed</small><i class="fas fa-times" id="notification-delete"></i></div>
+                        <div class="col-10 mb-1 small"><span id="notification-description">Some placeholder content in a paragraph below the heading and date.</span></div>
+                    </a></div>
+            </div>
+        </div>
+    </div>
+    <main id="abcents_table"><button class="btn btn-primary" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="left" id="substitute-add-btn" type="button" style="margin-top: 1rem;display: block;right: 1rem;position: fixed;border-radius: 2rem;box-shadow: 1px 1px 10px black;" title="Добавяне на отсъстващ учител">+</button>
+        <div class="p-5 rounded mb-5">
+            <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist" id="myTab">
+                <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link active text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="monday-tab" aria-controls="home" aria-selected="true" data-toggle="tab" href="#monday">Понеделник</a></li>
+                <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="tuesday-tab" aria-controls="profile" aria-selected="false" data-toggle="tab" href="#tuesday">вторник</a></li>
+                <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="wednesday-tab" aria-controls="contact" aria-selected="false" data-toggle="tab" href="#wednesday">сряда</a></li>
+                <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="thursday-tab" aria-controls="contact" aria-selected="false" data-toggle="tab" href="#thursday">четвъртък</a></li>
+                <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="friday-tab" aria-controls="contact" aria-selected="false" data-toggle="tab" href="#friday">петък</a></li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active fade show" role="tabpanel" id="monday" aria-labelledby="home-tab" style="padding: 0px;">
+                    <div class="rounded mb-5" style="padding-top: 1rem;">
+                        <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist" id="myTab-1">
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link active text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="first-shift-tab" aria-controls="home" aria-selected="true" data-toggle="tab" href="#first-shift">Първа смяна</a></li>
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="second-shift-tab" aria-controls="profile" aria-selected="false" data-toggle="tab" href="#second-shift">Втора смяна</a></li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent-1">
+                            <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel" id="first-shift" aria-labelledby="home-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1<button class="btn btn-danger" type="button"><i class="far fa-trash-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift" aria-labelledby="profile-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade fade" role="tabpanel" id="tuesday" aria-labelledby="profile-tab">
+                    <div class="rounded mb-5" style="padding-top: 1rem;">
+                        <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist" id="myTab-2">
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link active text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="first-shift-tab-1" aria-controls="home" aria-selected="true" data-toggle="tab" href="#first-shift-1">Първа смяна</a></li>
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="second-shift-tab-1" aria-controls="profile" aria-selected="false" data-toggle="tab" href="#second-shift-1">Втора смяна</a></li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent-2">
+                            <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel" id="first-shift-1" aria-labelledby="home-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift-1" aria-labelledby="profile-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade fade" role="tabpanel" id="wednesday" aria-labelledby="contact-tab">
+                    <div class="rounded mb-5" style="padding-top: 1rem;">
+                        <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist" id="myTab-3">
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link active text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="first-shift-tab-2" aria-controls="home" aria-selected="true" data-toggle="tab" href="#first-shift-2">Първа смяна</a></li>
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="second-shift-tab-2" aria-controls="profile" aria-selected="false" data-toggle="tab" href="#second-shift-2">Втора смяна</a></li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent-3">
+                            <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel" id="first-shift-2" aria-labelledby="home-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift-2" aria-labelledby="profile-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade fade" role="tabpanel" id="thursday" aria-labelledby="contact-tab">
+                    <div class="rounded mb-5" style="padding-top: 1rem;">
+                        <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist" id="myTab-4">
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link active text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="first-shift-tab-3" aria-controls="home" aria-selected="true" data-toggle="tab" href="#first-shift-3">Първа смяна</a></li>
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="second-shift-tab-3" aria-controls="profile" aria-selected="false" data-toggle="tab" href="#second-shift-3">Втора смяна</a></li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent-4">
+                            <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel" id="first-shift-3" aria-labelledby="home-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift-3" aria-labelledby="profile-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade fade" role="tabpanel" id="friday" aria-labelledby="contact-tab">
+                    <div class="rounded mb-5" style="padding-top: 1rem;">
+                        <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist" id="myTab-5">
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link active text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="first-shift-tab-4" aria-controls="home" aria-selected="true" data-toggle="tab" href="#first-shift-4">Първа смяна</a></li>
+                            <li class="nav-item flex-sm-fill" role="presentation"><a class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab" id="second-shift-tab-4" aria-controls="profile" aria-selected="false" data-toggle="tab" href="#second-shift-4">Втора смяна</a></li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent-5">
+                            <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel" id="first-shift-4" aria-labelledby="home-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift-4" aria-labelledby="profile-tab">
+                                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                    <table class="table table-hover table-bordered">
+                                        <thead style="font-size: 20px;">
+                                            <tr>
+                                                <th>Преподавател</th>
+                                                <th>Час</th>
+                                                <th>Клас</th>
+                                                <th>Заместващ</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                            <tr>
+                                                <td rowspan="7">Cell 1</td>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Cell 2</td>
+                                                <td>Text</td>
+                                                <td>Text</td>
+                                                <td><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="5" style="background: #2b90d9;"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        <?!= includeEssentialHtmlScripts() ?>
+    </script>
+    <script>
+        <?!= include('public/js/animate_teacher_shedule.js') ?>
+    </script>
+    <script>
+        <?!= include('public/js/substitute_add_panel.js') ?>
+    </script>
+</body>
+
+</html>

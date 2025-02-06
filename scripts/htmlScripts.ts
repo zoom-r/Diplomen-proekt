@@ -6,7 +6,6 @@ function includeEssentialHtmlScripts() {
 }
 function includeEssentialHtmlStyles() {
     let style = '';
-    style += include('public/assets/ionicons.min.css');
     style += include('public/css/Navbar-With-Button-icons.css');
     return style;
 }
