@@ -44,25 +44,7 @@
                         src=<?= getUserPictureUrl(getUserEmail()) ?> height="25" alt=""></a></div>
         </div>
     </nav>
-    <div class="offcanvas offcanvas-end visible" tabindex="-1" data-bs-backdrop="false" id="notifications-list"
-        style="z-index: 1051;">
-        <div class="offcanvas-header"><span class="fs-4">Известия</span><button class="btn-close"
-                id="close-notifications" type="button" aria-label="Close" data-bs-dismiss="offcanvas"></button></div>
-        <div class="offcanvas-body d-flex flex-column justify-content-between p-0">
-            <div>
-                <hr class="my-0">
-                <div class="list-group list-group-flush border-bottom scrollarea" id="notifications-group"><a
-                        class="list-group-item list-group-item-action py-3 lh-tight" href="#" aria-current="true">
-                        <div class="d-flex justify-content-between align-items-center w-100"><strong
-                                id="notification-title" class="mb-1">List group item heading</strong><small
-                                id="notification-date">Wed</small><i class="fas fa-times" id="notification-delete"></i>
-                        </div>
-                        <div class="col-10 mb-1 small"><span id="notification-description">Some placeholder content in a
-                                paragraph below the heading and date.</span></div>
-                    </a></div>
-            </div>
-        </div>
-    </div>
+    <?!= notificationsOffCanvas() ?>
     <main style="margin-top: 2rem;">
         <div id="list-admins">
             <div class="container">
