@@ -36,10 +36,9 @@ function authMiddleware_(req, res, next) {
 // Проверява дали потребителя има достъп до ресурса
 // Връща true, ако има, и false в противен случай
 function checkUserAccess_() {
-  let email = getUserEmail_();
-  let domain = getUserWorkspace_();
-  let access = getWorkspaceId_();
-  let workspaceId = null;
+  let email = getUserEmail();
+  let workspaceId = getWorkspaceId_();
+  let access = null;
   let conn = createDBConnection_();
     if (!conn) return access;
     try {

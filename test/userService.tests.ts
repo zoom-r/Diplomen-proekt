@@ -1,3 +1,4 @@
+// @ts-nocheck
 function testGetUserFromDB() {
     let test = new GasTap();
 

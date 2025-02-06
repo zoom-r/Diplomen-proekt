@@ -1,6 +1,11 @@
 class Declaration {
+    private _id: string;
+    private _title: string;
+    private _link: string;
+    private _status: boolean;
+    private _user_key: string;
 
-    constructor(id, title, link, status, user_key) {
+    constructor(id: string, title: string, link: string, status: boolean, user_key: string) {
         this._id = id;
         this._title = title;
         this._link = link;
@@ -20,7 +25,7 @@ class Declaration {
     get status() {
         return this._status;
     }
-    set status(status) {
+    set status(status: boolean) {
         this._status = status;
     }
     get user_key() {

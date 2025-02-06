@@ -6,9 +6,9 @@ function getUserFromDB_(email) {
   let conn = createDBConnection_();
   if (!conn) return null;
   try {
-    stmt = conn.prepareStatement(email ? 'SELECT (email, names, phone, role, position) FROM users WHERE email = ?'
+    let stmt = conn.prepareStatement(email ? 'SELECT (email, names, phone, role, position) FROM users WHERE email = ?'
         : 'SELECT * FROM users WHERE email = ?');
-    stmt.setString(1, email ? email : getUserEmail_());
+    stmt.setString(1, email ? email : getUserEmail());
     let rs = stmt.executeQuery();
     if (rs.next()) {
       return User.createFromResultSet(rs);
@@ -132,6 +132,7 @@ function deleteUser_(user){
 function getUserPictureUrl(email){
     let defaultPictureUrl = 'https://lh3.googleusercontent.com/a-/AOh14Gj-cdUSUVoEge7rD5a063tQkyTDT3mripEuDZ0v=s100';
     let userPictureUrl = null;
+    console.log(email)
     try{
         let people = People.People.searchDirectoryPeople( {
             query: email,
@@ -146,13 +147,15 @@ function getUserPictureUrl(email){
 }
 
 // Взима имейла на потребителя
-function getUserEmail_() {
-    return Session.getActiveUser().getEmail();
+function getUserEmail() {
+  let email = Session.getActiveUser().getEmail();
+  console.log(email);
+  return email;
 }
 
 // Взима работното пространство на потребителя
 function getUserWorkspace_() {
-    let email = getUserEmail_();
+    let email = getUserEmail();
     let domain = email.substring(email.lastIndexOf("@") + 1); // взима домейна на имейла (всичко след @)
     return domain;
 }

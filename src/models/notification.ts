@@ -1,11 +1,17 @@
 class Notification {
+    private _id: string;
+    private _title: string;
+    private _message: string;
+    private _date: Date;
+    private _sender: string;
+    private _user_key: string;
 
-    constructor(id, title, message, date, sender, user_key) {
+    constructor(id: string, title: string, message: string, date: Date, sender: string, user_key: string) {
         this._id = id;
         this._title = title;
         this._message = message;
         this._date = date;
-        this._sender = sender; //име на изпращача (администратора, от който идва съобщението)
+        this._sender = sender; //имейл на изпращача (администратора, от който идва съобщението)
         this._user_key = user_key;
     }
 
