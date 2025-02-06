@@ -28,30 +28,7 @@
             <div class="d-flex align-items-center"><a class="text-reset me-3" href="#"><i class="far fa-calendar-alt" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Седмично разписание"></i></a><a class="text-reset me-3" href="#"><i class="fas fa-chalkboard-teacher" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Учители"></i></a><a class="text-reset me-4" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" id="notifications-1" href="#" role="button" title="Известия"><i class="fas fa-bell"></i><span class="badge rounded-pill bg-danger badge-notification" name="badge-notifications">1</span></a><a class="d-flex align-items-center" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" href="#" role="button" title="Настройки на профила"><img class="rounded-circle" id="profile-pic-1" src=<?= getUserPictureUrl(getUserEmail()) ?> height="25" alt=""></a></div>
         </div>
     </nav>
-    <div class="offcanvas offcanvas-end visible" tabindex="-1" data-bs-backdrop="false" id="notifications-list" style="z-index: 1051;">
-        <div class="offcanvas-header"><span class="fs-4">Известия</span><button class="btn-close" id="close-notifications" type="button" aria-label="Close" data-bs-dismiss="offcanvas"></button></div>
-        <div class="offcanvas-body d-flex flex-column justify-content-between p-0">
-            <div>
-                <hr class="my-0">
-                <div class="list-group list-group-flush border-bottom scrollarea" id="notifications-group"><a class="list-group-item list-group-item-action py-3 lh-tight" href="#" aria-current="true">
-                        <div class="d-flex justify-content-between align-items-center w-100"><strong id="notification-title" class="mb-1">List group item heading</strong><small id="notification-date">Wed</small><i class="fas fa-times" id="notification-delete"></i></div>
-                        <div class="col-10 mb-1 small"><span id="notification-description">Some placeholder content in a paragraph below the heading and date.</span></div>
-                    </a></div>
-            </div>
-        </div>
-        <nav class="navbar navbar-expand-lg navbar-light" style="box-shadow:0px 5px 20px;">
-            <div class="container-fluid"><button data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><i class="fas fa-bars"></i></button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent"><a class="navbar-brand mt-2 mt-lg-0" href="#"><img alt="" height="15" src="https://mdbootstrap.com/img/logo/mdb-transaprent-noshadows.png"></a>
-                    <ul class="navbar-nav align-items-end me-auto" style="font-size:20px;">
-                        <li class="nav-item d-xl-flex"><a class="nav-link" href="rooms.html" target="_top">Замествания</a></li>
-                        <li class="nav-item d-xl-flex"><a class="nav-link" href="rooms.html" target="_top">Стаи</a></li>
-                        <li class="nav-item d-xl-flex"><a class="nav-link" href="teacher/declarations.html" target="_top">Декларации</a></li>
-                    </ul>
-                </div>
-                <div class="d-flex align-items-center"><a class="text-reset me-3" href="#"><i class="far fa-calendar-alt" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Седмично разписание"></i></a><a class="text-reset me-3" href="#"><i class="fas fa-chalkboard-teacher" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Учители"></i></a><a class="text-reset me-4" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" id="notifications" href="#" role="button" title="Известия"><i class="fas fa-bell"></i><span class="badge rounded-pill bg-danger badge-notification" name="badge-notifications">1</span></a><a class="d-flex align-items-center" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" href="#" role="button" title="Настройки на профила"><img class="rounded-circle" id="profile-pic" src="https://mdbootstrap.com/img/new/avatars/2.jpg" height="25" alt=""></a></div>
-            </div>
-        </nav>
-    </div>
+    <?!= notificationsOffCanvas() ?>
     <main style="margin-top: 2rem;">
         <div id="list-admins">
             <div class="container">
