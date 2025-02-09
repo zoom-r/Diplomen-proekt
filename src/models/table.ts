@@ -41,7 +41,7 @@ class Table {
     /**
      * Данните в таблицата.
      * @private
-     * @type {Absent[] | Room[] | Classes[]} // FIXME: Classes[] is not compatible. Should create a new class for this.: 
+     * @type {Absent[] | Room[] | Classes[]}
      */
     private _data: Absent[] | Room[] | Classes[];
 

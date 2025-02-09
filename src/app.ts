@@ -10,8 +10,25 @@ app.use(authMiddleware_); // Първо проверява дали потреб
 app.use(checkUserPropertiesMiddleware_); // Проверява дали има потребителски данни в сесията и ако няма - ги добавя
 
 // Routes (проверяват се по ред на инициализация)
-app.get('/login', homeRoute_);
-app.get(/.*/, loginRoute_); // Трябва винаги да е инициализиран последен
+
+// Substitute
+app.get('/substitute', substituteController.getSubstitutePage_, true);
+app.post('/substitute', substituteController.createNewSubstitute_, true);
+app.delete('/substitute', substituteController.deleteSubstitute_, true);
+app.put('/substitute', substituteController.updateSubstitute_, true);
+
+//TODO: Add the rest of the routes
+
+app.get('/client.js', app.client( function(code){ // Връща кода на клиентската част на приложението
+    return ' ' + code + ' ' 
+}));
+app.get(/.*/, function(req, res){
+    res.set('Content-Type', 'text/html');
+    res.send(HtmlService.createTemplateFromFile('public/404').evaluate().getContent());
+}); // Трябва винаги да е инициализиран последен
+
+//TODO: Add the client.js script to the html files
+//<script src="https://script.google.com/{SCRIPTID}/exec?path=/client.js"></script>
 
 // this hooks Gexpress into appscript 
 function doGet(e) { return app.doGet(e); }

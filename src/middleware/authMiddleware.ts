@@ -18,21 +18,17 @@ function authMiddleware_(req, res, next) {
       } else {
         console.log('Access denied');
         res.set('content-type', 'text/html');
-        res.set('X-Frame-Options', 'ALLOWALL');
-        res.send(`
-          <html>
-          <body>
-              <h1>Access Denied</h1>
-              <a href="https://accounts.google.com/Logout?continue=${encodeURIComponent(ScriptApp.getService().getUrl())}" target="_top"><button>Log out</button></a>
-          </body>
-          </html>
-        `);
+        const html = HtmlService.createTemplateFromFile('public/error');
+        html.error = 'Нямате достъп до това приложение.';        
+        res.send(html.evaluate().getContent());
         res.end();
       }
     } catch (err) {
       console.log('Error in auth middleware: ' + err.message);
       res.set('content-type', 'text/html');
-      res.send('Internal Server Error: ' + err.message);
+      const html = HtmlService.createTemplateFromFile('public/error');
+      html.error = 'Internal Server Error: ' + err.message;
+      res.send(html.evaluate().getContent());
       res.end();
     }
   }

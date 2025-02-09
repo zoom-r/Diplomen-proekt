@@ -15,7 +15,9 @@ function checkUserPropertiesMiddleware_(req, res, next) {
       next();
     } else {
       res.set('content-type', 'text/html');
-      res.send('Error trying to get user info');
+      const html = HtmlService.createTemplateFromFile('public/error');
+      html.error = 'Internal Server Error: User not found.';
+      res.send(html.evaluate().getContent());
       res.end();
     }
   }
