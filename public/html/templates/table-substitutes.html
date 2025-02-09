@@ -1,15 +1,407 @@
-<table>
-    <thead>
-        <tr>
-            <th>Отсъстващ</th>
-            <th>Час</th>
-            <th>Клас</th>
-            <th>Заместващ</th>
-        </tr>
-    </thead>
-    <tbody>
-        
-    </tbody>
-</table>
-
-    
+<? if(shifts == 'two'){ ?>
+    <div class="p-5 rounded mb-5">
+        <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist" id="myTab">
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link active text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="monday-tab" aria-controls="home" aria-selected="true" data-toggle="tab"
+                    href="#monday">понеделник</a></li>
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="tuesday-tab" aria-controls="profile" aria-selected="false" data-toggle="tab"
+                    href="#tuesday">вторник</a></li>
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="wednesday-tab" aria-controls="contact" aria-selected="false" data-toggle="tab"
+                    href="#wednesday">сряда</a></li>
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="thursday-tab" aria-controls="contact" aria-selected="false" data-toggle="tab"
+                    href="#thursday">четвъртък</a></li>
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="friday-tab" aria-controls="contact" aria-selected="false" data-toggle="tab"
+                    href="#friday">петък</a></li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active fade show" role="tabpanel" id="monday" aria-labelledby="home-tab"
+                style="padding: 0px;">
+                <div class="rounded mb-5" style="padding-top: 1rem;">
+                    <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist"
+                        id="myTab-1">
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link active text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="first-shift-tab" aria-controls="home" aria-selected="true"
+                                data-toggle="tab" href="#first-shift-monday">Първа смяна</a></li>
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="second-shift-tab" aria-controls="profile"
+                                aria-selected="false" data-toggle="tab" href="#second-shift-monday">Втора смяна</a></li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent-1">
+                        <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel" id="first-shift-monday"
+                            aria-labelledby="home-tab">
+                            <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift-monday"
+                            aria-labelledby="profile-tab">
+                            <div class="table-responsive fs-4 fw-lighter text-center d-flex">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade fade" role="tabpanel" id="tuesday" aria-labelledby="profile-tab">
+                <div class="rounded mb-5" style="padding-top: 1rem;">
+                    <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist"
+                        id="myTab-2">
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link active text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="first-shift-tab-1" aria-controls="home"
+                                aria-selected="true" data-toggle="tab" href="#first-shift-tuesday">Първа смяна</a></li>
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="second-shift-tab-1" aria-controls="profile"
+                                aria-selected="false" data-toggle="tab" href="#second-shift-tuesday">Втора смяна</a></li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent-2">
+                        <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel"
+                            id="first-shift-tuesday" aria-labelledby="home-tab">
+                            <div class="table-responsive fs-4 fw-lighter text-center d-flex">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift-tuesday"
+                            aria-labelledby="profile-tab">
+                            <div class="table-responsive fs-4 fw-lighter text-center d-flex">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade fade" role="tabpanel" id="wednesday" aria-labelledby="contact-tab">
+                <div class="rounded mb-5" style="padding-top: 1rem;">
+                    <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist"
+                        id="myTab-3">
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link active text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="first-shift-tab-2" aria-controls="home"
+                                aria-selected="true" data-toggle="tab" href="#first-shift-wednesday">Първа смяна</a></li>
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="second-shift-tab-2" aria-controls="profile"
+                                aria-selected="false" data-toggle="tab" href="#second-shift-wednesday">Втора смяна</a></li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent-3">
+                        <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel"
+                            id="first-shift-wednesday" aria-labelledby="home-tab">
+                            <div class="table-responsive fs-4 fw-lighter text-center d-flex">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift-wednesday"
+                            aria-labelledby="profile-tab">
+                            <div class="table-responsive fs-4 fw-lighter text-center d-flex">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade fade" role="tabpanel" id="thursday" aria-labelledby="contact-tab">
+                <div class="rounded mb-5" style="padding-top: 1rem;">
+                    <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist"
+                        id="myTab-4">
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link active text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="first-shift-tab-3" aria-controls="home"
+                                aria-selected="true" data-toggle="tab" href="#first-shift-thursday">Първа смяна</a></li>
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="second-shift-tab-3" aria-controls="profile"
+                                aria-selected="false" data-toggle="tab" href="#second-shift-thursday">Втора смяна</a></li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent-4">
+                        <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel"
+                            id="first-shift-thursday" aria-labelledby="home-tab">
+                            <div class="table-responsive fs-4 fw-lighter text-center d-flex">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift-thursday"
+                            aria-labelledby="profile-tab">
+                            <div class="table-responsive fs-4 fw-lighter text-center d-flex">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade fade" role="tabpanel" id="friday" aria-labelledby="contact-tab">
+                <div class="rounded mb-5" style="padding-top: 1rem;">
+                    <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist"
+                        id="myTab-5">
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link active text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="first-shift-tab-4" aria-controls="home"
+                                aria-selected="true" data-toggle="tab" href="#first-shift-friday">Първа смяна</a></li>
+                        <li class="nav-item flex-sm-fill" role="presentation"><a
+                                class="nav-link text-uppercase border-0 font-weight-bold" role="tab"
+                                data-bs-toggle="tab" id="second-shift-tab-4" aria-controls="profile"
+                                aria-selected="false" data-toggle="tab" href="#second-shift-friday">Втора смяна</a></li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent-5">
+                        <div class="tab-pane fade show active fade px-4 py-5 show" role="tabpanel"
+                            id="first-shift-friday" aria-labelledby="home-tab">
+                            <div class="table-responsive fs-4 fw-lighter text-center d-flex">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade fade px-4 py-5" role="tabpanel" id="second-shift-friday"
+                            aria-labelledby="profile-tab">
+                            <div class="table-responsive fs-4 fw-lighter text-center d-flex">
+                                <table class="table table-hover table-bordered">
+                                    <thead style="font-size: 20px;">
+                                        <tr>
+                                            <th>Преподавател</th>
+                                            <th>Час</th>
+                                            <th>Клас</th>
+                                            <th>Заместващ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?!=  ?> //TODO: Add the data from the database
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<? } else { ?>
+    <div class="p-5 rounded mb-5">
+        <ul class="nav nav-tabs text-center bg-light border-0 nav-pills rounded-nav" role="tablist" id="myTab">
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link active text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="monday-tab" aria-controls="home" aria-selected="true" data-toggle="tab"
+                    href="#monday">понеделник</a></li>
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="tuesday-tab" aria-controls="profile" aria-selected="false" data-toggle="tab"
+                    href="#tuesday">вторник</a></li>
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="wednesday-tab" aria-controls="contact" aria-selected="false" data-toggle="tab"
+                    href="#wednesday">сряда</a></li>
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="thursday-tab" aria-controls="contact" aria-selected="false" data-toggle="tab"
+                    href="#thursday">четвъртък</a></li>
+            <li class="nav-item flex-sm-fill" role="presentation"><a
+                    class="nav-link text-uppercase border-0 font-weight-bold" role="tab" data-bs-toggle="tab"
+                    id="friday-tab" aria-controls="contact" aria-selected="false" data-toggle="tab"
+                    href="#friday">петък</a></li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active fade show" role="tabpanel" id="monday" aria-labelledby="home-tab"
+                style="padding: 0px;">
+                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                    <table class="table table-hover table-bordered">
+                        <thead style="font-size: 20px;">
+                            <tr>
+                                <th>Преподавател</th>
+                                <th>Час</th>
+                                <th>Клас</th>
+                                <th>Заместващ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?!=  ?> //TODO: Add the data from the database
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade fade" role="tabpanel" id="tuesday" aria-labelledby="profile-tab">
+                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                    <table class="table table-hover table-bordered">
+                        <thead style="font-size: 20px;">
+                            <tr>
+                                <th>Преподавател</th>
+                                <th>Час</th>
+                                <th>Клас</th>
+                                <th>Заместващ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?!=  ?> //TODO: Add the data from the database
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade fade" role="tabpanel" id="wednesday" aria-labelledby="contact-tab">
+                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                    <table class="table table-hover table-bordered">
+                        <thead style="font-size: 20px;">
+                            <tr>
+                                <th>Преподавател</th>
+                                <th>Час</th>
+                                <th>Клас</th>
+                                <th>Заместващ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?!=  ?> //TODO: Add the data from the database
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade fade" role="tabpanel" id="thursday" aria-labelledby="contact-tab">
+                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                    <table class="table table-hover table-bordered">
+                        <thead style="font-size: 20px;">
+                            <tr>
+                                <th>Преподавател</th>
+                                <th>Час</th>
+                                <th>Клас</th>
+                                <th>Заместващ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?!=  ?> //TODO: Add the data from the database
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade fade" role="tabpanel" id="friday" aria-labelledby="contact-tab">
+                <div class="table-responsive fs-4 text-center d-flex fw-lighter">
+                    <table class="table table-hover table-bordered">
+                        <thead style="font-size: 20px;">
+                            <tr>
+                                <th>Преподавател</th>
+                                <th>Час</th>
+                                <th>Клас</th>
+                                <th>Заместващ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?!=  ?> //TODO: Add the data from the database
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+<? } ?>
