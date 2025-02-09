@@ -1,43 +1,45 @@
+/**
+ * Представлява стая с график.
+ * @class
+ */
 class Room {
-    private _name: string;//Наименование на стаята
-    private _shedules: Shedule[];//Масив от обекти Shedule -> смяна, час, клас
+    /**
+     * Наименование на стаята.
+     * @private
+     * @type {string}
+     */
+    private _name: string;
 
-    constructor(name: string, shedules: Shedule[]){
-        this._name = name; 
-        this._shedules = shedules; 
+    /**
+     * Масив от обекти Shedule.
+     * @private
+     * @type {Classes[]}
+     */
+    private _shedules: Classes[];
+
+    /**
+     * Създава нова инстанция на Room.
+     * @param {string} name - Наименование на стаята.
+     * @param {Shedule[]} shedules - Масив от обекти Shedule.
+     */
+    constructor(name: string, shedules: Classes[]) {
+        this._name = name;
+        this._shedules = shedules;
     }
 
-    get name(){
+    /**
+     * Връща наименованието на стаята.
+     * @returns {string} Наименованието на стаята.
+     */
+    get name() {
         return this._name;
     }
-    get shedules(){
+
+    /**
+     * Връща масива от обекти Shedule.
+     * @returns {Classes[]} Масив от обекти Shedule.
+     */
+    get shedules() {
         return this._shedules;
-    }
-}
-
-class Shedule{
-    private _shift: keyof typeof Table.Shifts;//смяна
-    private _time: string;//час
-    private _group: string;//клас
-
-    constructor(shift: keyof typeof Table.Shifts, time, group){
-        this.shift = shift; 
-        this._time = time; 
-        this._group = group; 
-    }
-
-    get shift(){
-        return this._shift;
-    }
-    set shift(value: keyof typeof Table.Shifts){
-        if(!value)
-            throw new Error('Invalid shift value');
-        this._shift = value;
-    }
-    get time(){
-        return this._time;
-    }
-    get group(){
-        return this._group;
     }
 }

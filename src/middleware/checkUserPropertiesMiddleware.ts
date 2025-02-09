@@ -1,13 +1,16 @@
-// Проверява дали има потребителски данни в сесията и ако няма ги добавя. 
-// При възникване на грешка връща съобщение и спира останалите процеси.
+/**
+ * Проверява изправността на данните на текущия потребител и останалите потребители в работното му пространство.
+ * При възникване на грешка връща съобщение и спира останалите процеси.
+ * @param {Object} req - Обектът на заявката.
+ * @param {Object} res - Обектът на отговора.
+ * @param {Function} next - Функцията, която трябва да се извика, за да продължи изпълнението на заявката.
+ */
 function checkUserPropertiesMiddleware_(req, res, next) {
   console.log('Checking user properties ' + req.url);
   if (req.url == '/') {
     next();
   } else {
-    let user = getUserInfo_();
-    console.log('User: ' + JSON.stringify(user));
-    if (user) {
+    if (checkCurrentUserInfo_() && checkAllOtherUsersInfo_()) {
       console.log('User found');
       next();
     } else {

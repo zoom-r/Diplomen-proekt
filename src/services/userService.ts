@@ -1,140 +1,128 @@
-var userStore = globalThis.userStore
-
-// Взима текушия потребител от базата данни
-// ако не съществува, връща null
-function getUserFromDB_(email) { 
-  let conn = createDBConnection_();
-  if (!conn) return null;
-  try {
-    let stmt = conn.prepareStatement(email ? 'SELECT (email, names, phone, role, position) FROM users WHERE email = ?'
-        : 'SELECT * FROM users WHERE email = ?');
-    stmt.setString(1, email ? email : getUserEmail());
-    let rs = stmt.executeQuery();
-    if (rs.next()) {
-      return User.createFromResultSet(rs);
-    }
-  } catch (e) {
-    console.log('Error getting user form DB: ' + e.message);
-    return null;
-  } finally {
-    conn.close();
-  }
-}
-
-// Взима текущия потребител от локалното хранилище - ако не съществува, взима данните му от базата данни, 
-// а ако не съществува и там, връща null
-function getUserInfo_(email = null) { 
-    try {
-        let user = null;
-        if (email) {
-            let users = userStore.get('users');
-            if (!users) {
-                userStore.set('users', {});
-                users = userStore.get('users');
-            }
-            if (!users[email]) {
-                user = getUserFromDB_(email);
-                if (user) {
-                    users[email] = user;
-                    userStore.set('users', users);
-                }
-            }else{
-              user = users[email]
-            }
-        } else {
-            user = userStore.get('user');
-            if (!user) {
-                user = getUserFromDB_(email);
-                if (user) userStore.set('user', user);
-            }   
-        }
-        return user;
-    } catch (e) {
-        console.log('Error trying to get user info: ' + e.message);
-        return null;
-    }  
-  
-}
-
-// Създава нов потребител в базата данни и връща true, ако е успешно,
-// в противен случай връща false
-function createUser_(user){ 
-    let conn = createDBConnection_();
+/**
+ * Създава нов потребител в базата данни.
+ * @param {User} user - Потребителят, който ще бъде създаден.
+ * @returns {boolean} - Връща true, ако потребителят е създаден успешно, в противен случай - false.
+ */
+function createUser_(user: User): boolean { 
+    const conn = createDBConnection_();
     if(!conn) return false;
+    let success = false;
     try{
-        let stmt = conn.prepareStatement('INSERT INTO users (id, names, email, role, workspace_id, declarations_key, notifications_key) VALUES (?, ?, ?, ?, ?, ?, ?)');
-        stmt.setString(1, user.id ? user.id : Utilities.getUuid());
-        stmt.setString(2, user.name);
+        const stmt = conn.prepareStatement('INSERT INTO users (id, names, email, role, position, workspace_id, declarations_key, notifications_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        stmt.setString(1, user.id);
+        stmt.setString(2, user.names);
         stmt.setString(3, user.email);
         stmt.setString(4, user.role);
-        stmt.setString(5, user.workspace_id ? user.workspace_id : getWorkspaceId_());
-        stmt.setString(6, user.declarations_key ? user.declarations_key : Utilities.getUuid());
-        stmt.setString(7, user.notifications_key ? user.notifications_key : Utilities.getUuid());
-        let rowsAffected = stmt.executeUpdate(); //Връща броя на засегнатите редове -> ако е 0, значи не е добавен нов ред
-        return rowsAffected > 0;
+        stmt.setString(5, user.position);
+        stmt.setString(6, user.workspace_id);
+        stmt.setString(7, user.declarations_key);
+        stmt.setString(8, user.notifications_key);
+        const rowsAffected = stmt.executeUpdate(); // Връща броя на засегнатите редове -> ако е 0, значи не е добавен нов ред
+        if(rowsAffected > 0){
+            const storeUser = new User(
+                user.email,
+                user.names,
+                user.role,
+                user.position,
+                user.id,
+                user.phone
+            )
+            createUserInUserStore_(storeUser);
+            success = true;
+        }
     }catch(e){
         console.log('Error during database query for creating a user: ' + e.message);
-        return false;
     }finally{
         conn.close();
+        return success;
     }
 }
 
-// Обновява данните на потребителя в базата данни и връща true, ако е успешно
-// в противен случай връща false
-function updateUser_(user){
-    let conn = createDBConnection_();
+/**
+ * Обновява данните на потребителя в базата данни.
+ * Може да се обновява само информацията на собствения профил.
+ * @param {User} user - Потребителят, който ще бъде обновен.
+ * @returns {boolean} - Връща true, ако потребителят е обновен успешно, в противен случай - false.
+ */
+function updateUser_(user: User): boolean {
+    const conn = createDBConnection_();
     if(!conn) return false;
+    let success = false;
     try{
-        let stmt = conn.prepareStatement('UPDATE users SET names = ?, phone = ?, role = ?, position = ?, timetable = ? WHERE email = ?');
-        stmt.setString(1, user.name);
-        stmt.setString(2, user.phone);
-        stmt.setString(3, user.role);
-        stmt.setString(4, user.position);
-        stmt.setString(5, user.timetable);
-        stmt.setString(6, user.email);
-        let rowsAffected = stmt.executeUpdate();
-        return rowsAffected > 0;
+        const stmt = conn.prepareStatement('UPDATE users SET phone = ?, position = ?, timetable = ? WHERE email = ?');
+        stmt.setString(1, user.phone);
+        stmt.setString(2, user.position);
+        stmt.setObject(3, user.timetable);
+        stmt.setString(4, user.email);
+        const rowsAffected = stmt.executeUpdate();
+        if(rowsAffected > 0){
+            updateUserInUserStore_(user);
+            success = true;
+        }
     }catch(e){
-        console.log('Error during database query for ipdating a user: ' + e.message);
-        return false;
+        console.log('Error during database query for updating a user: ' + e.message);
     }finally{
         conn.close();
+        return success;
     } 
 }
 
-// Изтрива потребителя от базата данни и връща true, ако е успешно
-// в противен случай връща false
-function deleteUser_(user){
-    let conn = createDBConnection_();
+/**
+ * Изтрива потребителя от базата данни.
+ * @param {string} id - ID на потребителя, който ще бъде изтрит.
+ * @returns {boolean} - Връща true, ако потребителят е изтрит успешно, в противен случай - false.
+ */
+function deleteUser_(id: string): boolean {
+    const conn = createDBConnection_();
     if(!conn) return false;
+    let success = false;
     try{
-        let stmt = conn.prepareStatement('DELETE FROM users WHERE email = ?');
-        stmt.setString(1, user.email);
-        let stmt2 = conn.prepareStatement('DELETE FROM notifications WHERE notifications_key = ?');
-        stmt2.setString(1, user.notifications_key);
-        let stmt3 = conn.prepareStatement('DELETE FROM declarations WHERE declarations_key = ?');
-        stmt3.setString(1, user.declarations_key);
-        let rowsAffected = stmt.executeUpdate();
-        let rowsAffected2 = stmt2.executeUpdate();
-        let rowsAffected3 = stmt3.executeUpdate();
-        return rowsAffected > 0 && rowsAffected2 > 0 && rowsAffected3 > 0;
+        const stmt = conn.prepareStatement('SELECT notifications_key, declarations_key FROM users WHERE id = ?');
+        stmt.setString(1, id);
+        const rs = stmt.executeQuery();
+        if(rs.next()){
+            const notifications_key = rs.getString('notifications_key');
+            const declarations_key = rs.getString('declarations_key');
+            const stmt1 = conn.prepareStatement('DELETE FROM users WHERE id = ?');
+            stmt1.setString(1, id);
+            const stmt2 = conn.prepareStatement('DELETE FROM notifications WHERE notifications_key = ?');
+            stmt2.setString(1, notifications_key);
+            const stmt3 = conn.prepareStatement('DELETE FROM declarations WHERE declarations_key = ?');
+            stmt3.setString(1, declarations_key);
+            let rowsAffected = stmt1.executeUpdate();
+            stmt2.executeUpdate();
+            stmt3.executeUpdate();
+            if (rowsAffected > 0){
+                deleteUserFromUserStore_(id);
+                success = true;
+            }
+        }
     }catch(e){
         console.log('Error during database query for deleting a user: ' + e.message);
-        return false;
     }finally{
         conn.close();
+        return success;
     }
 }
 
-// Взима профилната снимка на потребителя
-// ако не съществува, връща стандартна снимка
-function getUserPictureUrl(email){
-    let defaultPictureUrl = 'https://lh3.googleusercontent.com/a-/AOh14Gj-cdUSUVoEge7rD5a063tQkyTDT3mripEuDZ0v=s100';
+/**
+ * Взима профилната снимка на потребителя. 
+ * Ако не съществува такава или се изхвърли грешка, връща стандартна снимка.
+ * @param {string} [id=null] - ID на потребителя. Ако не е предоставено, взима текущия потребител.
+ * @returns {string} - URL на профилната снимка на потребителя или стандартна снимка.
+ */
+function getUserPictureUrl(id: string = null): string {
+    const defaultPictureUrl = 'https://lh3.googleusercontent.com/a-/AOh14Gj-cdUSUVoEge7rD5a063tQkyTDT3mripEuDZ0v=s100';
     let userPictureUrl = null;
-    console.log(email)
     try{
-        let people = People.People.searchDirectoryPeople( {
+        let email = null;
+        if(!id){
+            email = getUserEmail_()
+        } else {
+            const user = getUserById_(id);
+            email = user.email;
+        } 
+        const people = People.People.searchDirectoryPeople({
             query: email,
             readMask: 'photos',
             sources: 'DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE'
@@ -146,37 +134,45 @@ function getUserPictureUrl(email){
     return userPictureUrl ?? defaultPictureUrl;    
 }
 
-// Взима имейла на потребителя
-function getUserEmail() {
-  let email = Session.getActiveUser().getEmail();
-  console.log(email);
-  return email;
+/**
+ * Взима имейла на текущия потребител.
+ * @returns {string} - Имейлът на потребителя.
+ */
+function getUserEmail_(): string {
+    let email = Session.getActiveUser().getEmail();
+    return email;
 }
 
-// Взима работното пространство на потребителя
-function getUserWorkspace_() {
-    let email = getUserEmail();
+/**
+ * Взима домейна на работното пространство на текущият потребител.
+ * @returns {string} - Домейна на работното пространство.
+ */
+function getUserWorkspace_(): string {
+    let email = getUserEmail_();
     let domain = email.substring(email.lastIndexOf("@") + 1); // взима домейна на имейла (всичко след @)
     return domain;
 }
 
-// Взима id на работното пространство на потребителя
-// ако не съществува, връща null
-function getWorkspaceId_(){
-    let domain = getUserWorkspace_();
-    let conn = createDBConnection_();
+/**
+ * Взима ID на работното пространство на текущия потребител от базата данни.
+ * @returns {string | null} - ID на работното пространство на потребителя или null, ако не съществува.
+ */
+function getWorkspaceId_(): string | null {
+    const domain = getUserWorkspace_();
+    const conn = createDBConnection_();
     if(!conn) return null;
+    let result = null;
     try{
         let stmt = conn.prepareStatement('SELECT id FROM workspace WHERE domain = ?');
         stmt.setString(1, domain);
         let rs = stmt.executeQuery();
         if(rs.next()){
-            return rs.getString('id');
+            result = rs.getString('id');
         }
     }catch(e){
         console.log('Error during database query for getting workspace id: ' + e.message);
-        return null;
     }finally{
         conn.close();
+        return result;
     }
 }
