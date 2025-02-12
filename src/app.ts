@@ -6,8 +6,8 @@ if ((typeof GasTap) === 'undefined') { // Инициализация на биб
 }
 
 // Middleware (извършват се по ред на инициализация)
-app.use(authMiddleware_); // Първо проверява дали потребителя има достъп до ресурса (чрез директен DB query)
-app.use(checkUserPropertiesMiddleware_); // Проверява дали има потребителски данни в сесията и ако няма - ги добавя
+app.use(middlewareController.authUser_); // Първо проверява дали потребителя има достъп до ресурса (чрез директен DB query)
+app.use(middlewareController.checkUserProperties_); // Проверява дали има потребителски данни в сесията и ако няма - ги добавя
 
 // Routes (проверяват се по ред на инициализация)
 

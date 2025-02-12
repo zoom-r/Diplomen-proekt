@@ -31,6 +31,8 @@ class Declaration {
      */
     private _status: boolean;
 
+    //TODO: Add a field for the date of creation of the declaration.
+
     /**
      * Ключът на потребителя, който е свързан с декларацията.
      * @private

@@ -1,4 +1,32 @@
 /**
+ * Проверява дали потребителят има достъп до приложението.
+ * @returns {boolean} - Връща true, ако потребителят има достъп, и false в противен случай.
+ */
+function checkUserAccess_(): boolean {
+    const email = getUserEmail_();
+    const workspaceId = getWorkspaceId_();
+    let access = false;
+    const conn = createDBConnection_();
+    if (!conn) return access;
+    try {
+        if (workspaceId) {
+            let stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ? AND workspace_id = ?');
+            stmt.setString(1, email);
+            stmt.setString(2, workspaceId);
+            let rs = stmt.execute();
+            if (rs) {
+                access = true;
+            }
+        }
+    } catch (e) {
+        console.log('Error during database query for authentication: ' + e.message);
+    } finally {
+        conn.close();
+        return access;
+    }
+}
+
+/**
  * Създава нов потребител в базата данни.
  * @param {User} user - Потребителят, който ще бъде създаден.
  * @returns {boolean} - Връща true, ако потребителят е създаден успешно, в противен случай - false.
