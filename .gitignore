@@ -4,10 +4,9 @@ node_modules
 creds.json
 .clasprc.json
 .claspignore
-package.json
 package-lock.json
 server-ca.pem
 .vscode
-tsconfig.json
 src/models/scheme.json
 .devcontainer
+.hintrc

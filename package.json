@@ -1,0 +1,16 @@
+{
+  "name": "diplomen-proekt",
+  "version": "1.0.0",
+  "description": "Дипломен проект 2025г.",
+  "main": "index.js",
+  "author": "Radoslav Dimitrov",
+  "license": "ISC",
+  "scripts": {},
+  "dependencies": {
+    "@google/clasp": "^2.5.0",
+    "typescript": "^3.8.2"
+  },
+  "devDependencies": {
+    "@types/google-apps-script": "^1.0.92"
+  }
+}

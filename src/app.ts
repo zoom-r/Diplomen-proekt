@@ -6,16 +6,16 @@ if ((typeof GasTap) === 'undefined') { // Инициализация на биб
 }
 
 // Middleware (извършват се по ред на инициализация)
-app.use(middlewareController.authUser_); // Първо проверява дали потребителя има достъп до ресурса (чрез директен DB query)
-app.use(middlewareController.checkUserProperties_); // Проверява дали има потребителски данни в сесията и ако няма - ги добавя
+app.use(authUser_); // Първо проверява дали потребителя има достъп до ресурса (чрез директен DB query)
+app.use(checkUserProperties_); // Проверява дали има потребителски данни в сесията и ако няма - ги добавя
 
 // Routes (проверяват се по ред на инициализация)
 
 // Substitute
-app.get('/substitute', substituteController.getSubstitutePage_, true);
-app.post('/substitute', substituteController.createNewSubstitute_, true);
-app.delete('/substitute', substituteController.deleteSubstitute_, true);
-app.put('/substitute', substituteController.updateSubstitute_, true);
+app.get('/substitute', getSubstitutePage_, true);
+app.post('/substitute', createNewSubstituteRequest_, true);
+app.delete('/substitute', deleteSubstituteRequest_, true);
+app.put('/substitute', updateSubstituteRequest_, true);
 
 //TODO: Add the rest of the routes
 
@@ -24,7 +24,7 @@ app.get('/client.js', app.client( function(code){ // Връща кода на к
 }));
 app.get(/.*/, function(req, res){
     res.set('Content-Type', 'text/html');
-    res.send(HtmlService.createTemplateFromFile('public/404').evaluate().getContent());
+    res.send(HtmlService.createTemplateFromFile('public/html/404').evaluate().getContent());
 }); // Трябва винаги да е инициализиран последен
 
 //TODO: Add the client.js script to the html files
