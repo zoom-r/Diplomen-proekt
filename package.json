@@ -11,6 +11,7 @@
     "typescript": "^3.8.2"
   },
   "devDependencies": {
-    "@types/google-apps-script": "^1.0.92"
+    "@types/google-apps-script": "^1.0.92",
+    "@types/lodash": "^4.14.179"
   }
 }

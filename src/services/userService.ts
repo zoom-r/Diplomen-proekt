@@ -3,20 +3,15 @@
  * @returns {boolean} - Връща true, ако потребителят има достъп, и false в противен случай.
  */
 function checkUserAccess_(): boolean {
-    const email = getUserEmail_();
-    const workspaceId = getWorkspaceId_();
     let access = false;
     const conn = createDBConnection_();
     if (!conn) return access;
     try {
-        if (workspaceId) {
-            let stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ? AND workspace_id = ?');
-            stmt.setString(1, email);
-            stmt.setString(2, workspaceId);
-            let rs = stmt.execute();
-            if (rs) {
-                access = true;
-            }
+        let stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ?');
+        stmt.setString(1, getUserEmail_());
+        let rs = stmt.execute();
+        if (rs) {
+            access = true;
         }
     } catch (e) {
         console.log('Error during database query for authentication: ' + e.message);
@@ -167,40 +162,5 @@ function getUserPictureUrl(id: string = null): string {
  * @returns {string} - Имейлът на потребителя.
  */
 function getUserEmail_(): string {
-    let email = Session.getActiveUser().getEmail();
-    return email;
-}
-
-/**
- * Взима домейна на работното пространство на текущият потребител.
- * @returns {string} - Домейна на работното пространство.
- */
-function getUserWorkspace_(): string {
-    let email = getUserEmail_();
-    let domain = email.substring(email.lastIndexOf("@") + 1); // взима домейна на имейла (всичко след @)
-    return domain;
-}
-
-/**
- * Взима ID на работното пространство на текущия потребител от базата данни.
- * @returns {string | null} - ID на работното пространство на потребителя или null, ако не съществува.
- */
-function getWorkspaceId_(): string | null {
-    const domain = getUserWorkspace_();
-    const conn = createDBConnection_();
-    if(!conn) return null;
-    let result = null;
-    try{
-        let stmt = conn.prepareStatement('SELECT id FROM workspace WHERE domain = ?');
-        stmt.setString(1, domain);
-        let rs = stmt.executeQuery();
-        if(rs.next()){
-            result = rs.getString('id');
-        }
-    }catch(e){
-        console.log('Error during database query for getting workspace id: ' + e.message);
-    }finally{
-        conn.close();
-        return result;
-    }
+    return Session.getActiveUser().getEmail();
 }

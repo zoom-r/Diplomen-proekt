@@ -23,6 +23,11 @@
         "userSymbol": "ObjectStore",
         "version": "4",
         "libraryId": "1vAC2ffoTeBPU6SmGTEBsQuf-XP_Pv-XaTUCNHscyGmiJRCNHZhevGEz6"
+      },
+      {
+        "userSymbol": "LodashGS",
+        "version": "6",
+        "libraryId": "1SQ0PlSMwndIuOAgtVJdjxsuXueECtY9OGejVDS37ckSVbMll73EXf2PW"
       }
     ],
     "enabledAdvancedServices": [

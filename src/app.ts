@@ -1,3 +1,5 @@
+import * as _ from "lodash";
+
 // @ts-ignore
 var app = new Gexpress.App(); // Инициализиране на приложението
 // @ts-ignore
