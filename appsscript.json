@@ -28,6 +28,11 @@
         "userSymbol": "LodashGS",
         "version": "6",
         "libraryId": "1SQ0PlSMwndIuOAgtVJdjxsuXueECtY9OGejVDS37ckSVbMll73EXf2PW"
+      },
+      {
+        "userSymbol": "ORMA",
+        "version": "9",
+        "libraryId": "1CA-kvfiZjY2Ex2C84hL46Vn2F8GijPbfSy9J3vZQUzzbal5ExhQyG0Z7"
       }
     ],
     "enabledAdvancedServices": [
