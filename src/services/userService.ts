@@ -1,34 +1,11 @@
 /**
- * Проверява дали потребителят има достъп до приложението.
- * @returns {boolean} - Връща true, ако потребителят има достъп, и false в противен случай.
- */
-function checkUserAccess_(): boolean {
-    let access = false;
-    const conn = createDBConnection_();
-    if (!conn) return access;
-    try {
-        let stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ?');
-        stmt.setString(1, getUserEmail_());
-        let rs = stmt.execute();
-        if (rs) {
-            access = true;
-        }
-    } catch (e) {
-        console.log('Error during database query for authentication: ' + e.message);
-    } finally {
-        conn.close();
-        return access;
-    }
-}
-
-/**
  * Създава нов потребител в базата данни.
- * @param {User} user - Потребителят, който ще бъде създаден.
- * @returns {boolean} - Връща true, ако потребителят е създаден успешно, в противен случай - false.
+ * @param {User} user Потребителят, който ще бъде създаден.
+ * @returns {boolean} Връща true, ако потребителят е създаден успешно, в противен случай - false.
+ * @throws {Error} Ако възникне грешка при работа с базата данни.
  */
 function createUser_(user: User): boolean { 
-    const conn = createDBConnection_();
-    if(!conn) return false;
+    const conn = getConnection_();
     let success = false;
     try{
         const stmt = conn.prepareStatement('INSERT INTO users (id, names, email, role, position, workspace_id, declarations_key, notifications_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
@@ -42,34 +19,24 @@ function createUser_(user: User): boolean {
         stmt.setString(8, user.notifications_key);
         const rowsAffected = stmt.executeUpdate(); // Връща броя на засегнатите редове -> ако е 0, значи не е добавен нов ред
         if(rowsAffected > 0){
-            const storeUser = new User(
-                user.email,
-                user.names,
-                user.role,
-                user.position,
-                user.id,
-                user.phone
-            )
-            createUserInUserStore_(storeUser);
             success = true;
         }
+        closeConnection_();
+        return success;  
     }catch(e){
-        console.log('Error during database query for creating a user: ' + e.message);
-    }finally{
-        conn.close();
-        return success;
+        throw new Error('Error during database query for creating a user: ' + e.message);
     }
 }
 
 /**
  * Обновява данните на потребителя в базата данни.
  * Може да се обновява само информацията на собствения профил.
- * @param {User} user - Потребителят, който ще бъде обновен.
- * @returns {boolean} - Връща true, ако потребителят е обновен успешно, в противен случай - false.
+ * @param {User} user Потребителят, който ще бъде обновен.
+ * @returns {boolean} Връща true, ако потребителят е обновен успешно, в противен случай - false.
+ * @throws {Error} Ако възникне грешка при работа с базата данни.
  */
 function updateUser_(user: User): boolean {
-    const conn = createDBConnection_();
-    if(!conn) return false;
+    const conn = getConnection_();
     let success = false;
     try{
         const stmt = conn.prepareStatement('UPDATE users SET phone = ?, position = ?, timetable = ? WHERE email = ?');
@@ -79,25 +46,23 @@ function updateUser_(user: User): boolean {
         stmt.setString(4, user.email);
         const rowsAffected = stmt.executeUpdate();
         if(rowsAffected > 0){
-            updateUserInUserStore_(user);
             success = true;
         }
-    }catch(e){
-        console.log('Error during database query for updating a user: ' + e.message);
-    }finally{
-        conn.close();
+        closeConnection_();
         return success;
-    } 
+    }catch(e){
+        throw new Error('Error during database query for updating a user: ' + e.message);
+    }
 }
 
 /**
  * Изтрива потребителя от базата данни.
- * @param {string} id - ID на потребителя, който ще бъде изтрит.
- * @returns {boolean} - Връща true, ако потребителят е изтрит успешно, в противен случай - false.
+ * @param {string} id ID на потребителя, който ще бъде изтрит.
+ * @returns {boolean} Връща true, ако потребителят е изтрит успешно, в противен случай - false.
+ * @throws {Error} Ако възникне грешка при работа с базата данни.
  */
 function deleteUser_(id: string): boolean {
-    const conn = createDBConnection_();
-    if(!conn) return false;
+    const conn = getConnection_();
     let success = false;
     try{
         const stmt = conn.prepareStatement('SELECT notifications_key, declarations_key FROM users WHERE id = ?');
@@ -116,27 +81,25 @@ function deleteUser_(id: string): boolean {
             stmt2.executeUpdate();
             stmt3.executeUpdate();
             if (rowsAffected > 0){
-                deleteUserFromUserStore_(id);
                 success = true;
             }
         }
-    }catch(e){
-        console.log('Error during database query for deleting a user: ' + e.message);
-    }finally{
-        conn.close();
+        closeConnection_();
         return success;
+    }catch(e){
+        throw new Error('Error during database query for deleting a user: ' + e.message);
     }
 }
 
 /**
  * Взима профилната снимка на потребителя. 
  * Ако не съществува такава или се изхвърли грешка, връща стандартна снимка.
- * @param {string} [id=null] - ID на потребителя. Ако не е предоставено, взима текущия потребител.
- * @returns {string} - URL на профилната снимка на потребителя или стандартна снимка.
+ * @param {string} [id=null] ID на потребителя. Ако не е предоставено, взима текущия потребител.
+ * @returns {string} URL на профилната снимка на потребителя или стандартна снимка.
  */
 function getUserPictureUrl(id: string = null): string {
     const defaultPictureUrl = 'https://lh3.googleusercontent.com/a-/AOh14Gj-cdUSUVoEge7rD5a063tQkyTDT3mripEuDZ0v=s100';
-    let userPictureUrl = null;
+    let userPictureUrl: string = null;
     try{
         let email = null;
         if(!id){
@@ -152,14 +115,37 @@ function getUserPictureUrl(id: string = null): string {
         });
         userPictureUrl = people?.people[0]?.photos[0]?.url;
     }catch(e){
-        console.log('Error trying to get user picture: ' + e.message);
+        console.error('Error trying to get user picture: ' + e.message);
     }
     return userPictureUrl ?? defaultPictureUrl;    
 }
 
 /**
+ * Взима потребителя по ID.
+ * @param {string} id ID на потребителя.
+ * @returns {User} Връща потребителя.
+ * @throws {Error} Ако възникне грешка при работа с базата данни.
+ */
+function getUserById_(id: string): User {
+    const conn = getConnection_();
+    try{
+        const stmt = conn.prepareStatement('SELECT id, email, names, phone, role, position FROM users WHERE id = ?');
+        stmt.setString(1, id);
+        const rs = stmt.executeQuery();
+        let user = null;
+        if(rs.next()){
+            user = User.createFromResultSet(rs);
+        }
+        closeConnection_();
+        return user;
+    }catch(e){
+        throw new Error('Error during database query for getting a user by ID: ' + e.message);
+    }
+}
+
+/**
  * Взима имейла на текущия потребител.
- * @returns {string} - Имейлът на потребителя.
+ * @returns {string} Имейлът на потребителя.
  */
 function getUserEmail_(): string {
     return Session.getActiveUser().getEmail();

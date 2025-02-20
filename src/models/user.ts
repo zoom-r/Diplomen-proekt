@@ -236,20 +236,6 @@ class User {
     return this._notifications_key;
   }
 
-  // /**
-  //  * Сравнява този потребител с друг потребител за равенство.
-  //  * @param {User} other - Другият потребител за сравнение.
-  //  * @returns {boolean} True, ако потребителите са еднакви, false в противен случай.
-  //  */
-  // equals(other: User): boolean {
-  //   return this.id === other.id && 
-  //         this.email === other.email &&
-  //         this.names === other.names &&
-  //         this.phone === other.phone &&
-  //         this.role === other.role &&
-  //         this.position === other.position;
-  // }
-
   /**
    * Създава инстанция на User от извлечени данни от базата данни.
    * @param {GoogleAppsScript.JDBC.JdbcResultSet} rs - Резултатният набор, съдържащ данни за потребителя.
