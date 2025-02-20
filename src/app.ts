@@ -1,5 +1,3 @@
-import * as _ from "lodash";
-
 // @ts-ignore
 var app = new Gexpress.App(); // Инициализиране на приложението
 // @ts-ignore
@@ -24,9 +22,11 @@ app.put('/substitute', updateSubstituteRequest_, true);
 app.get('/client.js', app.client( function(code){ // Връща кода на клиентската част на приложението
     return ' ' + code + ' ' 
 }));
+
 app.get(/.*/, function(req, res){
     res.set('Content-Type', 'text/html');
     res.send(HtmlService.createTemplateFromFile('public/html/404').evaluate().getContent());
+    res.end();
 }); // Трябва винаги да е инициализиран последен
 
 //TODO: Add the client.js script to the html files

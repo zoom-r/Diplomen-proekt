@@ -18,7 +18,7 @@ function authUser_(req, res, next) {
             } else {
             console.log('Access denied');
             res.set('content-type', 'text/html');
-            const html = HtmlService.createTemplateFromFile('public/error');
+            const html = HtmlService.createTemplateFromFile('public/html/error');
             html.error = 'Нямате достъп до това приложение.';        
             res.send(html.evaluate().getContent());
             res.end();
@@ -26,7 +26,7 @@ function authUser_(req, res, next) {
         } catch (err) {
             console.log('Error in auth middleware: ' + err.message);
             res.set('content-type', 'text/html');
-            const html = HtmlService.createTemplateFromFile('public/error');
+            const html = HtmlService.createTemplateFromFile('public/html/error');
             html.error = 'Internal Server Error: ' + err.message;
             res.send(html.evaluate().getContent());
             res.end();
