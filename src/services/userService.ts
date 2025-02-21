@@ -7,7 +7,9 @@
 function createUser_(user: User): boolean { 
     const conn = getConnection_();
     let success = false;
-    try{
+    try {
+        conn.setAutoCommit(false); // Start transaction
+
         const stmt = conn.prepareStatement('INSERT INTO users (id, names, email, role, position, workspace_id, declarations_key, notifications_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
         stmt.setString(1, user.id);
         stmt.setString(2, user.names);
@@ -17,13 +19,19 @@ function createUser_(user: User): boolean {
         stmt.setString(6, user.workspace_id);
         stmt.setString(7, user.declarations_key);
         stmt.setString(8, user.notifications_key);
-        const rowsAffected = stmt.executeUpdate(); // Връща броя на засегнатите редове -> ако е 0, значи не е добавен нов ред
-        if(rowsAffected > 0){
+        const rowsAffected = stmt.executeUpdate(); // Returns the number of affected rows -> if 0, no new row was added
+
+        if (rowsAffected > 0) {
+            conn.commit(); // Commit transaction
             success = true;
+        } else {
+            conn.rollback(); // Rollback transaction if no rows were affected
         }
+
         closeConnection_();
         return success;  
-    }catch(e){
+    } catch (e) {
+        conn.rollback(); // Rollback transaction in case of error
         throw new Error('Error during database query for creating a user: ' + e.message);
     }
 }
@@ -38,19 +46,27 @@ function createUser_(user: User): boolean {
 function updateUser_(user: User): boolean {
     const conn = getConnection_();
     let success = false;
-    try{
-        const stmt = conn.prepareStatement('UPDATE users SET phone = ?, position = ?, timetable = ? WHERE email = ?');
+    try {
+        conn.setAutoCommit(false); // Start transaction
+
+        const stmt = conn.prepareStatement('UPDATE users SET phone = ?, position = ?, timetable = ? WHERE id = ?');
         stmt.setString(1, user.phone);
         stmt.setString(2, user.position);
         stmt.setObject(3, user.timetable);
-        stmt.setString(4, user.email);
+        stmt.setString(4, user.id);
         const rowsAffected = stmt.executeUpdate();
-        if(rowsAffected > 0){
+
+        if (rowsAffected > 0) {
+            conn.commit(); // Commit transaction
             success = true;
+        } else {
+            conn.rollback(); // Rollback transaction if no rows were affected
         }
+
         closeConnection_();
         return success;
-    }catch(e){
+    } catch (e) {
+        conn.rollback(); // Rollback transaction in case of error
         throw new Error('Error during database query for updating a user: ' + e.message);
     }
 }
@@ -64,29 +80,37 @@ function updateUser_(user: User): boolean {
 function deleteUser_(id: string): boolean {
     const conn = getConnection_();
     let success = false;
-    try{
-        const stmt = conn.prepareStatement('SELECT notifications_key, declarations_key FROM users WHERE id = ?');
-        stmt.setString(1, id);
-        const rs = stmt.executeQuery();
-        if(rs.next()){
-            const notifications_key = rs.getString('notifications_key');
-            const declarations_key = rs.getString('declarations_key');
-            const stmt1 = conn.prepareStatement('DELETE FROM users WHERE id = ?');
-            stmt1.setString(1, id);
-            const stmt2 = conn.prepareStatement('DELETE FROM notifications WHERE notifications_key = ?');
-            stmt2.setString(1, notifications_key);
-            const stmt3 = conn.prepareStatement('DELETE FROM declarations WHERE declarations_key = ?');
-            stmt3.setString(1, declarations_key);
-            let rowsAffected = stmt1.executeUpdate();
-            stmt2.executeUpdate();
-            stmt3.executeUpdate();
-            if (rowsAffected > 0){
+    try {
+        conn.setAutoCommit(false); // Start transaction
+
+        const stmtSelect = conn.prepareStatement('SELECT notifications_key, declarations_key FROM users WHERE id = ?');
+        stmtSelect.setString(1, id);
+        const rs = stmtSelect.executeQuery();
+
+        if (rs.next()) {
+            let affectedRows: number[] = [];
+
+            const stmtDeleteUser = conn.prepareStatement('DELETE FROM users WHERE id = ?');
+            stmtDeleteUser.setString(1, id);
+            affectedRows.push(stmtDeleteUser.executeUpdate());
+
+            const stmtDeleteNotifications = conn.prepareStatement('DELETE FROM notifications WHERE notifications_key = ?');
+            stmtDeleteNotifications.setString(1, rs.getString('notifications_key'));
+            affectedRows.push(stmtDeleteNotifications.executeUpdate());
+
+            const stmtDeleteDeclarations = conn.prepareStatement('DELETE FROM declarations WHERE declarations_key = ?');
+            stmtDeleteDeclarations.setString(1, rs.getString('declarations_key'));
+            affectedRows.push(stmtDeleteDeclarations.executeUpdate());
+
+            conn.commit(); // Commit transaction
+            if(affectedRows.every(execution => execution > 0))
                 success = true;
-            }
         }
+
         closeConnection_();
         return success;
-    }catch(e){
+    } catch (e) {
+        conn.rollback(); // Rollback transaction in case of error
         throw new Error('Error during database query for deleting a user: ' + e.message);
     }
 }
@@ -116,8 +140,9 @@ function getUserPictureUrl(id: string = null): string {
         userPictureUrl = people?.people[0]?.photos[0]?.url;
     }catch(e){
         console.error('Error trying to get user picture: ' + e.message);
+    }finally{
+        return userPictureUrl ?? defaultPictureUrl;
     }
-    return userPictureUrl ?? defaultPictureUrl;    
 }
 
 /**
@@ -125,6 +150,7 @@ function getUserPictureUrl(id: string = null): string {
  * @param {string} id ID на потребителя.
  * @returns {User} Връща потребителя.
  * @throws {Error} Ако възникне грешка при работа с базата данни.
+ * @description Трябва да се извика closeConnection_ след като се приключи работа. 
  */
 function getUserById_(id: string): User {
     const conn = getConnection_();
@@ -136,7 +162,6 @@ function getUserById_(id: string): User {
         if(rs.next()){
             user = User.createFromResultSet(rs);
         }
-        closeConnection_();
         return user;
     }catch(e){
         throw new Error('Error during database query for getting a user by ID: ' + e.message);
@@ -146,7 +171,12 @@ function getUserById_(id: string): User {
 /**
  * Взима имейла на текущия потребител.
  * @returns {string} Имейлът на потребителя.
+ * @throws {Error} Ако не е намерен имейл на потребителя.
  */
 function getUserEmail_(): string {
-    return Session.getActiveUser().getEmail();
+    const email = Session.getActiveUser().getEmail();
+    if (!email) {
+        throw new Error('Error getting user email');
+    }
+    return email;
 }

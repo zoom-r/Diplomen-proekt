@@ -13,7 +13,7 @@ const _ = LodashGS.load();
  * @returns {boolean} Връща true, ако операцията е успешна, в противен случай - false.
  * @throws {Error} Ако възникне грешка при работа с базата данни.
  */
-function checkCurrentUserInfo_(): boolean {
+function checkCurrentUser_(): boolean {
     const conn = getConnection_();
     let success = false;
     let user: User = userStore.get('user', false);
