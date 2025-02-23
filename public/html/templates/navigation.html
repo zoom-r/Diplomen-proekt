@@ -1,0 +1,37 @@
+<nav class="navbar navbar-expand-lg navbar-light" style="box-shadow:0px 5px 20px;">
+    <div class="container-fluid"><button data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            class="navbar-toggler" type="button" data-mdb-toggle="collapse"
+            data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation"><i class="fas fa-bars"></i></button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav align-items-end me-auto" style="font-size:20px;">
+                <? if(url == "/substitute"){ ?>
+                    <li class="nav-item"><a class="nav-link active" href="" style="font-size:25px;" target="_top">Замествания</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="" target="_top">Стаи</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="" target="_top">Декларации</a></li>
+                <? }else if(url == "/declarations"){ ?>
+                    <li class="nav-item"><a class="nav-link active" href="" style="font-size:25px;" target="_top">Декларации</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="" target="_top">Замествания</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="" target="_top">Стаи</a></li>
+                <? }else if(url == "/rooms"){ ?>
+                    <li class="nav-item"><a class="nav-link active" href="" style="font-size:25px;" target="_top">Стаи</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="" target="_top">Замествания</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="" target="_top">Декларации</a></li>
+                <? }else{ ?>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="" target="_top">Замествания</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="" target="_top">Стаи</a></li>
+                    <li class="nav-item d-xl-flex"><a class="nav-link" href="" target="_top">Декларации</a></li>
+                <? } ?>
+            </ul>
+        </div>
+        <div class="d-flex align-items-center">
+            <? if(role == "admin"){ ?>
+                <a class="text-reset me-3" href="#"><i class="fas fa-sliders" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Настройки"></i></a>
+            <? } ?>
+            <a class="text-reset me-3" href="#"><i class="far fa-calendar-alt" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Седмично разписание"></i></a>
+            <a class="text-reset me-3" href="#"><i class="fas fa-chalkboard-teacher" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Учители"></i></a>
+            <a class="text-reset me-4" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" id="notifications" href="#" role="button" title="Известия"><i class="fas fa-bell"></i></a>
+            <a class="d-flex align-items-center" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" href="#" role="button" title="Профил"><img class="rounded-circle" id="profile-pic" src="" height="25" alt="Профилна снимка" ></a> //src се зарежда от nav.js
+        </div>
+    </div>
+</nav>

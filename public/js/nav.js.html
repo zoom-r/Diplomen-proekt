@@ -3,4 +3,7 @@ document.getElementById('notifications').addEventListener('click', () => {
 });
 document.getElementById('close-notifications').addEventListener('click', () => {
 	document.getElementById('notifications-list').classList.toggle('show');
-})
+});
+document.addEventListener("DOMContentLoaded", function() {
+	document.getElementById("profile-pic").setAttribute("src", google.script.run.getUserPictureUrl());
+});
