@@ -1,4 +1,4 @@
-<tr>
+<tr id=""> //TODO: Add a way to get the id of the abcent teacher
   <td colspan=<?= abcent.classes.length.stringify() ?>><?= abcent.name ?></td>
   <td><?= abcent.classes[0].time ?></td>
   <td><?= abcent.classes[0].group ?></td>
@@ -11,4 +11,7 @@
     <td><?= abcent.classes[i].substitute ?></td>
   <tr>
 <? } >?
+<tr>
+  <td colspan="4" style="background: #2b90d9;"></td>
+</tr>
 
