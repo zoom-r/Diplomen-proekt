@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="bg">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Заместване</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    <style>
+        <?!= includeEssentialHtmlStyles() ?>
+    </style>
+</head>
+<body>
+    <?!= navigation() ?>
+    <?!= notificationsOffCanvas() ?>
+    <main class="p-5">
+        <h1>Настройки</h1>
+        <form>
+            <div class="fs-5 flex-wrap" style="display: flex;">
+                <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="display: flex;margin-right: 10px;margin-left: 10px;">
+                    <p style="margin-right: 5px;margin-top: 10px;">Смени:</p>
+                    <div class="form-check" style="margin-right: 5px;"><input id="shiftCheck-1" class="form-check-input" type="radio" /><label class="form-check-label" for="formCheck-1">Една</label></div>
+                    <div class="form-check"><input id="shiftCheck-2" class="form-check-input" type="radio" /><label class="form-check-label" for="formCheck-2">Две</label></div>
+                </div>
+                <div class="col d-xl-flex justify-content-xl-center align-items-xl-center" style="display: flex;margin-right: 10px;margin-left: 10px;">
+                    <p style="margin-right: 5px;margin-top: 10px;">Максимален брой часове:</p><input id="time-count" class="form-control" type="number" max="20" min="1" name="time-count" value=<?= settings.time_count ?> />
+                </div>
+                <div class="col" style="display: block;margin-right: 10px;margin-left: 10px;">
+                    <p>Шаблони за декларации:</p><button class="btn btn-secondary" type="button" style="margin-bottom: 5px;">Добавяне на шаблон</button> // TODO: Add modal for adding declaration templates
+                    <ul id="declarations-list" class="list-group">
+                        <li class="list-group-item list-group-item-primary d-flex d-sm-flex d-md-flex d-lg-flex d-xl-flex d-xxl-flex justify-content-between align-items-xl-center"><span>List Group Item 1</span><button class="btn btn-danger" type="button"><i class="fa fa-close"></i></button></li>
+                    </ul>
+                </div>
+            </div>
+            <hr />
+            <div class="fs-5 d-flex flex-wrap" style="margin-top: 5px;">
+                <div class="col">
+                    <h2>Класове</h2>
+                    <ol id="class-list" class="list-group">
+                        <li class="list-group-item d-flex justify-content-between"><input name="class-name" class="form-control" type="text" style="margin-right: 10px;" /><button class="btn btn-success" type="button" onclick="addListItem(document.getElementsByName('class-name')[0])"><i class="fa fa-plus"></i></button></li>
+                    </ol>
+                </div>
+                <div class="col">
+                    <h2>Стаи</h2>
+                    <ol class="list-group">
+                        <li class="list-group-item d-flex justify-content-between"><input name="room-name" class="form-control" type="text" style="margin-right: 10px;" /><button class="btn btn-success" type="button" onclick="addListItem(document.getElementsByName('room-name')[0])"><i class="fa fa-plus"></i></button></li> // TODO Add onclick event
+                    </ol>
+                </div>
+            </div>
+        </form>
+    </main>
+    <script>
+        <?!= includeEssentialHtmlScripts() ?>
+        <?!= include('public/js/settings.js') ?>
+    </script>
+</body>
+</html>
