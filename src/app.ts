@@ -16,6 +16,15 @@ app.post('/substitute', createNewSubstituteRequest_, true);
 app.delete('/substitute', deleteSubstituteRequest_, true);
 app.put('/substitute', updateSubstituteRequest_, true);
 
+// Settings
+app.get('/settings', function(req, res){
+    res.set('Content-Type', 'text/html');
+    const html = HtmlService.createTemplateFromFile('public/html/settings');
+    html.url = req.url;
+    res.send(html.evaluate().getContent());
+    res.end();
+});
+
 //TODO: Add the rest of the routes
 
 app.get('/client.js', app.client( function(code){ // Връща кода на клиентската част на приложението

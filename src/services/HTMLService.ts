@@ -28,18 +28,23 @@ function include(filename: string): string {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
-function getAbsentTeachersTable(day: string, shift: string = 'first'): string {
+function getAbsentTeachersTable(day: string, shift: string = 'first') {
   // TODO: Implement this function
 }
 
-function substituteTables(): string {
+function substituteTables() {
   // TODO: Implement this function
 }
 
 function notificationsOffCanvas(): string{
-  // TODO: Implement this function
+  const html = HtmlService.createTemplateFromFile('public/html/templates/notificationsOffCanvas');
+  
+  return html.evaluate().getContent();
 }
 
-function navigation(): string {
-  // TODO: Implement this function
+function navigation(url): string {
+  const html = HtmlService.createTemplateFromFile('public/html/templates/navigation');
+  html.role = getCurrentUser_().role;
+  html.url = url;
+  return html.evaluate().getContent();
 }

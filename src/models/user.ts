@@ -243,23 +243,23 @@ class User {
    */
   static createFromResultSet(rs: GoogleAppsScript.JDBC.JdbcResultSet): User {
     return rs.getMetaData().getColumnCount() === 10 ? new User(
-      rs.getString('id'), 
       rs.getString('email'), 
       rs.getString('names'), 
-      rs.getString('phone'), 
       rs.getString('role'), 
-      rs.getString('position'), 
+      rs.getString('position'),
+      rs.getString('id'),
+      rs.getString('phone'), 
       rs.getObject('timetable'), 
       rs.getString('workspace_id'), 
       rs.getString('declarations_key'), 
       rs.getString('notifications_key')
     ) : new User(
-      rs.getString('id'),
       rs.getString('email'), 
       rs.getString('names'), 
-      rs.getString('phone'), 
       rs.getString('role'), 
-      rs.getString('position')
+      rs.getString('position'),
+      rs.getString('id'),
+      rs.getString('phone')
     );
   }
 }
