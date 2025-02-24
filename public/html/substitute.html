@@ -29,9 +29,9 @@
     <?!= navigation() ?>
     <?!= notificationsOffCanvas() ?>
     <main id="absents_table">
-        <?= substituteTable() ?>
+        <?!= substituteTables() ?>
     </main>
-    <div>
+    <!-- <div>
         <div id="sidePanel" class="side-panel">
             <div class="card" id="teacher-timetable" style="overflow: auto;border: 1px solid black;">
                 <div class="card-header">
@@ -153,18 +153,21 @@
             </div>
         </div><button class="btn btn-primary position-absolute" id="toggle-btn" type="button"
             title="Седмично разписание"><i class="icon ion-ios-arrow-back"></i></button>
-    </div>
+    </div> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
         <?!= includeEssentialHtmlScripts() ?>
     </script>
+    // <script>
+    //     <?!= include('public/js/animate_teacher_shedule.js') ?>
+    // </script>
     <script>
-        <?!= include('public/js/animate_teacher_shedule.js') ?>
+        <?!= include('public/js/nav.js') ?>
     </script>
     <script>
-        <?!= include('public/js/substitute_add_panel.js') ?>
+        <?!= include('public/js/substitute.js') ?>
     </script>
 </body>
 

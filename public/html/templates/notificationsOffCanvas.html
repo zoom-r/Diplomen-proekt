@@ -7,7 +7,7 @@
                 <hr class="my-0">
                 <div class="list-group list-group-flush border-bottom scrollarea" id="notifications-group">
                         <!-- <a class="list-group-item list-group-item-action py-3 lh-tight" href="#" aria-current="true"> -->
-                        <? { ?> //TODO: Add notifications ForEach loop
+                        <? for(let notification in notifications){ ?>
                                 <div class="d-flex justify-content-between align-items-center w-100">
                                         <strong id="notification-title" class="mb-1">
                                                 <?= notification.title ?>
@@ -15,11 +15,11 @@
                                         <small id="notification-date">
                                                 <?= notification.date ?>
                                         </small>
-                                        <i class="fas fa-times" id="notification-delete"></i> //TODO: Add delete notification functionality
-                                </div>
+                                        
+                                </div><i class="fas fa-times" id="notification-delete" onclick="deleteNotification(<?= notification.id ?>)"></i>
                                 <div class="col-10 mb-1 small">
                                         <span id="notification-description">
-                                                От<?= notification.sender ?>
+                                                От <?!= notification.sender ?>
                                         </span>
                                 </div>
                         <? } ?>

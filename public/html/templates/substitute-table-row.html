@@ -2,7 +2,7 @@
   <? id(role == "teacher"){ ?>
     <td colspan=<?= abcent.classes.length.stringify() ?>><?= absent.name ?></td>
   <? }else if(role == "admin"){ ?>
-    <td colspan=<?= abcent.classes.length.stringify() ?>><?= absent.name ?><button class="btn btn-danger" type="button" onclick=""><i //TODO Add the logic for deleting an absent
+    <td colspan=<?= abcent.classes.length.stringify() ?>><?= absent.name ?><button class="btn btn-danger" type="button" onclick="deleteAbsent(<?= absent.id ?>)"><i
       class="far fa-trash-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
   <? } ?>
   <td><?= absent.classes[0].time ?></td>

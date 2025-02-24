@@ -1,5 +1,6 @@
 document.getElementById('notifications').addEventListener('click', () => {
 	document.getElementById('notifications-list').classList.toggle('show');
+	// TODO Call the function for loading notifications
 });
 document.getElementById('close-notifications').addEventListener('click', () => {
 	document.getElementById('notifications-list').classList.toggle('show');
@@ -7,3 +8,26 @@ document.getElementById('close-notifications').addEventListener('click', () => {
 document.addEventListener("DOMContentLoaded", function() {
 	document.getElementById("profile-pic").setAttribute("src", google.script.run.getUserPictureUrl());
 });
+
+function generateNotifications(notifications) {
+	const notificationsGroup = document.getElementById('notifications-group');
+	notificationsGroup.innerHTML = '';
+
+	notifications.forEach(notification => {
+		const notificationElement = document.createElement('div');
+		notificationElement.className = 'd-flex justify-content-between align-items-center w-100';
+		notificationElement.innerHTML = `
+			<strong id="notification-title" class="mb-1">${notification.title}</strong>
+			<small id="notification-date">${notification.date}</small>
+			<i class="fas fa-times" id="notification-delete" onclick="deleteNotification(${notification.id})"></i>
+			<div class="col-10 mb-1 small">
+				<span id="notification-description">От ${notification.sender}</span>
+			</div>
+		`;
+		notificationsGroup.appendChild(notificationElement);
+	});
+}
+
+function deleteNotification(id) {
+	// TODO Implement the delete functionality here
+}

@@ -27,3 +27,19 @@ function includeEssentialHtmlStyles(): string {
 function include(filename: string): string {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
+
+function getAbsentTeachersTable(day: string, shift: string = 'first'): string {
+  // TODO: Implement this function
+}
+
+function substituteTables(): string {
+  // TODO: Implement this function
+}
+
+function notificationsOffCanvas(): string{
+  // TODO: Implement this function
+}
+
+function navigation(): string {
+  // TODO: Implement this function
+}
