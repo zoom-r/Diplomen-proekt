@@ -16,31 +16,36 @@ const _ = LodashGS.load();
 function checkCurrentUser_(): boolean {
     const conn = getConnection_();
     let success = false;
-    const userData = userStore.get('user');
-    let user = new User(userData._email, userData._names, userData._role, userData._position, userData._id, userData._phone, userData._timetable, userData._workspace_id, userData._declarations_key, userData._notifications_key);
-    const stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ?'); // Използва проверка с email, защото потребителят може да бъде изтрит и добавен отново (тогава id-то ще е различно, но email-ът - същият)
-    if (!user) {
-        stmt.setString(1, getUserEmail_());
-        const rs = stmt.executeQuery();
-        if (rs.next()) {
-            user = User.createFromResultSet(rs);
-            userStore.set('user', user);
-            success = true;
-            userStore.persist(false);
-        }
-    } else {
-        stmt.setString(1, user.email);
-        const rs = stmt.executeQuery();
-        if (rs.next()) {
-            const newUser = User.createFromResultSet(rs);
-            if (!_.isEqual(user, newUser)) {
-                userStore.set('user', newUser);
+    try {
+        const userData = userStore.get('user');
+        let user = new User(userData._email, userData._names, userData._role, userData._position, userData._id, userData._phone, userData._timetable, userData._workspace_id, userData._declarations_key, userData._notifications_key);
+        const stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ?'); // Използва проверка с email, защото потребителят може да бъде изтрит и добавен отново (тогава id-то ще е различно, но email-ът - същият)
+        if (!user) {
+            stmt.setString(1, getUserEmail_());
+            const rs = stmt.executeQuery();
+            if (rs.next()) {
+                user = User.createFromResultSet(rs);
+                userStore.set('user', user);
+                success = true;
                 userStore.persist(false);
             }
-            success = true;
+        } else {
+            stmt.setString(1, user.email);
+            const rs = stmt.executeQuery();
+            if (rs.next()) {
+                const newUser = User.createFromResultSet(rs);
+                if (!_.isEqual(user, newUser)) {
+                    userStore.set('user', newUser);
+                    userStore.persist(false);
+                }
+                success = true;
+            }
         }
+    } catch (err) {
+        throw new Error('Error while checking current user: ' + err);
+    } finally {
+        closeConnection_();
     }
-    closeConnection_();
     return success;
 }
 
