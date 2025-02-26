@@ -17,6 +17,3 @@ function getProfilePage_(req, res) {
     res.send(html.evaluate().getContent());
     res.end();
 }
-
-//TODO: Implement the function to handle the PUT request
-function updateProfileRequest_(req, res) {}

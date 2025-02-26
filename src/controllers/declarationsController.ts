@@ -17,9 +17,3 @@ function getDeclarationsPage_(req, res) {
     res.send(html.evaluate().getContent());
     res.end();
 }
-
-//TODO: Implement the function to handle the POST request
-function createNewDeclarationRequest_(req, res) {}
-
-//TODO: Implement the function to handle the DELETE request
-function deleteDeclarationRequest_(req, res) {}

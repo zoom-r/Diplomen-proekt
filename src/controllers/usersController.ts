@@ -17,12 +17,3 @@ function getUsersPage_(req, res) {
     res.send(html.evaluate().getContent());
     res.end();
 }
-
-//TODO: Implement the function to handle the POST request
-function createNewUserRequest_(req, res) {}
-
-//TODO: Implement the function to handle the DELETE request
-function deleteUserRequest_(req, res) {}
-
-//TODO: Implement the function to handle the PUT request
-function updateUserRequest_(req, res) {}

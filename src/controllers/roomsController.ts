@@ -17,12 +17,3 @@ function getRoomsPage_(req, res) {
     res.send(html.evaluate().getContent());
     res.end();
 }
-
-//TODO: Implement the function to handle the POST request
-function createNewRoomRequest_(req, res) {}
-
-//TODO: Implement the function to handle the DELETE request
-function deleteRoomRequest_(req, res) {}
-
-//TODO: Implement the function to handle the PUT request
-function updateRoomRequest_(req, res) {}

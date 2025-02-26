@@ -11,19 +11,10 @@ app.use(authUser_); // Първо проверява дали потребите
 // Routes (проверяват се по ред на инициализация)
 
 // Substitute
-app.get('/substitute', getSubstitutePage_, true);
-app.post('/substitute', createNewSubstituteRequest_, true);
-app.delete('/substitute', deleteSubstituteRequest_, true);
-app.put('/substitute', updateSubstituteRequest_, true);
+app.get('/substitute', getSubstitutePage_);
 
 // Settings
-app.get('/settings', function(req, res){
-    res.set('Content-Type', 'text/html');
-    const html = HtmlService.createTemplateFromFile('public/html/settings');
-    html.url = req.url;
-    res.send(html.evaluate().getContent());
-    res.end();
-});
+app.get('/settings', getSettingsPage_);
 
 //TODO: Add the rest of the routes
 

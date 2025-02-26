@@ -17,12 +17,3 @@ function getSubstitutePage_(req, res) {
     res.send(html.evaluate().getContent());
     res.end();
 }
-
-// TODO: Implement the function to handle the POST request
-function createNewSubstituteRequest_(req, res) {}
-
-//TODO: Implement the function to handle the DELETE request
-function deleteSubstituteRequest_(req, res) {}
-
-//TODO: Implement the function to handle the PUT request
-function updateSubstituteRequest_(req, res) {}

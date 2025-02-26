@@ -16,15 +16,6 @@ class Table {
     };
 
     /**
-     * Смените през деня.
-     * @enum {string}
-     */
-    static Shifts = {
-        First: 'first',
-        Second: 'second'
-    };
-
-    /**
      * Уникалният идентификатор на таблицата.
      * @private
      * @type {string}
