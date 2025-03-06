@@ -3,7 +3,7 @@
  * @return {Settings}
  * @throws {Error} Ако възникне грешка при работа с базата данни.
  */
-function getWorkspaceSettings_(): Settings{
+function getWorkspaceSettings(): Settings{
     const conn = getConnection_();
     try{
         let workspaceSettings;

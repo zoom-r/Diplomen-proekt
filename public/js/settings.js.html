@@ -1,5 +1,72 @@
 document.addEventListener('DOMContentLoaded', function() {
     // TODO Call srver-side function to load the settings
+    google.script.run.withSuccessHandler(function(settings){
+        // Set the shift radio button
+        document.getElementById('shiftCheck-1').checked = settings.shift == 'first';
+        document.getElementById('shiftCheck-2').checked = settings.shift == 'second';
+
+        // Set the time count input
+        document.getElementById('time-count').value = settings.timeCount;
+
+        // Set the declaration templates
+        settings.declarations.forEach(function(declaration){
+            addListItem(declaration, 'declarations-list');
+        });
+
+        // Set the classes
+        settings.classes.forEach(function(className){
+            addListItem(className, 'class-list');
+        });
+
+        // Set the rooms
+        settings.rooms.forEach(function(roomName){
+            addListItem(roomName, 'room-list');
+        });
+    }).getWorkspaceSettings();
+});
+
+function loadListItems(name, list){
+    // Create a new list item element
+    const listItem = document.createElement('li');
+    listItem.className = 'list-group-item d-flex justify-content-between align-items-xl-center';
+
+    // Create the span element
+    const span = document.createElement('span');
+    span.textContent = name;
+
+    // Create the button element
+    const button = document.createElement('button');
+    button.className = 'btn btn-danger';
+    button.type = 'button';
+    button.onclick = deleteListItem;
+
+    // Create the icon element
+    const icon = document.createElement('i');
+    icon.className = 'fa fa-close';
+
+    // Append the icon to the button
+    button.appendChild(icon);
+
+    // Append the image, span, and button to the list item
+    if(list = 'class-list'){
+        // Create the image element
+        const img = document.createElement('img');
+        img.src = 'https://upload.wikimedia.org/wikipedia/commons/1/19/Google_Classroom_Logo.svg';
+        img.width = 50;
+        img.height = 50;
+        listItem.appendChild(img);
+    }
+    listItem.appendChild(span);
+    listItem.appendChild(button);
+
+    input.value = '';
+
+    // Append the list item to the desired list
+    document.getElementById(list).appendChild(listItem); //TODO: Check if this get the ID properly
+};
+
+document.getElementsByName('shift').addEventListener('change', function(){
+    // TODO Call server-side function to save the new shift
 });
 
 function addListItem(input){
@@ -39,7 +106,7 @@ function addListItem(input){
     input.value = '';
 
     // Append the list item to the desired list
-    document.getElementById('class-list').appendChild(listItem);
+    document.getElementById(input.parentNode.id).appendChild(listItem); //TODO: Check if this get the ID properly
 
     // TODO Call server-side function to save the new class
 }
