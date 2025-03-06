@@ -15,10 +15,10 @@ class Settings {
     /**
      * Смените, с които работи училището.
      * @private
-     * @type {keyof typeof Settings.Shifts}
+     * @type {string}
      * @memberof Settings
      */
-    private _shift: keyof typeof Settings.Shifts;
+    private _shift: string;
     /**
      * Максималният брой на часовете.
      * @private
@@ -68,7 +68,7 @@ class Settings {
 
     /**
      * Създава нова инстанция на Settings.
-     * @param {keyof typeof Settings.Shifts} shift
+     * @param {string} shift
      * @param {number} max_classes
      * @param {string[]} templates
      * @param {string[]} rooms
@@ -77,7 +77,7 @@ class Settings {
      * @param {string} rooms_table_key
      * @memberof Settings
      */
-    constructor(shift: keyof typeof Settings.Shifts, max_classes: number, templates: string[], rooms: string[], classes: string[], substitute_table_key: string, rooms_table_key: string) {
+    constructor(shift: string, max_classes: number, templates: string[], rooms: string[], classes: string[], substitute_table_key: string, rooms_table_key: string) {
         this._shift = shift;
         this._max_classes = max_classes;
         this._templates = templates;
@@ -89,7 +89,7 @@ class Settings {
 
     /**
      * Връща смените, с които работи училището.
-     * @type {keyof typeof Settings.Shifts}
+     * @type {string}
      * @readonly
      * @memberof Settings
      */
@@ -153,11 +153,11 @@ class Settings {
 
     static createFromResultSet(rs: GoogleAppsScript.JDBC.JdbcResultSet): Settings {
         return new Settings(
-            rs.getString('shifts') as keyof typeof Settings.Shifts, 
+            rs.getString('shifts'),
             rs.getInt('max_classes'), 
             Object.values(rs.getObject('templates')), 
-            Object.values(rs.getString('rooms')),
-            Object.values(rs.getString('classes')), 
+            Object.values(rs.getObject('rooms')),
+            Object.values(rs.getObject('classes')), 
             rs.getString('substitute_key'), 
             rs.getString('rooms_key')
         );
