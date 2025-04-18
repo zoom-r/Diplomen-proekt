@@ -43,7 +43,7 @@ class User {
    * Разписанието на потребителя.
    * @property {Table}
    */
-  private _timetable?: Table;
+  private _timetable?: Classes[];
 
   /**
    * Идентификаторът на работното пространство на потребителя.
@@ -99,7 +99,7 @@ class User {
   constructor(email: string, names: string, role: string, position: string);
   
   // Единствена инициализация на конструктора
-  constructor(email: string, names: string, role: string, position: string, id?: string, phone?: string, timetable?: Table, workspace_id?: string, declarations_key?: string, notifications_key?: string) {
+  constructor(email: string, names: string, role: string, position: string, id?: string, phone?: string, timetable?: Classes[], workspace_id?: string, declarations_key?: string, notifications_key?: string) {
     if (arguments.length === 6) {
       this._id = id;
       this._email = email;
@@ -198,7 +198,7 @@ class User {
 
   /**
    * Връща разписанието на потребителя.
-   * @returns {Table} Разписанието на потребителя.
+   * @returns {Classes[]} Разписанието на потребителя.
    */
   get timetable() {
     return this._timetable;
@@ -206,9 +206,9 @@ class User {
 
   /**
    * Задава разписанието на потребителя.
-   * @param {Table} timetable - Новото разписание на потребителя.
+   * @param {Classes[]} timetable - Новото разписание на потребителя.
    */
-  set timetable(timetable: Table) {
+  set timetable(timetable: Classes[]) {
     this._timetable = timetable;
   }
 

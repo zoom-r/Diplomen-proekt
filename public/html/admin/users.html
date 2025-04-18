@@ -49,18 +49,34 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <table id="usersTable" class="table mt-3">
+                        <h4 class="mt-4">Администратори</h4>
+                        <table class="table">
                             <thead>
                                 <tr>
                                     <th>Имена</th>
                                     <th>Имейл</th>
                                     <th>Телефон</th>
-                                    <th>Роля</th>
+                                    <th>Длъжност</th>
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody id="adminTableBody"></tbody>
                         </table>
+
+                        <h4 class="mt-4">Учители</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Имена</th>
+                                    <th>Имейл</th>
+                                    <th>Телефон</th>
+                                    <th>Длъжност</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacherTableBody"></tbody>
+                        </table>
+
                     </div>
                 </div>
             </div>
@@ -129,6 +145,7 @@
             </div>
         </div>
     </div>
+    <div id="alert-wrapper" class="mt-2"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
@@ -150,43 +167,39 @@
                     position: f.position.value.trim(),
                     timetable: document.getElementById('scheduleYes').checked
                         ? buildTimetableJSON()
-                        : {}                         // без разписание
+                        : []                         // без разписание
                 };
                 return userObj;
             }
 
 
-            function buildTimetableJSON() {
-                const selects = document.querySelectorAll('#scheduleTables select[class*="dropdown"]');
-                const entries = [];
-                console.log(selects)
-                selects.forEach(sel => {
-                    const [day, hour, shift] = sel.dataset.info.split('-');
-                    if (sel.classList.contains('class-dropdown') && sel.value) {
-                        const roomSel = document.getElementById(`room-dropdown-${day}-${hour}-${shift}`);
-                        const roomVal = roomSel ? roomSel.value : '';
-                        entries.push({
-                            day,
-                            time: hour,        // ако ползваш “08:00”, тук преобразувай
-                            shift,
-                            group: sel.value,
-                            room: roomVal
-                        });
-                    }
-                });
-                console.log(entries)
-                // ако няма нищо избрано – връщаме {}
-                if (!entries.length) return {};
+function buildTimetableJSON() {
+            const selects = document.querySelectorAll('#scheduleTables select.class-dropdown');
+            const entries = [];
 
-                // Table е един – денят взимаме от първия елемент (при твоя модел)
-                return {
-                    day: entries[0].day,
-                    data: entries
-                };
-            }
-    </script>
+            selects.forEach(sel => {
+                const [day, hour, shift] = sel.dataset.info.split('-');
+                const group = sel.value;
 
-    <script>
+                const roomSel = document.getElementById(`room-dropdown-${day}-${hour}-${shift}`);
+                const roomVal = roomSel?.value || '';
+
+                // Проверяваме дали и клас и стая са избрани
+                if (group && roomVal && group !== '' && roomVal !== '') {
+                    entries.push({
+                        day,
+                        time: hour,
+                        shift,
+                        group,
+                        room: roomVal
+                    });
+                }
+            });
+
+            if (!entries.length) return [];
+            return entries;
+
+        }
         /* ------- Bootstrap alerts helpers ------- */
         function alertSuccess(msg) { showAlert('success', msg); }
         function alertError(msg) { showAlert('danger', msg); }
@@ -194,9 +207,9 @@
             const wrap = document.getElementById('alert-wrapper');
             wrap.innerHTML =
                 `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
-      ${msg}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>`;
+${msg}
+<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>`;
         }
         /* ------- CRUD ------- */
         function loadUsers() {
@@ -209,147 +222,301 @@
             event.preventDefault(); // предотвратяване на стандартното поведение на формата
             const userObj = collectForm();          // събери полетата от формата
             google.script.run
-                .withSuccessHandler(() => { alertSuccess('Добавен!'); hideModal(); loadUsers(); })
-                .withFailureHandler(alertError)
-                .createUser(userObj);
+                .withSuccessHandler(() => {
+                    alertSuccess('Потребителят е добавен успешно.');
+                    resetFormAndHideModal();
+                    loadUsers();
+                    reloadScheduleTables(); // ⬅️ презареждаме таблицата за създаване
+                }).createUser(userObj);
+
         }
         function delUser(id) {
             if (!confirm('Изтриване?')) return;
             google.script.run
-                .withSuccessHandler(() => { alertSuccess('Изтрит!'); loadUsers(); })
+                .withSuccessHandler(() => {
+                    alertSuccess('Изтрит!');
+                    loadUsers();
+                    reloadScheduleTables(); // ⬅️ обновяване на свободните места
+                })
                 .withFailureHandler(alertError)
                 .deleteUser(id);
         }
         /* ------- render ------- */
         function renderTable(list) {
-            const tbody = document.querySelector('#usersTable tbody');
-            tbody.innerHTML = list.map(u => `
-    <tr>
-      <td>${u._names}</td><td>${u._email}</td><td>${u._phone}</td><td>${u._role}</td>
-      <td><button class="btn btn-sm btn-danger" onclick="delUser('${u._id}')">🗑️</button></td>
-    </tr>`).join('');
+            const adminBody = document.getElementById('adminTableBody');
+            const teacherBody = document.getElementById('teacherTableBody');
+
+            adminBody.innerHTML = '';
+            teacherBody.innerHTML = '';
+
+            list.forEach(user => {
+                const rowId = `user-${user._id}`;
+                const collapseId = `collapse-${user._id}`;
+
+                const rowHtml = `
+<tr>
+<td>${user._names}</td>
+<td>${user._email}</td>
+<td>${user._phone}</td>
+<td>${user._position}</td>
+<td>
+<button class="btn btn-sm btn-outline-primary"
+data-bs-toggle="collapse"
+data-bs-target="#collapse-${user._id}"
+aria-expanded="false"
+aria-controls="collapse-${user._id}">
+Разписание
+</button>
+<button class="btn btn-sm btn-danger" onclick="delUser('${user._id}')">🗑️</button>
+</td>
+</tr>
+<tr class="collapse" id="collapse-${user._id}">
+<td colspan="5" style="background-color:#f9f9f9;">
+${renderTimetable(user._timetable)}
+</td>
+</tr>
+`;
+
+                if (user._role === 'admin') {
+                    adminBody.innerHTML += rowHtml;
+                } else {
+                    teacherBody.innerHTML += rowHtml;
+                }
+            });
         }
+
+        function renderTimetable(table) {
+            try {
+                if (typeof table === 'string') table = JSON.parse(table);
+            } catch (e) {
+                console.warn('Invalid timetable:', table);
+                return '<em>Невалидно разписание</em>';
+            }
+
+            if (!Array.isArray(table) || table.length === 0) {
+                return '<em>Няма разписание</em>';
+            }
+
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+            const dayNames = {
+                monday: 'Понеделник',
+                tuesday: 'Вторник',
+                wednesday: 'Сряда',
+                thursday: 'Четвъртък',
+                friday: 'Петък'
+            };
+
+            // Разделяме записите по смяна
+            const grouped = {
+                first: [],
+                second: []
+            };
+            table.forEach(entry => {
+                grouped[entry.shift].push(entry);
+            });
+
+            // Макс брой часове – взимаме най-голямо срещнато число
+            const maxHours = Math.max(...table.map(e => parseInt(e.time)));
+
+            // Генерираме таблица за дадена смяна
+            function generateScheduleTable(shift) {
+                const data = grouped[shift];
+                let html = `<table class="table table-sm table-bordered"><thead><tr><th>Час</th>`;
+                days.forEach(d => html += `<th>${dayNames[d]}</th>`);
+                html += `</tr></thead><tbody>`;
+
+                for (let hour = 1; hour <= maxHours; hour++) {
+                    html += `<tr><td>${hour}</td>`;
+                    days.forEach(day => {
+                        const cell = data.find(e => e.day === day && parseInt(e.time) === hour);
+                        if (cell) {
+                            html += `<td>${cell.group} - ${cell.room}</td>`;
+                        } else {
+                            html += `<td></td>`;
+                        }
+                    });
+                    html += `</tr>`;
+                }
+                html += `</tbody></table>`;
+                return html;
+            }
+
+            // Ако има само една смяна
+            if (!grouped.second.length) {
+                return generateScheduleTable('first');
+            }
+
+            // Ако има две смени – табове
+            return `
+<ul class="nav nav-tabs" id="shiftTabs" role="tablist">
+<li class="nav-item" role="presentation">
+<button class="nav-link active" id="first-tab" data-bs-toggle="tab" data-bs-target="#first" type="button" role="tab">Първа смяна</button>
+</li>
+<li class="nav-item" role="presentation">
+<button class="nav-link" id="second-tab" data-bs-toggle="tab" data-bs-target="#second" type="button" role="tab">Втора смяна</button>
+</li>
+</ul>
+<div class="tab-content mt-2">
+<div class="tab-pane fade show active" id="first" role="tabpanel">${generateScheduleTable('first')}</div>
+<div class="tab-pane fade" id="second" role="tabpanel">${generateScheduleTable('second')}</div>
+</div>
+`;
+        }
+
+
+        function resetFormAndHideModal() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
+            const form = document.getElementById('addUserForm');
+            const scheduleTables = document.getElementById('scheduleTables');
+
+            form.reset(); // изчиства всички полета
+            scheduleTables.innerHTML = ''; // изчиства табличките
+            scheduleTables.classList.add('d-none'); // скрива ги
+            modal.hide(); // затваря модала
+        }
+
+        function reloadScheduleTables() {
+            google.script.run.withSuccessHandler(function (settings) {
+                google.script.run.withSuccessHandler(function (usedSlots) {
+                    generateScheduleTables(settings, usedSlots);
+                    addModalLogic(settings, usedSlots); // <--- ВАЖНО: добави това
+                }).getUsedSlotsForAll();
+            }).getSettings();
+        }
+
+        function generateScheduleTables(settings, usedSlots) {
+            const scheduleTables = document.getElementById('scheduleTables');
+
+            scheduleTables.innerHTML = ''; // Изчистване на предишното съдържание
+            if (settings._shift === 'second') {
+                const tabs = `
+<ul class="nav nav-tabs" id="shiftTabs" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link active" id="first-shift-tab" data-bs-toggle="tab" data-bs-target="#first-shift" type="button" role="tab">Първа смяна</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" id="second-shift-tab" data-bs-toggle="tab" data-bs-target="#second-shift" type="button" role="tab">Втора смяна</button>
+    </li>
+</ul>
+<div class="tab-content" id="shiftTabsContent">
+    <div class="tab-pane fade show active" id="first-shift" role="tabpanel"></div>
+    <div class="tab-pane fade" id="second-shift" role="tabpanel"></div>
+</div>
+`;
+                scheduleTables.innerHTML = tabs;
+
+                generateTable(document.getElementById('first-shift'), { ...settings, _shift: 'first' }, usedSlots);
+                generateTable(document.getElementById('second-shift'), { ...settings, _shift: 'second' }, usedSlots);
+            } else {
+                generateTable(scheduleTables, settings, usedSlots);
+            }
+        }
+
+        // Функция за генериране на таблица
+        function generateTable(container, settings, usedSlots) {
+            const table = document.createElement('table');
+            table.className = 'table table-bordered text-center';
+            table.innerHTML = `
+    <thead>
+        <tr>
+            <th>Час</th>
+            <th>Понеделник</th>
+            <th>Вторник</th>
+            <th>Сряда</th>
+            <th>Четвъртък</th>
+            <th>Петък</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${generateRows(settings, usedSlots)}
+    </tbody>
+`;
+            container.appendChild(table);
+        }
+
+        // Функция за генериране на редове
+        function generateRows(settings, usedSlots) {
+            let rows = '';
+            for (let i = 1; i <= settings._max_classes; i++) {
+                rows += `
+<tr>
+    <td>${i}</td>
+    ${generateCells({ ...settings, hour: i }, usedSlots)}
+</tr>
+`;
+            }
+            return rows;
+        }
+
+        // Функция за генериране на клетки
+        function generateCells(settings, usedSlots) {
+            let cells = '';
+            for (let i = 0; i < 5; i++) {
+                const day = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'][i];
+                const key = `${day}-${settings.hour}-${settings._shift}`;
+                const used = usedSlots[key] || { groups: [], rooms: [] };
+
+                const availableClasses = settings._classes.filter(cls => !used.groups.includes(cls));
+                const availableRooms = settings._rooms.filter(r => !used.rooms.includes(r));
+                // 5 дни в седмицата
+
+                cells += `
+<td>
+    <select id="class-dropdown-${day}-${settings.hour}-${settings._shift}" 
+            class="form-select mb-2 class-dropdown" 
+            data-info="${day}-${settings.hour}-${settings._shift}">
+        <option value="">Избери клас</option>
+${availableClasses.map(cls => `<option value="${cls}">${cls}</option>`).join('')}
+    </select>
+    <select id="room-dropdown-${day}-${settings.hour}-${settings._shift}" 
+            class="form-select room-dropdown" 
+            data-info="${day}-${settings.hour}-${settings._shift}">
+        <option value="">Избери стая</option>
+${availableRooms.map(room => `<option value="${room}">${room}</option>`).join('')}
+    </select>
+</td>
+`;
+            }
+            return cells;
+        }
+
+        function addModalLogic(settings, usedSlots) {
+            const scheduleYes = document.getElementById('scheduleYes');
+            const scheduleNo = document.getElementById('scheduleNo');
+            const scheduleTables = document.getElementById('scheduleTables');
+
+            // Проверка дали елементите съществуват
+            if (scheduleYes && scheduleNo) {
+                scheduleYes.addEventListener('change', function () {
+                    if (this.checked) {
+                        scheduleTables.classList.remove('d-none');
+                        generateScheduleTables(settings, usedSlots);
+                    }
+                });
+
+                scheduleNo.addEventListener('change', function () {
+                    if (this.checked) {
+                        scheduleTables.classList.add('d-none');
+                        scheduleTables.innerHTML = ''; // Изчистване на таблиците
+                    }
+                });
+            }
+
+
+        }
+
         /* ------- init ------- */
         document.addEventListener('DOMContentLoaded', loadUsers);
-    </script>
-    <div id="alert-wrapper" class="mt-2"></div>
 
-    <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Извикване на настройките от backend-а
-            google.script.run.withSuccessHandler(addModalLogic).getSettings();
-
-            function addModalLogic(settings) {
-                const scheduleYes = document.getElementById('scheduleYes');
-                const scheduleNo = document.getElementById('scheduleNo');
-                const scheduleTables = document.getElementById('scheduleTables');
-
-                // Проверка дали елементите съществуват
-                if (scheduleYes && scheduleNo) {
-                    scheduleYes.addEventListener('change', function () {
-                        if (this.checked) {
-                            scheduleTables.classList.remove('d-none');
-                            generateScheduleTables(settings);
-                        }
-                    });
-
-                    scheduleNo.addEventListener('change', function () {
-                        if (this.checked) {
-                            scheduleTables.classList.add('d-none');
-                            scheduleTables.innerHTML = ''; // Изчистване на таблиците
-                        }
-                    });
-                }
-
-                function generateScheduleTables(settings) {
-                    scheduleTables.innerHTML = ''; // Изчистване на предишното съдържание
-                    if (settings._shift === 'second') {
-                        const tabs = `
-            <ul class="nav nav-tabs" id="shiftTabs" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link active" id="first-shift-tab" data-bs-toggle="tab" data-bs-target="#first-shift" type="button" role="tab">Първа смяна</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="second-shift-tab" data-bs-toggle="tab" data-bs-target="#second-shift" type="button" role="tab">Втора смяна</button>
-                </li>
-            </ul>
-            <div class="tab-content" id="shiftTabsContent">
-                <div class="tab-pane fade show active" id="first-shift" role="tabpanel"></div>
-                <div class="tab-pane fade" id="second-shift" role="tabpanel"></div>
-            </div>
-        `;
-                        scheduleTables.innerHTML = tabs;
-
-                        generateTable(document.getElementById('first-shift'), settings);
-                        generateTable(document.getElementById('second-shift'), settings);
-                    } else {
-                        generateTable(scheduleTables, settings);
-                    }
-                }
-                // Функция за генериране на таблица
-                function generateTable(container, settings) {
-                    const table = document.createElement('table');
-                    table.className = 'table table-bordered text-center';
-                    table.innerHTML = `
-                <thead>
-                    <tr>
-                        <th>Час</th>
-                        <th>Понеделник</th>
-                        <th>Вторник</th>
-                        <th>Сряда</th>
-                        <th>Четвъртък</th>
-                        <th>Петък</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${generateRows(settings)}
-                </tbody>
-            `;
-                    container.appendChild(table);
-                }
-
-                // Функция за генериране на редове
-                function generateRows(settings) {
-                    let rows = '';
-                    for (let i = 1; i <= settings._max_classes; i++) {
-                        rows += `
-            <tr>
-                <td>${i}</td>
-                ${generateCells({ ...settings, hour: i })}
-            </tr>
-        `;
-                    }
-                    return rows;
-                }
-
-                // Функция за генериране на клетки
-                function generateCells(settings) {
-                    let cells = '';
-                    for (let i = 0; i < 5; i++) { // 5 дни в седмицата
-                        const day = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'][i];
-                        cells += `
-            <td>
-                <select id="class-dropdown-${day}-${settings.hour}-${settings._shift}" 
-                        class="form-select mb-2 class-dropdown" 
-                        data-info="${day}-${settings.hour}-${settings._shift}">
-                    <option value="">Избери клас</option>
-                    ${settings._classes.map(cls => `<option value="${cls}">${cls}</option>`).join('')}
-                </select>
-                <select id="room-dropdown-${day}-${settings.hour}-${settings._shift}" 
-                        class="form-select room-dropdown" 
-                        data-info="${day}-${settings.hour}-${settings._shift}">
-                    <option value="">Избери стая</option>
-                    ${settings._rooms.map(room => `<option value="${room}">${room}</option>`).join('')}
-                </select>
-            </td>
-        `;
-                    }
-                    return cells;
-                }
-            }
+            google.script.run.withSuccessHandler(function (settings) {
+                google.script.run.withSuccessHandler(function (usedSlots) {
+                    addModalLogic(settings, usedSlots);
+                }).getUsedSlotsForAll();
+            }).getSettings();
         });
-    </script>
-    <script>
+
         document.addEventListener('DOMContentLoaded', function () {
             // Добавяне на слушатели за промяна в dropdown менютата
             document.querySelectorAll('.class-dropdown, .room-dropdown').forEach(function (dropdown) {
@@ -359,41 +526,6 @@
                 });
             });
         });
-
-        /**
-         * Обновява опциите в dropdown менютата за класове и стаи.
-         * @param {string} day - Ден от седмицата
-         * @param {number} hour - Час
-         * @param {string} shift - Смяна ("first" или "second")
-         */
-        function updateDropdownOptions(day, hour, shift) {
-            const classDropdown = document.querySelector(`#class-dropdown-${day}-${hour}-${shift}`);
-            const roomDropdown = document.querySelector(`#room-dropdown-${day}-${hour}-${shift}`);
-
-            google.script.run.withSuccessHandler(function (availability) {
-                const { classAvailable, roomAvailable } = availability;
-
-                // Обновяване на dropdown за класове
-                if (!classAvailable) {
-                    classDropdown.disabled = true;
-                } else {
-                    classDropdown.disabled = false;
-                }
-
-                // Обновяване на dropdown за стаи
-                if (!roomAvailable) {
-                    roomDropdown.disabled = true;
-                } else {
-                    roomDropdown.disabled = false;
-                }
-            }).checkAvailability(
-                day,
-                hour,
-                shift,
-                classDropdown.value,
-                roomDropdown.value
-            );
-        }
     </script>
 </body>
 

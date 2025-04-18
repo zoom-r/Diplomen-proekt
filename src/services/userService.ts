@@ -29,7 +29,7 @@ function createUser(userObj) {
     st.setString(4, userObj.phone);
     st.setString(5, userObj.role);
     st.setString(6, userObj.position);
-    st.setString(7, JSON.stringify(userObj.timetable || {}));
+    st.setString(7, JSON.stringify(userObj.timetable || []));
     st.setString(8, wsId);
     st.setString(9, Utilities.getUuid());
     st.setString(10, Utilities.getUuid());
@@ -37,12 +37,10 @@ function createUser(userObj) {
     const rowsAffected = st.executeUpdate(); // Returns the number of affected rows -> if 0, no new row was added
 
     if (rowsAffected > 0) {
-        conn.commit(); // Commit transaction
+        return { ok: true };
     } else {
-        conn.rollback(); // Rollback transaction if no rows were affected
+        return { ok: false };
     }
-
-    return { ok: true };
 }
 
 /**
@@ -176,7 +174,7 @@ function getAllUsers(): User[] {
                 rs.getString('position'),
                 rs.getString('id'),
                 rs.getString('phone'),
-                rs.getObject('timetable'),
+                JSON.parse(rs.getString('timetable')),
                 null, // workspace_id
                 null, // declarations_key
                 null  // notifications_key
@@ -202,7 +200,7 @@ function isTimeSlotFree_(wsId: string,
     st.setString(1, wsId);
     const rs = st.executeQuery();
     while (rs.next()) {
-        const tt = JSON.parse(rs.getString(1) || '{}');   // един Table
+        const tt = JSON.parse(rs.getString(1) || '[]');   
         if (tt.day !== day || !tt.data) continue;
 
         for (const c of tt.data) {
@@ -216,3 +214,33 @@ function isTimeSlotFree_(wsId: string,
     return true;
 }
 
+/**
+ * Връща обект със заетите класове и стаи за всеки ден/час/смяна.
+ * Формат:
+ * {
+ *   "monday-1-first": { groups: ["12A"], rooms: ["305"] },
+ *   ...
+ * }
+ */
+function getUsedSlotsForAll() {
+    const sql = 'SELECT timetable FROM users WHERE timetable IS NOT NULL AND timetable != ""';
+    const rs = getConnection_().prepareStatement(sql).executeQuery();
+  
+    const map = {};
+  
+    while (rs.next()) {
+      const timetable = JSON.parse(rs.getString(1) || '[]');
+  
+      timetable.forEach(entry => {
+        const key = `${entry.day}-${entry.time}-${entry.shift}`;
+        if (!map[key]) {
+          map[key] = { groups: [], rooms: [] };
+        }
+        if (entry.group) map[key].groups.push(entry.group);
+        if (entry.room)  map[key].rooms.push(entry.room);
+      });
+    }
+  
+    return map;
+  }
+  
