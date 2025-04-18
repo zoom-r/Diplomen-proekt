@@ -1,74 +1,48 @@
 /**
- * Създава нов потребител в базата данни.
- * @param {User} user Потребителят, който ще бъде създаден.
- * @returns {boolean} Връща true, ако потребителят е създаден успешно, в противен случай - false.
- * @throws {Error} Ако възникне грешка при работа с базата данни.
+ * userObj идва от фронтенда и съдържа:
+ * {
+ *   email, firstName, middleName, lastName,
+ *   phone, position, role, timetable: Timetable
+ * }
  */
-function createUser_(user: User): boolean { 
-    const conn = getConnection_();
-    let success = false;
-    try {
-        conn.setAutoCommit(false); // Start transaction
+function createUser(userObj) {
+    const wsId = getCurrentUser_().workspace_id;
 
-        const stmt = conn.prepareStatement('INSERT INTO users (id, names, email, role, position, workspace_id, declarations_key, notifications_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
-        stmt.setString(1, user.id);
-        stmt.setString(2, user.names);
-        stmt.setString(3, user.email);
-        stmt.setString(4, user.role);
-        stmt.setString(5, user.position);
-        stmt.setString(6, user.workspace_id);
-        stmt.setString(7, user.declarations_key);
-        stmt.setString(8, user.notifications_key);
-        const rowsAffected = stmt.executeUpdate(); // Returns the number of affected rows -> if 0, no new row was added
-
-        if (rowsAffected > 0) {
-            conn.commit(); // Commit transaction
-            success = true;
-        } else {
-            conn.rollback(); // Rollback transaction if no rows were affected
+    // Валидация за конфликт
+    if (userObj.timetable && userObj.timetable.data) {
+        userObj.timetable.data.forEach(t => {
+            if (!isTimeSlotFree_(wsId, userObj.timetable.day, t.time, t.shift, t.group, t.room)) {
+                throw new Error(`Конфликт – ${userObj.timetable.day} ${t.time}ч., смяна ${t.shift}`);
+            }
         }
-
-        closeConnection_();
-        return success;  
-    } catch (e) {
-        conn.rollback(); // Rollback transaction in case of error
-        throw new Error('Error during database query for creating a user: ' + e.message);
+        );
     }
-}
 
-/**
- * Обновява данните на потребителя в базата данни.
- * Може да се обновява само информацията на собствения профил.
- * @param {User} user Потребителят, който ще бъде обновен.
- * @returns {boolean} Връща true, ако потребителят е обновен успешно, в противен случай - false.
- * @throws {Error} Ако възникне грешка при работа с базата данни.
- */
-function updateUser_(user: User): boolean {
     const conn = getConnection_();
-    let success = false;
-    try {
-        conn.setAutoCommit(false); // Start transaction
+    const st = conn.prepareStatement(`
+      INSERT INTO users(id,email,names,phone,role,position,timetable,workspace_id,declarations_key,notifications_key)
+      VALUES(?,?,?,?,?,?,?,?,?,?)
+    `);
+    st.setString(1, Utilities.getUuid());
+    st.setString(2, userObj.email);
+    st.setString(3, `${userObj.firstName} ${userObj.middleName} ${userObj.lastName}`);
+    st.setString(4, userObj.phone);
+    st.setString(5, userObj.role);
+    st.setString(6, userObj.position);
+    st.setString(7, JSON.stringify(userObj.timetable || {}));
+    st.setString(8, wsId);
+    st.setString(9, Utilities.getUuid());
+    st.setString(10, Utilities.getUuid());
 
-        const stmt = conn.prepareStatement('UPDATE users SET phone = ?, position = ?, timetable = ? WHERE id = ?');
-        stmt.setString(1, user.phone);
-        stmt.setString(2, user.position);
-        stmt.setObject(3, user.timetable);
-        stmt.setString(4, user.id);
-        const rowsAffected = stmt.executeUpdate();
+    const rowsAffected = st.executeUpdate(); // Returns the number of affected rows -> if 0, no new row was added
 
-        if (rowsAffected > 0) {
-            conn.commit(); // Commit transaction
-            success = true;
-        } else {
-            conn.rollback(); // Rollback transaction if no rows were affected
-        }
-
-        closeConnection_();
-        return success;
-    } catch (e) {
-        conn.rollback(); // Rollback transaction in case of error
-        throw new Error('Error during database query for updating a user: ' + e.message);
+    if (rowsAffected > 0) {
+        conn.commit(); // Commit transaction
+    } else {
+        conn.rollback(); // Rollback transaction if no rows were affected
     }
+
+    return { ok: true };
 }
 
 /**
@@ -77,7 +51,7 @@ function updateUser_(user: User): boolean {
  * @returns {boolean} Връща true, ако потребителят е изтрит успешно, в противен случай - false.
  * @throws {Error} Ако възникне грешка при работа с базата данни.
  */
-function deleteUser_(id: string): boolean {
+function deleteUser(id: string): boolean {
     const conn = getConnection_();
     let success = false;
     try {
@@ -103,7 +77,7 @@ function deleteUser_(id: string): boolean {
             affectedRows.push(stmtDeleteDeclarations.executeUpdate());
 
             conn.commit(); // Commit transaction
-            if(affectedRows.every(execution => execution > 0))
+            if (affectedRows.every(execution => execution > 0))
                 success = true;
         }
 
@@ -124,23 +98,23 @@ function deleteUser_(id: string): boolean {
 function getUserPictureUrl(id: string = null): string {
     const defaultPictureUrl = 'https://lh3.googleusercontent.com/a-/AOh14Gj-cdUSUVoEge7rD5a063tQkyTDT3mripEuDZ0v=s100';
     let userPictureUrl: string = null;
-    try{
+    try {
         let email = null;
-        if(!id){
+        if (!id) {
             email = getUserEmail_()
         } else {
             const user = getUserById_(id);
             email = user.email;
-        } 
+        }
         const people = People.People.searchDirectoryPeople({
             query: email,
             readMask: 'photos',
             sources: 'DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE'
         });
         userPictureUrl = people?.people[0]?.photos[0]?.url;
-    }catch(e){
+    } catch (e) {
         console.error('Error trying to get user picture: ' + e.message);
-    }finally{
+    } finally {
         return userPictureUrl ?? defaultPictureUrl;
     }
 }
@@ -154,16 +128,16 @@ function getUserPictureUrl(id: string = null): string {
  */
 function getUserById_(id: string): User {
     const conn = getConnection_();
-    try{
+    try {
         const stmt = conn.prepareStatement('SELECT id, email, names, phone, role, position FROM users WHERE id = ?');
         stmt.setString(1, id);
         const rs = stmt.executeQuery();
         let user = null;
-        if(rs.next()){
+        if (rs.next()) {
             user = User.createFromResultSet(rs);
         }
         return user;
-    }catch(e){
+    } catch (e) {
         throw new Error('Error during database query for getting a user by ID: ' + e.message);
     }
 }
@@ -180,3 +154,65 @@ function getUserEmail_(): string {
     }
     return email;
 }
+
+/**
+ * Връща всички потребители от базата данни заедно с техните разписания.
+ * @returns {User[]} Масив от потребители.
+ * @throws {Error} Ако възникне грешка при работа с базата данни.
+ */
+function getAllUsers(): User[] {
+    const conn = getConnection_();
+    const users: User[] = [];
+    try {
+        const stmt = conn.prepareStatement('SELECT id, email, names, phone, role, position, timetable FROM users WHERE workspace_id = ?');
+        stmt.setString(1, getCurrentUser_().workspace_id);
+        const rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            const user = new User(
+                rs.getString('email'),
+                rs.getString('names'),
+                rs.getString('role'),
+                rs.getString('position'),
+                rs.getString('id'),
+                rs.getString('phone'),
+                rs.getObject('timetable'),
+                null, // workspace_id
+                null, // declarations_key
+                null  // notifications_key
+            );
+            users.push(user);
+        }
+
+        closeConnection_();
+        return users;
+    } catch (e) {
+        throw new Error('Error during database query for getting all users: ' + e.message);
+    }
+}
+
+function isTimeSlotFree_(wsId: string,
+    day: string,
+    time: string,
+    shift: string,
+    clazz: string,
+    room: string): boolean {
+    const sql = 'SELECT timetable FROM users WHERE workspace_id = ?';
+    const st = getConnection_().prepareStatement(sql);
+    st.setString(1, wsId);
+    const rs = st.executeQuery();
+    while (rs.next()) {
+        const tt = JSON.parse(rs.getString(1) || '{}');   // един Table
+        if (tt.day !== day || !tt.data) continue;
+
+        for (const c of tt.data) {
+            if (c.time === time &&
+                c.shift === shift &&
+                (c.group === clazz || c.room === room)) {
+                return false;   // конфликт
+            }
+        }
+    }
+    return true;
+}
+

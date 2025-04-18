@@ -11,34 +11,22 @@ app.use(authUser_); // Първо проверява дали потребите
 // Routes (проверяват се по ред на инициализация)
 
 // Substitute
-app.get('/substitute', getSubstitutePage_, true);
-app.post('/substitute', createNewSubstituteRequest_, true);
-app.delete('/substitute', deleteSubstituteRequest_, true);
-app.put('/substitute', updateSubstituteRequest_, true);
+app.get('/substitute', getSubstitutePage_);
+
+
+// Users
+app.get('/users', getUsersPage_);
 
 // Settings
-app.get('/settings', function(req, res){
-    res.set('Content-Type', 'text/html');
-    const html = HtmlService.createTemplateFromFile('public/html/settings');
-    html.url = req.url;
-    res.send(html.evaluate().getContent());
-    res.end();
-});
+app.get('/settings', getSettingsPage_);
 
 //TODO: Add the rest of the routes
 
-app.get('/client.js', app.client( function(code){ // Връща кода на клиентската част на приложението
-    return ' ' + code + ' ' 
-}));
-
-app.get(/.*/, function(req, res){
+app.get(/.*/, function(req, res){ // Трябва винаги да е инициализиран последен
     res.set('Content-Type', 'text/html');
     res.send(HtmlService.createTemplateFromFile('public/html/404').evaluate().getContent());
     res.end();
-}); // Трябва винаги да е инициализиран последен
-
-//TODO: Add the client.js script to the html files
-//<script src="https://script.google.com/{SCRIPTID}/exec?path=/client.js"></script>
+}); 
 
 // this hooks Gexpress into appscript 
 function doGet(e) { return app.doGet(e); }

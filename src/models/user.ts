@@ -262,4 +262,23 @@ class User {
       rs.getString('phone')
     );
   }
+
+  /**
+   * Проверява дали потребителят има заетост в даден ден, час и смяна.
+   * @param {string} day - Ден от седмицата.
+   * @param {string} time - Час.
+   * @param {string} shift - Смяна ("first" или "second").
+   * @returns {boolean} - Връща true, ако потребителят е зает, иначе false.
+   */
+  isBusy(day: string, time: string, shift: string): boolean {
+    if (!this._timetable || !this._timetable.data) {
+      return false;
+    }
+
+    return this._timetable.data.some(entry => 
+      entry.day === day && 
+      entry.shift === shift && 
+      entry.time === time
+    );
+  }
 }

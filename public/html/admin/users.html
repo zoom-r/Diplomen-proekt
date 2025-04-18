@@ -16,98 +16,384 @@
 </head>
 
 <body>
-    <?!= navigation() ?>
-    <?!= notificationsOffCanvas() ?>
-    <main style="margin-top: 2rem;">
-        <div id="list-admins">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-4">
-                        <h2 style="width:343px;">Администратори</h2>
-                    </div>
-                    <div class="col-md-4 d-flex justify-content-end align-self-start"></div>
-                    <div class="col-md-4 d-flex justify-content-center align-items-center"><button class="btn btn-primary d-flex align-items-center align-self-center add-button" type="button">Добавяне на администратор&nbsp;<i class="fa fa-plus-circle"></i></button></div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div>
-                            <table class="table table-striped table-bordered" cellspacing="0" id="example" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th>Имена</th>
-                                        <th>Имейл</th>
-                                        <th>Телефон</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Таня Шопова</td>
-                                        <td>23.500</td>
-                                        <td>Text</td>
-                                        <td><button class="btn btn-danger" type="button"><i class="far fa-trash-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Магдалена Филипова</td>
-                                        <td>23.500</td>
-                                        <td>Text</td>
-                                        <td><button class="btn btn-danger" type="button"><i class="far fa-trash-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+    <?!= navigation(url) ?>
+    <div class="offcanvas offcanvas-end visible" tabindex="-1" data-bs-backdrop="false" id="notifications-list"
+        style="z-index: 1051;">
+        <div class="offcanvas-header"><span class="fs-4">Известия</span><button class="btn-close"
+                id="close-notifications" type="button" aria-label="Close" data-bs-dismiss="offcanvas"></button></div>
+        <div class="offcanvas-body d-flex flex-column justify-content-between p-0">
+            <div>
+                <hr class="my-0">
+                <div class="list-group list-group-flush border-bottom scrollarea">
+                    <ul id="notifications-group" class="list-group-item list-group-item-action py-3 lh-tight"
+                        aria-current="true">
+                    </ul>
                 </div>
             </div>
         </div>
-        <hr>
-        <div id="list-teachers">
+    </div>
+    <main style="margin-top: 2rem;">
+        <div id="list-users">
             <div class="container">
                 <div class="row">
                     <div class="col-md-4">
-                        <h2 style="width:343px;">Учители</h2>
+                        <h2>Потребители</h2>
                     </div>
                     <div class="col-md-4 d-flex justify-content-end align-self-start"></div>
-                    <div class="col-md-4 d-flex justify-content-center align-items-center"><button class="btn btn-primary d-flex align-items-center align-self-center add-button" type="button">Добавяне на учител&nbsp;<i class="fa fa-plus-circle"></i></button></div>
+                    <div class="col-md-4 d-flex justify-content-center align-items-center">
+                        <button class="btn btn-primary d-flex align-items-center add-button" type="button"
+                            data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            Добавяне на потребител&nbsp;<i class="fa fa-plus-circle"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <div>
-                            <table class="table table-striped table-bordered" cellspacing="0" id="example" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th>Номер</th>
-                                        <th>Имена</th>
-                                        <th>Длъжност</th>
-                                        <th>Имейл</th>
-                                        <th>Телефон</th>
-                                        <th>Разписание</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Катерина Милчева</td>
-                                        <td>23.500</td>
-                                        <td>Text</td>
-                                        <td>Text</td>
-                                        <td>Text</td>
-                                        <td><button class="btn btn-danger" type="button"><i class="far fa-trash-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button><button class="btn btn-warning" type="button"><i class="fas fa-pencil-alt d-xl-flex justify-content-xl-center align-items-xl-center"></i></button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <table id="usersTable" class="table mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Имена</th>
+                                    <th>Имейл</th>
+                                    <th>Телефон</th>
+                                    <th>Роля</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Добавяне на нов потребител</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm" onsubmit="addUser(event)">
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">Собствено име</label>
+                            <input type="text" class="form-control" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="middleName" class="form-label">Бащино име</label>
+                            <input type="text" class="form-control" id="middleName" name="middleName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Фамилия</label>
+                            <input type="text" class="form-control" id="lastName" name="lastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Имейл</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Телефон</label>
+                            <input type="tel" class="form-control" id="phone" name="phone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Роля</label>
+                            <div>
+                                <input type="radio" id="roleAdmin" name="role" value="admin" required>
+                                <label for="roleAdmin">Администратор</label>
+                                <input type="radio" id="roleTeacher" name="role" value="teacher" required>
+                                <label for="roleTeacher">Учител</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="position" class="form-label">Длъжност</label>
+                            <input type="text" class="form-control" id="position" name="position">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Седмично разписание</label>
+                            <div>
+                                <input type="radio" id="scheduleYes" name="schedule" value="yes" required>
+                                <label for="scheduleYes">ДА</label>
+                                <input type="radio" id="scheduleNo" name="schedule" value="no" required>
+                                <label for="scheduleNo">НЕ</label>
+                            </div>
+                        </div>
+                        <div id="scheduleTables" class="d-none">
+                            <!-- Таблици за разписание ще се добавят динамично тук -->
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Затвори</button>
+                    <button type="submit" class="btn btn-primary" form="addUserForm">Запази</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
         <?!= includeEssentialHtmlScripts() ?>
+    </script>
+    <script>
+            /* -------------------- FORM → OBJECT -------------------- */
+            function collectForm() {
+                const f = document.getElementById('addUserForm');
+
+                const userObj = {
+                    firstName: f.firstName.value.trim(),
+                    middleName: f.middleName.value.trim(),
+                    lastName: f.lastName.value.trim(),
+                    email: f.email.value.trim(),
+                    phone: f.phone.value.trim(),
+                    role: f.querySelector('input[name="role"]:checked')?.value || 'teacher',
+                    position: f.position.value.trim(),
+                    timetable: document.getElementById('scheduleYes').checked
+                        ? buildTimetableJSON()
+                        : {}                         // без разписание
+                };
+                return userObj;
+            }
+
+
+            function buildTimetableJSON() {
+                const selects = document.querySelectorAll('#scheduleTables select[class*="dropdown"]');
+                const entries = [];
+                console.log(selects)
+                selects.forEach(sel => {
+                    const [day, hour, shift] = sel.dataset.info.split('-');
+                    if (sel.classList.contains('class-dropdown') && sel.value) {
+                        const roomSel = document.getElementById(`room-dropdown-${day}-${hour}-${shift}`);
+                        const roomVal = roomSel ? roomSel.value : '';
+                        entries.push({
+                            day,
+                            time: hour,        // ако ползваш “08:00”, тук преобразувай
+                            shift,
+                            group: sel.value,
+                            room: roomVal
+                        });
+                    }
+                });
+                console.log(entries)
+                // ако няма нищо избрано – връщаме {}
+                if (!entries.length) return {};
+
+                // Table е един – денят взимаме от първия елемент (при твоя модел)
+                return {
+                    day: entries[0].day,
+                    data: entries
+                };
+            }
+    </script>
+
+    <script>
+        /* ------- Bootstrap alerts helpers ------- */
+        function alertSuccess(msg) { showAlert('success', msg); }
+        function alertError(msg) { showAlert('danger', msg); }
+        function showAlert(type, msg) {
+            const wrap = document.getElementById('alert-wrapper');
+            wrap.innerHTML =
+                `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+      ${msg}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>`;
+        }
+        /* ------- CRUD ------- */
+        function loadUsers() {
+            google.script.run
+                .withSuccessHandler(renderTable)
+                .withFailureHandler(alertError)
+                .getAllUsers();
+        }
+        function addUser(event) {
+            event.preventDefault(); // предотвратяване на стандартното поведение на формата
+            const userObj = collectForm();          // събери полетата от формата
+            google.script.run
+                .withSuccessHandler(() => { alertSuccess('Добавен!'); hideModal(); loadUsers(); })
+                .withFailureHandler(alertError)
+                .createUser(userObj);
+        }
+        function delUser(id) {
+            if (!confirm('Изтриване?')) return;
+            google.script.run
+                .withSuccessHandler(() => { alertSuccess('Изтрит!'); loadUsers(); })
+                .withFailureHandler(alertError)
+                .deleteUser(id);
+        }
+        /* ------- render ------- */
+        function renderTable(list) {
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = list.map(u => `
+    <tr>
+      <td>${u._names}</td><td>${u._email}</td><td>${u._phone}</td><td>${u._role}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="delUser('${u._id}')">🗑️</button></td>
+    </tr>`).join('');
+        }
+        /* ------- init ------- */
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+    <div id="alert-wrapper" class="mt-2"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Извикване на настройките от backend-а
+            google.script.run.withSuccessHandler(addModalLogic).getSettings();
+
+            function addModalLogic(settings) {
+                const scheduleYes = document.getElementById('scheduleYes');
+                const scheduleNo = document.getElementById('scheduleNo');
+                const scheduleTables = document.getElementById('scheduleTables');
+
+                // Проверка дали елементите съществуват
+                if (scheduleYes && scheduleNo) {
+                    scheduleYes.addEventListener('change', function () {
+                        if (this.checked) {
+                            scheduleTables.classList.remove('d-none');
+                            generateScheduleTables(settings);
+                        }
+                    });
+
+                    scheduleNo.addEventListener('change', function () {
+                        if (this.checked) {
+                            scheduleTables.classList.add('d-none');
+                            scheduleTables.innerHTML = ''; // Изчистване на таблиците
+                        }
+                    });
+                }
+
+                function generateScheduleTables(settings) {
+                    scheduleTables.innerHTML = ''; // Изчистване на предишното съдържание
+                    if (settings._shift === 'second') {
+                        const tabs = `
+            <ul class="nav nav-tabs" id="shiftTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="first-shift-tab" data-bs-toggle="tab" data-bs-target="#first-shift" type="button" role="tab">Първа смяна</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="second-shift-tab" data-bs-toggle="tab" data-bs-target="#second-shift" type="button" role="tab">Втора смяна</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="shiftTabsContent">
+                <div class="tab-pane fade show active" id="first-shift" role="tabpanel"></div>
+                <div class="tab-pane fade" id="second-shift" role="tabpanel"></div>
+            </div>
+        `;
+                        scheduleTables.innerHTML = tabs;
+
+                        generateTable(document.getElementById('first-shift'), settings);
+                        generateTable(document.getElementById('second-shift'), settings);
+                    } else {
+                        generateTable(scheduleTables, settings);
+                    }
+                }
+                // Функция за генериране на таблица
+                function generateTable(container, settings) {
+                    const table = document.createElement('table');
+                    table.className = 'table table-bordered text-center';
+                    table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Час</th>
+                        <th>Понеделник</th>
+                        <th>Вторник</th>
+                        <th>Сряда</th>
+                        <th>Четвъртък</th>
+                        <th>Петък</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${generateRows(settings)}
+                </tbody>
+            `;
+                    container.appendChild(table);
+                }
+
+                // Функция за генериране на редове
+                function generateRows(settings) {
+                    let rows = '';
+                    for (let i = 1; i <= settings._max_classes; i++) {
+                        rows += `
+            <tr>
+                <td>${i}</td>
+                ${generateCells({ ...settings, hour: i })}
+            </tr>
+        `;
+                    }
+                    return rows;
+                }
+
+                // Функция за генериране на клетки
+                function generateCells(settings) {
+                    let cells = '';
+                    for (let i = 0; i < 5; i++) { // 5 дни в седмицата
+                        const day = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'][i];
+                        cells += `
+            <td>
+                <select id="class-dropdown-${day}-${settings.hour}-${settings._shift}" 
+                        class="form-select mb-2 class-dropdown" 
+                        data-info="${day}-${settings.hour}-${settings._shift}">
+                    <option value="">Избери клас</option>
+                    ${settings._classes.map(cls => `<option value="${cls}">${cls}</option>`).join('')}
+                </select>
+                <select id="room-dropdown-${day}-${settings.hour}-${settings._shift}" 
+                        class="form-select room-dropdown" 
+                        data-info="${day}-${settings.hour}-${settings._shift}">
+                    <option value="">Избери стая</option>
+                    ${settings._rooms.map(room => `<option value="${room}">${room}</option>`).join('')}
+                </select>
+            </td>
+        `;
+                    }
+                    return cells;
+                }
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Добавяне на слушатели за промяна в dropdown менютата
+            document.querySelectorAll('.class-dropdown, .room-dropdown').forEach(function (dropdown) {
+                dropdown.addEventListener('change', function () {
+                    const [day, hour, shift] = this.dataset.info.split('-');
+                    updateDropdownOptions(day, hour, shift);
+                });
+            });
+        });
+
+        /**
+         * Обновява опциите в dropdown менютата за класове и стаи.
+         * @param {string} day - Ден от седмицата
+         * @param {number} hour - Час
+         * @param {string} shift - Смяна ("first" или "second")
+         */
+        function updateDropdownOptions(day, hour, shift) {
+            const classDropdown = document.querySelector(`#class-dropdown-${day}-${hour}-${shift}`);
+            const roomDropdown = document.querySelector(`#room-dropdown-${day}-${hour}-${shift}`);
+
+            google.script.run.withSuccessHandler(function (availability) {
+                const { classAvailable, roomAvailable } = availability;
+
+                // Обновяване на dropdown за класове
+                if (!classAvailable) {
+                    classDropdown.disabled = true;
+                } else {
+                    classDropdown.disabled = false;
+                }
+
+                // Обновяване на dropdown за стаи
+                if (!roomAvailable) {
+                    roomDropdown.disabled = true;
+                } else {
+                    roomDropdown.disabled = false;
+                }
+            }).checkAvailability(
+                day,
+                hour,
+                shift,
+                classDropdown.value,
+                roomDropdown.value
+            );
+        }
     </script>
 </body>
 

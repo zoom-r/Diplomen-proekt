@@ -41,17 +41,17 @@ class Table {
     /**
      * Данните в таблицата.
      * @private
-     * @type {Absent[] | Room[] | Classes[]}
+     * @type {Absent[] || Classes[]}
      */
-    private _data: Absent[] | Room[] | Classes[];
+    private _data;
 
     /**
      * Създава нова инстанция на Table.
      * @param {string} id - Уникалният идентификатор на таблицата.
      * @param {keyof typeof Table.Days} day - Денят от седмицата.
-     * @param {Absent[] | Room[] | Classes[]} data - Данните в таблицата.
+     * @param {Absent[] || Classes[]} data - Данните в таблицата.
      */
-    constructor(id: string, day: keyof typeof Table.Days, data: Absent[] | Room[] | Classes[]) {
+    constructor(id: string, day: keyof typeof Table.Days, data) {
         this._id = id;
         this._day = day;
         this._data = data;
@@ -75,7 +75,7 @@ class Table {
 
     /**
      * Връща данните в таблицата.
-     * @returns {Absent[] | Room[] | Classes[]} Данните в таблицата.
+     * @returns {Absent[] || Classes[]} Данните в таблицата.
      */
     get data() {
         return this._data;
@@ -83,10 +83,10 @@ class Table {
 
     /**
      * Задава нови данни в таблицата.
-     * @param {Absent[] | Room[] | Classes[]} data - Новите данни в таблицата.
+     * @param {Absent[] || Classes[]} data - Новите данни в таблицата.
      * @throws {Error} Ако данните са невалидни.
      */
-    set data(data: Absent[] | Room[] | Classes[]) {
+    set data(data) {
         if (!data)
             throw new Error('Invalid data value');
         this._data = data;
@@ -101,7 +101,7 @@ class Table {
         return new Table(
             rs.getString('id'),
             rs.getString('day') as keyof typeof Table.Days,
-            rs.getObject('data')
+            JSON.parse(rs.getObject('data'))
         );
     }
 }

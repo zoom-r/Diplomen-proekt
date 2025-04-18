@@ -4,7 +4,7 @@
  */
 function includeEssentialHtmlScripts(): string {
     let script = '';
-    script += include('public/js/bs-init.js');
+    //script += include('public/js/bs-init.js');
     script += include('public/js/nav.js');
     return script;
 }

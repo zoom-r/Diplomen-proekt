@@ -1,15 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
     // TODO Call srver-side function to load the settings
+    // @ts-ignore
+    google.script.run.withSuccessHandler(loadSettings).getSettings();
 });
 
-function addListItem(input){
-    // Create a new list item element
+// Helper function to create a list item
+function createListItem(content, listType) {
     const listItem = document.createElement('li');
     listItem.className = 'list-group-item d-flex justify-content-between align-items-xl-center';
 
     // Create the span element
     const span = document.createElement('span');
-    span.textContent = input.value;
+    span.textContent = content;
 
     // Create the button element
     const button = document.createElement('button');
@@ -24,29 +26,122 @@ function addListItem(input){
     // Append the icon to the button
     button.appendChild(icon);
 
-    // Append the image, span, and button to the list item
-    if(input.name == 'class-name'){
-        // Create the image element
+    // Append the image for class list items
+    if (listType === 'class-list') {
         const img = document.createElement('img');
         img.src = 'https://upload.wikimedia.org/wikipedia/commons/1/19/Google_Classroom_Logo.svg';
         img.width = 50;
         img.height = 50;
         listItem.appendChild(img);
     }
+
+    // Append the span and button to the list item
     listItem.appendChild(span);
     listItem.appendChild(button);
 
-    input.value = '';
+    return listItem;
+}
+
+// Updated loadSettings function
+function loadSettings(settings) {
+    // Set the radio button for shift
+    if (settings._shift)
+        document.getElementById('shiftCheck-' + settings._shift).checked = true;
+
+    // Set the time count input value
+    if (settings._max_classes && settings._max_classes > 0)
+        document.getElementById('time-count').value = settings._max_classes;
+
+    // Set the declarations list
+    if (settings._declaration_templates && settings._declaration_templates.length > 0) {
+        const declarationsList = document.getElementById('declarations-list');
+        declarationsList.innerHTML = ''; // Clear the list before adding new items
+        settings._declaration_templates.forEach(declaration => {
+            const listItem = createListItem(declaration, 'declarations-list');
+            declarationsList.appendChild(listItem);
+        });
+    }
+
+    // Set the classes list
+    if (settings._classes && settings._classes.length > 0) {
+        const classesList = document.getElementById('class-list');
+        classesList.innerHTML = ''; // Clear the list before adding new items
+        settings._classes.forEach(className => {
+            const listItem = createListItem(className, 'class-list');
+            classesList.appendChild(listItem);
+        });
+    }
+
+    // Set the rooms list
+    if (settings._rooms && settings._rooms.length > 0) {
+        const roomsList = document.getElementById('rooms-list');
+        roomsList.innerHTML = ''; // Clear the list before adding new items
+        settings._rooms.forEach(roomName => {
+            const listItem = createListItem(roomName, 'rooms-list');
+            roomsList.appendChild(listItem);
+        });
+    }
+}
+
+// Updated addListItem function
+function addListItem(input) {
+    const listType = input.name === 'class-name' ? 'class-list' : input.name === 'room-name' ? 'rooms-list' : 'declarations-list';
+    const listItem = createListItem(input.value, listType);
 
     // Append the list item to the desired list
-    document.getElementById('class-list').appendChild(listItem);
+    document.getElementById(listType).appendChild(listItem);
+
+    input.value = '';
 
     // TODO Call server-side function to save the new class
 }
 
-function deleteListItem(){
+function deleteListItem(element) {
     // Remove the list item from the list
     this.parentNode.remove();
 
     // TODO Call server-side function to delete the class
 }
+
+function saveSettings() {
+    const shift = document.querySelector('input[name="shift"]:checked').value;
+    const timeCount = document.getElementById('time-count').value;
+    const declarations = Array.from(document.querySelectorAll('#declarations-list li span')).map(span => span.textContent);
+    const classes = Array.from(document.querySelectorAll('#class-list li span')).map(span => span.textContent);
+    const rooms = Array.from(document.querySelectorAll('#rooms-list li span')).map(span => span.textContent);
+
+    // TODO Call server-side function to save the settings
+    google.script.run.saveSettings(shift, timeCount, declarations, classes, rooms);
+}
+
+document.getElementById('shiftCheck-first').addEventListener('change', function() {
+    if(this.checked) {
+        saveSettings();
+    }
+});
+
+document.getElementById('shiftCheck-second').addEventListener('change', function() {
+    if(this.checked) {
+        saveSettings();
+    }
+});
+
+document.getElementById('time-count').addEventListener('change', function() {
+    saveSettings();
+});
+
+// Select all relevant lists to observe
+const lists = document.querySelectorAll("#class-list, #declarations-list, #rooms-list");
+
+// Create a MutationObserver instance
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    console.log("Something changed!", mutation);
+    saveSettings(); // Call saveSettings when any list changes
+  });
+});
+
+// Start observing each list for changes
+lists.forEach((list) => {
+  observer.observe(list, { childList: true, subtree: false });
+});

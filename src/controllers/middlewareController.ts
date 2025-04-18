@@ -9,7 +9,7 @@
  */
 function authUser_(req, res, next) {
     try {
-        if (checkCurrentUser_()) {
+        if (checkCurrentUser_() && checkSettings_()) {
             next();
         } else {
             res.set('content-type', 'text/html');
