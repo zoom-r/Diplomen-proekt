@@ -13,20 +13,25 @@ app.use(authUser_); // Първо проверява дали потребите
 // Substitute
 app.get('/substitute', getSubstitutePage_);
 
-
 // Users
 app.get('/users', getUsersPage_);
 
 // Settings
 app.get('/settings', getSettingsPage_);
 
-//TODO: Add the rest of the routes
+// Declarations
+app.get('/declarations', getDeclarationsPage_);
 
-app.get(/.*/, function(req, res){ // Трябва винаги да е инициализиран последен
-    res.set('Content-Type', 'text/html');
-    res.send(HtmlService.createTemplateFromFile('public/html/404').evaluate().getContent());
-    res.end();
-}); 
+// Rooms
+app.get('/rooms', getRoomsPage_);
+
+// app.get(/.*/, function(req, res){ // Трябва винаги да е инициализиран последен
+//     res.set('Content-Type', 'text/html');
+//     res.send(HtmlService.createTemplateFromFile('public/html/404').evaluate().getContent());
+//     res.end();
+// }); 
+
+app.get(/.*/, getSubstitutePage_)
 
 // this hooks Gexpress into appscript 
 function doGet(e) { return app.doGet(e); }

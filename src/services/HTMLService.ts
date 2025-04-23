@@ -43,7 +43,7 @@ function notificationsOffCanvas(): string{
 }
 
 function navigation(url): string {
-  const html = HtmlService.createTemplateFromFile('public/html/templates/navigation');
+  const html = HtmlService.createTemplateFromFile('public/html/navigation');
   html.role = getCurrentUser_().role;
   html.url = url;
   return html.evaluate().getContent();

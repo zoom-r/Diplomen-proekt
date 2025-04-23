@@ -1,0 +1,102 @@
+function loadRoomSchedule() {
+    google.script.run.withSuccessHandler(renderRoomSchedule).getRoomUsageGrid();
+  }
+  
+  function renderRoomSchedule(data) {
+    const { grid, settings } = data;
+    const container = document.getElementById("room-schedule-container");
+    container.innerHTML = "";
+  
+    const days = ["monday", "tuesday", "wednesday", "thursday", "friday"];
+    const dayNames = {
+      monday: "Понеделник",
+      tuesday: "Вторник",
+      wednesday: "Сряда",
+      thursday: "Четвъртък",
+      friday: "Петък"
+    };
+  
+    // Tabs for days
+    const tabsNav = document.createElement("ul");
+    tabsNav.className = "nav nav-tabs mb-3";
+    tabsNav.id = "room-day-tabs";
+    tabsNav.role = "tablist";
+  
+    const tabsContent = document.createElement("div");
+    tabsContent.className = "tab-content";
+  
+    days.forEach((day, i) => {
+      // Create tab button
+      const tabId = `room-tab-${day}`;
+      const tabButton = document.createElement("li");
+      tabButton.className = "nav-item";
+      tabButton.innerHTML = `
+        <button class="nav-link ${i === 0 ? "active" : ""}" id="${tabId}-tab" data-bs-toggle="tab"
+          data-bs-target="#${tabId}" type="button" role="tab" aria-controls="${tabId}" aria-selected="${i === 0}">
+          ${dayNames[day]}
+        </button>`;
+      tabsNav.appendChild(tabButton);
+  
+      // Create tab pane
+      const tabPane = document.createElement("div");
+      tabPane.className = `tab-pane fade ${i === 0 ? "show active" : ""}`;
+      tabPane.id = tabId;
+      tabPane.role = "tabpanel";
+  
+      const shifts = settings._shift === "second" ? ["first", "second"] : ["first"];
+  
+      shifts.forEach(shift => {
+        const shiftLabel = document.createElement("h6");
+        shiftLabel.className = "mt-3";
+        shiftLabel.textContent = shift === "first" ? "Първа смяна" : "Втора смяна";
+        tabPane.appendChild(shiftLabel);
+  
+        const table = document.createElement("table");
+        table.className = "table table-bordered bg-white";
+  
+        const thead = document.createElement("thead");
+        thead.innerHTML = "<tr><th>Стая</th><th>Час</th><th>Клас</th></tr>";
+        table.appendChild(thead);
+  
+        const tbody = document.createElement("tbody");
+        const shiftData = grid[day][shift];
+  
+        Object.keys(shiftData).forEach(room => {
+          const entries = shiftData[room];
+          const sorted = [...entries].sort((a, b) => Number(a.time) - Number(b.time));
+  
+          if (sorted.length === 0) return;
+  
+          sorted.forEach((entry, index) => {
+            const row = document.createElement("tr");
+  
+            if (index === 0) {
+              const roomCell = document.createElement("td");
+              roomCell.textContent = room;
+              roomCell.rowSpan = sorted.length;
+              row.appendChild(roomCell);
+            }
+  
+            const timeCell = document.createElement("td");
+            timeCell.textContent = entry.time;
+            row.appendChild(timeCell);
+  
+            const groupCell = document.createElement("td");
+            groupCell.textContent = entry.group || "";
+            row.appendChild(groupCell);
+  
+            tbody.appendChild(row);
+          });
+        });
+  
+        table.appendChild(tbody);
+        tabPane.appendChild(table);
+      });
+  
+      tabsContent.appendChild(tabPane);
+    });
+  
+    container.appendChild(tabsNav);
+    container.appendChild(tabsContent);
+  }
+  

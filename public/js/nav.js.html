@@ -1,34 +1,194 @@
 document.getElementById('notifications').addEventListener('click', () => {
 	document.getElementById('notifications-list').classList.toggle('show');
-	// TODO Call the function for loading notifications
+	google.script.run.withSuccessHandler(function (notifications) {
+		google.script.run.withSuccessHandler(function (settings) {
+			generateNotifications(notifications, settings);
+		}).getSettings();
+	}).getUserNotifications();
 });
+
 document.getElementById('close-notifications').addEventListener('click', () => {
 	document.getElementById('notifications-list').classList.toggle('show');
 });
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
 	google.script.run.withSuccessHandler(url => document.getElementById("profile-pic").setAttribute("src", url)).getUserPictureUrl();
 });
 
-function generateNotifications(notifications) {
-	const notificationsGroup = document.getElementById('notifications-group');
-	notificationsGroup.innerHTML = '';
+// function navigateTo(path) {
+// 	window.top.location.href = `https://script.google.com/macros/s/AKfycbx2DcdhBNacIHyHPC49yiVVNJOCqq6-SvnHHvLW_7mYNPrumE9nW_BthyAIrYTY0f-p/exec/${path}`;
+//   }
+  
 
-	notifications.forEach(notification => {
-		const notificationElement = document.createElement('li');
-		notificationElement.className = 'list-group-item list-group-item-action py-3 lh-tight';
-		notificationElement.innerHTML = `
-			<div class="d-flex justify-content-between align-items-center w-100">
-				<strong id="notification-title" class="mb-1">${notification.title}</strong>
-				<small id="notification-date">${notification.date}</small>
-				<i class="fas fa-times" id="notification-delete" onclick="deleteNotification(${notification.id})"></i>
-				<div class="col-10 mb-1 small">
-					<span id="notification-description">От ${notification.sender}</span>
-				</div>
-			</div>
-		`;
-		notificationsGroup.appendChild(notificationElement);
-	});
+function getHourSuffix(hour) {
+	const map = {
+		"1": "1-ви",
+		"2": "2-ри",
+		"3": "3-ти",
+		"4": "4-ти",
+		"5": "5-ти",
+		"6": "6-ти",
+		"7": "7-ми",
+		"8": "8-ми"
+	};
+	return map[String(hour)] || `${hour}-ти`;
 }
+
+
+function openApproveRequestModal(request) {
+	activeRequestData = request;
+
+	// Преглед на часовете
+	const days = {
+		monday: "Понеделник", tuesday: "Вторник", wednesday: "Сряда",
+		thursday: "Четвъртък", friday: "Петък"
+	};
+
+	const preview = request.schedule.map(e => {
+		const shift = globalSettings._shift === "second" ? `, смяна: ${e.shift}` : "";
+		return `<li>${days[e.day]}, ${getHourSuffix(e.hour)} час${shift}, клас: ${e.group}</li>`;
+	}).join("");
+
+	document.getElementById("requestSchedulePreview").innerHTML =
+		`<ul class="mb-0">${preview}</ul>`;
+
+	// Шаблони
+	const templateSelect = document.getElementById("templateSelect");
+	templateSelect.innerHTML = "";
+
+	(globalSettings._declarations_templates || []).forEach(t => {
+		const opt = document.createElement("option");
+		opt.value = t.url;
+		opt.textContent = t.name;
+		templateSelect.appendChild(opt);
+	});
+
+	// Покажи модала
+	const modal = new bootstrap.Modal(document.getElementById("approveRequestModal"));
+	modal.show();
+}
+
+function generateNotifications(notifications, settings) {
+	const group = document.getElementById("notifications-group");
+	group.innerHTML = "";
+  
+	notifications.forEach(n => {
+	  const li = document.createElement("li");
+	  li.className = "list-group-item d-flex justify-content-between align-items-start";
+  
+	  const textContainer = document.createElement("div");
+	  textContainer.className = "ms-2 me-auto";
+  
+	  // 🔹 Тип: substitute-request → заявка
+	  if (n.type === "substitute-request") {
+		const title = document.createElement("div");
+		title.className = "fw-bold";
+		title.textContent = `Заявка от ${n.fromName}`;
+		textContainer.appendChild(title);
+  
+		const list = document.createElement("ul");
+		n.schedule.forEach(s => {
+		  const item = document.createElement("li");
+		  const shiftPart = (settings._shift === "second") ? `, смяна: ${s.shift}` : "";
+		  item.textContent = `${translateDay(s.day)}, ${s.hour} час, ${s.group}${shiftPart}`;
+		  list.appendChild(item);
+		});
+		textContainer.appendChild(list);
+  
+		const actions = document.createElement("div");
+		actions.className = "mt-2";
+  
+		// бутон Одобри
+		const approveBtn = document.createElement("button");
+		approveBtn.className = "btn btn-sm btn-success";
+		approveBtn.textContent = "Одобри";
+		approveBtn.onclick = () => openApproveRequestModal(n);
+		actions.appendChild(approveBtn);
+  
+		// бутон Откажи
+		const declineBtn = document.createElement("button");
+		declineBtn.className = "btn btn-sm btn-outline-danger ms-2";
+		declineBtn.textContent = "Откажи";
+		declineBtn.onclick = () => {
+		  if (confirm("Сигурен ли си, че искаш да откажеш тази заявка?")) {
+			google.script.run.withSuccessHandler(() => li.remove()).declineSubstituteRequest(n);
+		  }
+		};
+		actions.appendChild(declineBtn);
+  
+		textContainer.appendChild(actions);
+	  }
+  
+	  // 🔹 Всички останали нотификации
+	  else {
+		const title = document.createElement("div");
+		title.className = "fw-bold";
+		title.textContent = n.text || "Нова нотификация";
+		textContainer.appendChild(title);
+  
+		if (n.from) {
+		  const who = document.createElement("div");
+		  who.textContent = n.from;
+		  textContainer.appendChild(who);
+		}
+  
+		if (n.schedule?.length) {
+		  const list = document.createElement("ul");
+		  n.schedule.forEach(s => {
+			const item = document.createElement("li");
+			const shiftPart = (settings._shift === "second") ? `, смяна: ${s.shift}` : "";
+			item.textContent = `${translateDay(s.day)}, ${s.hour} час, ${s.group}${shiftPart}`;
+			list.appendChild(item);
+		  });
+		  textContainer.appendChild(list);
+		}
+  
+		if (n.timestamp) {
+		  const time = document.createElement("div");
+		  const d = new Date(n.timestamp);
+		  time.textContent = `⏱ ${d.toLocaleString("bg-BG")}`;
+		  textContainer.appendChild(time);
+		}
+  
+		// бутон X
+		const btn = document.createElement("button");
+		btn.className = "btn-close";
+		btn.onclick = () => {
+		  if (confirm("Сигурен ли си, че искаш да изтриеш нотификацията?")) {
+			google.script.run.withSuccessHandler(() => li.remove()).deleteNotification(n.id);
+		  }
+		};
+  
+		li.appendChild(textContainer);
+		li.appendChild(btn);
+	  }
+  
+	  li.appendChild(textContainer);
+	  group.appendChild(li);
+	});
+  }
+  
+
+function confirmRequestApproval() {
+	const templateUrl = document.getElementById("templateSelect").value;
+
+	google.script.run.withSuccessHandler(() => {
+		alert("Декларациите са генерирани.");
+		bootstrap.Modal.getInstance(document.getElementById("approveRequestModal")).hide();
+	}).processSubstituteRequestApproval(activeRequestData, templateUrl);
+}
+
+
+function translateDay(day) {
+	const map = {
+		monday: "Понеделник",
+		tuesday: "Вторник",
+		wednesday: "Сряда",
+		thursday: "Четвъртък",
+		friday: "Петък"
+	};
+	return map[day] || day;
+}
+
 
 function deleteNotification(id) {
 	// TODO Implement the delete functionality here

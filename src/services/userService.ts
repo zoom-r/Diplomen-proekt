@@ -35,7 +35,7 @@ function createUser(userObj) {
     st.setString(10, Utilities.getUuid());
 
     const rowsAffected = st.executeUpdate(); // Returns the number of affected rows -> if 0, no new row was added
-
+        closeConnection_();
     if (rowsAffected > 0) {
         return { ok: true };
     } else {
@@ -53,31 +53,31 @@ function deleteUser(id: string): boolean {
     const conn = getConnection_();
     let success = false;
     try {
-        conn.setAutoCommit(false); // Start transaction
+        // conn.setAutoCommit(false); // Start transaction
 
-        const stmtSelect = conn.prepareStatement('SELECT notifications_key, declarations_key FROM users WHERE id = ?');
-        stmtSelect.setString(1, id);
-        const rs = stmtSelect.executeQuery();
+        // const stmtSelect = conn.prepareStatement('SELECT notifications_key, declarations_key FROM users WHERE id = ?');
+        // stmtSelect.setString(1, id);
+        // const rs = stmtSelect.executeQuery();
 
-        if (rs.next()) {
-            let affectedRows: number[] = [];
+        // if (rs.next()) {
+            let affectedRows;
 
             const stmtDeleteUser = conn.prepareStatement('DELETE FROM users WHERE id = ?');
             stmtDeleteUser.setString(1, id);
-            affectedRows.push(stmtDeleteUser.executeUpdate());
+            affectedRows = stmtDeleteUser.executeUpdate();
 
-            const stmtDeleteNotifications = conn.prepareStatement('DELETE FROM notifications WHERE notifications_key = ?');
-            stmtDeleteNotifications.setString(1, rs.getString('notifications_key'));
-            affectedRows.push(stmtDeleteNotifications.executeUpdate());
+            // const stmtDeleteNotifications = conn.prepareStatement('DELETE FROM notifications WHERE notifications_key = ?');
+            // stmtDeleteNotifications.setString(1, rs.getString('notifications_key'));
+            // affectedRows.push(stmtDeleteNotifications.executeUpdate());
 
-            const stmtDeleteDeclarations = conn.prepareStatement('DELETE FROM declarations WHERE declarations_key = ?');
-            stmtDeleteDeclarations.setString(1, rs.getString('declarations_key'));
-            affectedRows.push(stmtDeleteDeclarations.executeUpdate());
+            // const stmtDeleteDeclarations = conn.prepareStatement('DELETE FROM declarations WHERE declarations_key = ?');
+            // stmtDeleteDeclarations.setString(1, rs.getString('declarations_key'));
+            // affectedRows.push(stmtDeleteDeclarations.executeUpdate());
 
-            conn.commit(); // Commit transaction
-            if (affectedRows.every(execution => execution > 0))
+            // conn.commit(); // Commit transaction
+            if (affectedRows > 0)
                 success = true;
-        }
+        // }
 
         closeConnection_();
         return success;
@@ -127,7 +127,7 @@ function getUserPictureUrl(id: string = null): string {
 function getUserById_(id: string): User {
     const conn = getConnection_();
     try {
-        const stmt = conn.prepareStatement('SELECT id, email, names, phone, role, position FROM users WHERE id = ?');
+        const stmt = conn.prepareStatement('SELECT id, email, names, phone, role, position, timetable, notifications_key, declarations_key, workspace_id FROM users WHERE id = ?');
         stmt.setString(1, id);
         const rs = stmt.executeQuery();
         let user = null;
@@ -240,7 +240,8 @@ function getUsedSlotsForAll() {
         if (entry.room)  map[key].rooms.push(entry.room);
       });
     }
-  
+  closeConnection_();
     return map;
   }
+  
   

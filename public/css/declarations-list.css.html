@@ -1,4 +1,4 @@
-.time-section {
+/* .time-section {
   display: flex;
 }
 
@@ -91,4 +91,44 @@
 .list-group-item[data-submitted="true"] .status-false {
   display: none;
 }
+ */
+/* Основен ред с декларация */
+.document-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  background: #f8f9fa;
+  border-radius: 5px;
+  margin-bottom: 6px;
+  border: 1px solid #dee2e6;
+  transition: background 0.2s ease;
+}
 
+.document-line:hover {
+  background: #e9ecef;
+}
+
+/* Иконата за документа */
+.document-line .icon {
+  margin-right: 8px;
+}
+
+/* Collapse иконка в заглавието на датата */
+.collapse-icon {
+  float: right;
+  transition: transform 0.3s ease;
+}
+
+.collapse-icon.rotate {
+  transform: rotate(180deg);
+}
+
+/* Заглавен ред с дата */
+.time-section {
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  background-color: #ffffff;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+}

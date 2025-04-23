@@ -15,7 +15,7 @@ function authUser_(req, res, next) {
             res.set('content-type', 'text/html');
             const html = HtmlService.createTemplateFromFile('public/html/error');
             html.error = 'Нямате достъп до това приложение.';        
-            res.send(html.evaluate().getContent());
+            res.send(html.evaluate().setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).getContent());
             res.end();
         }
     } catch (err) {
@@ -23,7 +23,7 @@ function authUser_(req, res, next) {
         res.set('content-type', 'text/html');
         const html = HtmlService.createTemplateFromFile('public/html/error');
         html.error = 'Error in authorisation: ' + err.message;
-        res.send(html.evaluate().getContent());
+        res.send(html.evaluate().setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).getContent());
         res.end();
     }
 }

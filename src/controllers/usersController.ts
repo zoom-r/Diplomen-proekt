@@ -15,6 +15,6 @@ function getUsersPage_(req, res) {
         html = HtmlService.createTemplateFromFile('public/html/teacher/users');
         html.url = req.url;
     }
-    res.send(html.evaluate().getContent());
+    res.send(html.evaluate().setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).getContent());
     res.end();
 }

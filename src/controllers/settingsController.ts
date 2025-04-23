@@ -3,14 +3,14 @@ function getSettingsPage_(req, res){
         res.set('Content-Type', 'text/html');
         const html = HtmlService.createTemplateFromFile('public/html/error');
         html.error = 'Нямате достъп до тази страница.';
-        res.send(html.evaluate().getContent());
+        res.send(html.evaluate().setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).getContent());
         res.end();
         return;
     }
     res.set('Content-Type', 'text/html');
     const html = HtmlService.createTemplateFromFile('public/html/settings');
     html.url = req.url;
-    res.send(html.evaluate().getContent());
+    res.send(html.evaluate().setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).getContent());
     res.end();
 }
 
@@ -40,3 +40,8 @@ function saveSettings(shift, max_classes, declarations_templates, classes, rooms
         closeConnection_();
     }
 }
+
+function getGoogleDocName(fileId: string): string {
+    return DriveApp.getFileById(fileId).getName();
+  }
+  

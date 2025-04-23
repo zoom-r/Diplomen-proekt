@@ -1,0 +1,132 @@
+document.querySelectorAll('.time-section').forEach(function(item) {
+    item.addEventListener('click', function() {
+        item.parentElement.querySelector('.date-list').classList.toggle('collapse');
+        item.querySelector('.collapse-icon').classList.toggle('rotate');
+    });
+});
+document.querySelectorAll('.submit-btn-false').forEach(function(item) {
+    item.addEventListener('click', function() {
+        item.parentElement.setAttribute('data-submitted', 'false');
+    });
+});
+document.querySelectorAll('.submit-btn-true').forEach(function(item) {
+    item.addEventListener('click', function() {
+        item.parentElement.setAttribute('data-submitted', 'true');
+    });
+});
+
+let currentUser = null;
+
+google.script.run.withSuccessHandler(function(data) {
+    currentUser = data.user;
+    renderDeclarations(data.declarations);
+  }).getDeclarationsWithUser();
+  
+
+function loadDeclarations() {
+    google.script.run.withSuccessHandler(renderDeclarations).getDeclarations();
+  }
+  
+  function renderDeclarations(data) {
+    const container = document.getElementById("declarations-container");
+    container.innerHTML = "";
+    console.log(data);
+    // const declarations = data.declarations;
+  
+    const grouped = {};
+    data.forEach(d => {
+      if (!grouped[d.date]) grouped[d.date] = [];
+      grouped[d.date].push(d);
+    });
+  
+    const sortedDates = Object.keys(grouped).sort();
+    sortedDates.forEach(date => {
+      const section = document.createElement("div");
+      section.className = "time-section mb-2 border-bottom pb-2";
+      section.innerHTML = `<b>📅 ${formatDateBG(date)}</b> <span class="collapse-icon">⮟</span>`;
+  
+      const list = document.createElement("div");
+      list.className = "date-list collapse";
+  
+      section.addEventListener("click", function () {
+        list.classList.toggle("collapse");
+        section.querySelector(".collapse-icon").classList.toggle("rotate");
+      });
+  
+      grouped[date].forEach(decl => {
+        const row = document.createElement("div");
+        row.className = "document-line";
+  
+        const left = document.createElement("div");
+        left.className = "d-flex align-items-center";
+        left.innerHTML = `
+          <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" width="20" height="20" class="icon">
+          <a href="${decl.url}" target="_blank" class="ms-2">${decl.title}</a>
+        `;
+  
+        const right = document.createElement("div");
+  
+        if (currentUser._role === "teacher") {
+          const btn = document.createElement("button");
+          btn.className = `btn btn-sm ${decl.submitted ? 'btn-success' : 'btn-outline-secondary'}`;
+          btn.textContent = decl.submitted ? "Завършено" : "Не е завършено";
+          btn.onclick = () => toggleDeclarationStatus(decl.id, !decl.submitted, btn);
+          right.appendChild(btn);
+        } else {
+          const label = document.createElement("span");
+          label.className = decl.submitted ? "text-success" : "text-muted";
+          label.textContent = decl.submitted ? "Завършено" : "Не е завършено";
+          right.appendChild(label);
+  
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn btn-sm btn-outline-danger ms-2";
+          delBtn.textContent = "🗑";
+          delBtn.onclick = () => {
+            if (confirm("Сигурен ли си, че искаш да изтриеш декларацията?")) {
+              google.script.run.withSuccessHandler(() => row.remove()).deleteDeclaration(decl.id, decl.doc_id);
+            }
+          };
+          right.appendChild(delBtn);
+        }
+  
+        row.appendChild(left);
+        row.appendChild(right);
+        list.appendChild(row);
+      });
+  
+      container.appendChild(section);
+      container.appendChild(list);
+    });
+  }
+  
+  function formatDateBG(dateStr) {
+    const parts = dateStr.split(".");
+    if (parts.length !== 3) return "Невалидна дата";
+    const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+    if (isNaN(d.getTime())) return "Невалидна дата";
+    return d.toLocaleDateString("bg-BG", { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+  
+  
+  function toggleDeclarationStatus(id, newStatus, btn) {
+    google.script.run.withSuccessHandler(() => {
+      btn.className = `btn btn-sm ${newStatus ? 'btn-success' : 'btn-outline-secondary'}`;
+      btn.textContent = newStatus ? "Завършено" : "Не е завършено";
+    }).updateDeclarationStatus(id, newStatus);
+  }
+  
+  function formatDateBG(dateStr) {
+    // Очаква се формат DD.MM.YYYY
+    const [day, month, year] = dateStr.split(".");
+    const date = new Date(`${year}-${month}-${day}`);
+    if (isNaN(date.getTime())) return "Невалидна дата";
+  
+    return date.toLocaleDateString("bg-BG", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  }
+  
+  

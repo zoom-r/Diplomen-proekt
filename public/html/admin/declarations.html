@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Декларации</title>
     <style>
-        <? !=includeEssentialHtmlStyles() ?>
+        <?!= includeEssentialHtmlStyles() ?>
     </style>
     <style>
-        <? !=include('public/css/declarations-list.css') ?>
+        <?!= include('public/css/declarations-list.css') ?>
     </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -20,48 +20,28 @@
 </head>
 
 <body>
-    <?!= navigation() ?>
-    <?!= notificationsOffCanvas() ?>
+    <?!= navigation(url) ?>
+    <div class="offcanvas offcanvas-end visible" tabindex="-1" data-bs-backdrop="false" id="notifications-list"
+        style="z-index: 1051;">
+        <div class="offcanvas-header"><span class="fs-4">Известия</span><button class="btn-close"
+                id="close-notifications" type="button" aria-label="Close" data-bs-dismiss="offcanvas"></button></div>
+        <div class="offcanvas-body d-flex flex-column justify-content-between p-0">
+            <div>
+                <hr class="my-0">
+                <div class="list-group list-group-flush border-bottom scrollarea">
+                    <ul id="notifications-group" class="list-group-item list-group-item-action py-3 lh-tight"
+                        aria-current="true">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
     <main style="margin-top: 30px;">
-        <div>
-            <div class="time-section">
-                <h3>30.11.2024</h3><i class="fas fa-arrow-up collapse-icon"></i>
-            </div>
-            <ul class="list-group date-list">
-                <li class="list-group-item" data-submitted="true"><a class="declarations-list-link" href="#"><img
-                            class="declarations-list-doc-icon"
-                            src="../assets/img/google_docs_logo_(2014-2020).svg.png"><span>deklaraciq_test</span></a>
-                    <p class="status-true">Завършено<i class="far fa-check-circle" style="margin-left: 5px;"></i></p>
-                    <p class="status-false">Незавършено<i class="far fa-times-circle" style="margin-left: 5px;"></i></p>
-                </li>
-                <li class="list-group-item" data-submitted="false"><a class="declarations-list-link" href="#"><img
-                            class="declarations-list-doc-icon"
-                            src="../assets/img/google_docs_logo_(2014-2020).svg.png"><span>deklaraciq_test</span></a>
-                    <p class="status-true">Означено като готово<i class="far fa-check-circle"
-                            style="margin-left: 5px;"></i></p>
-                    <p class="status-false">Незавършено<i class="far fa-times-circle" style="margin-left: 5px;"></i></p>
-                </li>
-            </ul>
-        </div>
-        <hr>
-        <div>
-            <div class="time-section">
-                <h3>29.11.2024</h3><i class="fas fa-arrow-up collapse-icon"></i>
-            </div>
-            <ul class="list-group date-list">
-                <li class="list-group-item"><a class="declarations-list-link" href="#"><img
-                            class="declarations-list-doc-icon"
-                            src="../assets/img/google_docs_logo_(2014-2020).svg.png"><span>deklaraciq_test</span></a>
-                </li>
-                <li class="list-group-item"><a class="declarations-list-link" href="#"><img
-                            class="declarations-list-doc-icon"
-                            src="../assets/img/google_docs_logo_(2014-2020).svg.png"><span>deklaraciq_test</span></a>
-                </li>
-            </ul>
-        </div>
+        <div id="declarations-container" class="container my-4"></div>
+
     </main>
     <script> <?!= includeEssentialHtmlScripts() ?> </script>
-    <script> <?!= include('public/js/animate_declarations_list.js') ?> </script>
+    <script> <?!= include('public/js/declarations.js') ?> </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>

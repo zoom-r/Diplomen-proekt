@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // TODO Call srver-side function to load the settings
     // @ts-ignore
     google.script.run.withSuccessHandler(loadSettings).getSettings();
@@ -53,14 +53,21 @@ function loadSettings(settings) {
         document.getElementById('time-count').value = settings._max_classes;
 
     // Set the declarations list
-    if (settings._declaration_templates && settings._declaration_templates.length > 0) {
-        const declarationsList = document.getElementById('declarations-list');
-        declarationsList.innerHTML = ''; // Clear the list before adding new items
-        settings._declaration_templates.forEach(declaration => {
-            const listItem = createListItem(declaration, 'declarations-list');
-            declarationsList.appendChild(listItem);
-        });
-    }
+    const declList = document.getElementById("declarations-list");
+    declList.innerHTML = "";
+    (settings._declarations_templates || []).forEach(decl => {
+        const div = document.createElement("div");
+        div.className = "input-group mb-2";
+        div.dataset.url = decl.url;
+        div.dataset.name = decl.name;
+
+        div.innerHTML = `
+    <a href="${decl.url}" target="_blank" class="form-control">${decl.name}</a>
+    <button class="btn btn-outline-danger" type="button" onclick="removeDeclarationTemplate(this)">🗑️</button>
+  `;
+        declList.appendChild(div);
+    });
+
 
     // Set the classes list
     if (settings._classes && settings._classes.length > 0) {
@@ -92,41 +99,86 @@ function addListItem(input) {
     document.getElementById(listType).appendChild(listItem);
 
     input.value = '';
-
-    // TODO Call server-side function to save the new class
 }
 
 function deleteListItem(element) {
     // Remove the list item from the list
     this.parentNode.remove();
-
-    // TODO Call server-side function to delete the class
 }
+
+function extractFileIdFromUrl(url) {
+    const match = url.match(/[-\w]{25,}/);
+    return match ? match[0] : null;
+}
+
+function addDeclarationTemplate() {
+    const input = document.getElementById("declaration-input");
+    const url = input.value.trim();
+    if (!url) return;
+
+    const fileId = extractFileIdFromUrl(url);
+    if (!fileId) {
+        alert("Невалиден Google Docs линк");
+        return;
+    }
+
+    google.script.run.withSuccessHandler(name => {
+        const list = document.getElementById("declarations-list");
+        const div = document.createElement("div");
+        div.className = "input-group mb-2";
+        div.dataset.url = url;
+        div.dataset.name = name;
+
+        div.innerHTML = `
+        <a href="${url}" target="_blank" class="form-control">${name}</a>
+        <button class="btn btn-outline-danger" type="button" onclick="removeDeclarationTemplate(this)">🗑️</button>
+      `;
+        list.appendChild(div);
+        input.value = "";
+    }).getGoogleDocName(fileId);
+}
+
+function removeDeclarationTemplate(button) {
+    const div = button.parentElement;
+    div.remove();
+}
+
+function getDeclarationTemplates() {
+    const list = document.getElementById("declarations-list").children;
+    const result = [];
+    for (const item of list) {
+        result.push({
+            url: item.dataset.url,
+            name: item.dataset.name
+        });
+    }
+    return result;
+}
+
 
 function saveSettings() {
     const shift = document.querySelector('input[name="shift"]:checked').value;
     const timeCount = document.getElementById('time-count').value;
-    const declarations = Array.from(document.querySelectorAll('#declarations-list li span')).map(span => span.textContent);
+    const declarations = getDeclarationTemplates();
     const classes = Array.from(document.querySelectorAll('#class-list li span')).map(span => span.textContent);
     const rooms = Array.from(document.querySelectorAll('#rooms-list li span')).map(span => span.textContent);
 
-    // TODO Call server-side function to save the settings
     google.script.run.saveSettings(shift, timeCount, declarations, classes, rooms);
 }
 
-document.getElementById('shiftCheck-first').addEventListener('change', function() {
-    if(this.checked) {
+document.getElementById('shiftCheck-first').addEventListener('change', function () {
+    if (this.checked) {
         saveSettings();
     }
 });
 
-document.getElementById('shiftCheck-second').addEventListener('change', function() {
-    if(this.checked) {
+document.getElementById('shiftCheck-second').addEventListener('change', function () {
+    if (this.checked) {
         saveSettings();
     }
 });
 
-document.getElementById('time-count').addEventListener('change', function() {
+document.getElementById('time-count').addEventListener('change', function () {
     saveSettings();
 });
 
@@ -135,13 +187,13 @@ const lists = document.querySelectorAll("#class-list, #declarations-list, #rooms
 
 // Create a MutationObserver instance
 const observer = new MutationObserver((mutations) => {
-  mutations.forEach((mutation) => {
-    console.log("Something changed!", mutation);
-    saveSettings(); // Call saveSettings when any list changes
-  });
+    mutations.forEach((mutation) => {
+        console.log("Something changed!", mutation);
+        saveSettings(); // Call saveSettings when any list changes
+    });
 });
 
 // Start observing each list for changes
 lists.forEach((list) => {
-  observer.observe(list, { childList: true, subtree: false });
+    observer.observe(list, { childList: true, subtree: false });
 });

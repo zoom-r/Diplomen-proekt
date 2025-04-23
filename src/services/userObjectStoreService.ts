@@ -22,7 +22,12 @@ function checkCurrentUser_(): boolean {
     try{
         const userData = userStore.get('user');
         console.log(userData)
-        let user = new User(userData._email, userData._names, userData._role, userData._position, userData._id, userData._phone, userData._timetable, userData._workspace_id, userData._declarations_key, userData._notifications_key);
+        let user;
+        if(!userData) {
+            user = null;
+        } else {
+            user = new User(userData._email, userData._names, userData._role, userData._position, userData._id, userData._phone, userData._timetable, userData._workspace_id, userData._declarations_key, userData._notifications_key);
+        }
         const stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ?'); // Използва проверка с email, защото потребителят може да бъде изтрит и добавен отново (тогава id-то ще е различно, но email-ът - същият)
         if (!user) {
             stmt.setString(1, getUserEmail_());
@@ -59,5 +64,13 @@ function checkCurrentUser_(): boolean {
  */
 function getCurrentUser_(): User {
     const data = userStore.get('user');
-    return new User(data._email, data._names, data._role, data._position, data._id, data._phone, data._timetable, data._workspace_id, data._declarations_key, data._notifications_key);
+    return new User(data._email, data._names, data._role, data._position, data._id, data._phone, JSON.parse(data._timetable), data._workspace_id, data._declarations_key, data._notifications_key);
 }
+
+function getCurrentUserTimetable() {
+    const user = getCurrentUser_();
+    console.log(user)
+    return user.timetable || [];
+  }
+  
+  
