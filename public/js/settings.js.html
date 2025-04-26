@@ -1,32 +1,41 @@
+// Намиране на всички списъци, които следим за промени
+const lists = document.querySelectorAll("#class-list, #declarations-list, #rooms-list");
+
+// Създаване на MutationObserver, който следи дали има промени в списъците
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        console.log("Нещо се промени!", mutation);
+        saveSettings(); // Запазваме настройките при всяка промяна
+    });
+});
+
+// Когато страницата се зареди, извикваме настройките от сървъра
 document.addEventListener('DOMContentLoaded', function () {
-    // TODO Call srver-side function to load the settings
-    // @ts-ignore
     google.script.run.withSuccessHandler(loadSettings).getSettings();
 });
 
-// Helper function to create a list item
+/**
+ * Създава HTML елемент за ред от списъка
+ * @param {string} content - Съдържанието на реда
+ * @param {string} listType - Тип на списъка (class-list, rooms-list)
+ * @returns {HTMLElement}
+ */
 function createListItem(content, listType) {
     const listItem = document.createElement('li');
     listItem.className = 'list-group-item d-flex justify-content-between align-items-xl-center';
 
-    // Create the span element
     const span = document.createElement('span');
     span.textContent = content;
 
-    // Create the button element
     const button = document.createElement('button');
     button.className = 'btn btn-danger';
     button.type = 'button';
     button.onclick = deleteListItem;
 
-    // Create the icon element
     const icon = document.createElement('i');
     icon.className = 'fa fa-close';
-
-    // Append the icon to the button
     button.appendChild(icon);
 
-    // Append the image for class list items
     if (listType === 'class-list') {
         const img = document.createElement('img');
         img.src = 'https://upload.wikimedia.org/wikipedia/commons/1/19/Google_Classroom_Logo.svg';
@@ -35,24 +44,26 @@ function createListItem(content, listType) {
         listItem.appendChild(img);
     }
 
-    // Append the span and button to the list item
     listItem.appendChild(span);
     listItem.appendChild(button);
 
     return listItem;
 }
 
-// Updated loadSettings function
+/**
+ * Зарежда настройките и ги визуализира в потребителския интерфейс
+ * @param {object} settings - Обект с настройки от сървъра
+ */
 function loadSettings(settings) {
-    // Set the radio button for shift
+    // Смяна
     if (settings._shift)
         document.getElementById('shiftCheck-' + settings._shift).checked = true;
 
-    // Set the time count input value
+    // Максимален брой часове
     if (settings._max_classes && settings._max_classes > 0)
         document.getElementById('time-count').value = settings._max_classes;
 
-    // Set the declarations list
+    // Декларации
     const declList = document.getElementById("declarations-list");
     declList.innerHTML = "";
     (settings._declarations_templates || []).forEach(decl => {
@@ -62,55 +73,69 @@ function loadSettings(settings) {
         div.dataset.name = decl.name;
 
         div.innerHTML = `
-    <a href="${decl.url}" target="_blank" class="form-control">${decl.name}</a>
-    <button class="btn btn-outline-danger" type="button" onclick="removeDeclarationTemplate(this)">🗑️</button>
-  `;
+            <a href="${decl.url}" target="_blank" class="form-control">${decl.name}</a>
+            <button class="btn btn-outline-danger" type="button" onclick="removeDeclarationTemplate(this)">🗑️</button>
+        `;
         declList.appendChild(div);
     });
 
-
-    // Set the classes list
+    // Класове
     if (settings._classes && settings._classes.length > 0) {
         const classesList = document.getElementById('class-list');
-        classesList.innerHTML = ''; // Clear the list before adding new items
+        classesList.innerHTML = '';
         settings._classes.forEach(className => {
             const listItem = createListItem(className, 'class-list');
             classesList.appendChild(listItem);
         });
     }
 
-    // Set the rooms list
+    // Стаи
     if (settings._rooms && settings._rooms.length > 0) {
         const roomsList = document.getElementById('rooms-list');
-        roomsList.innerHTML = ''; // Clear the list before adding new items
+        roomsList.innerHTML = '';
         settings._rooms.forEach(roomName => {
             const listItem = createListItem(roomName, 'rooms-list');
             roomsList.appendChild(listItem);
         });
     }
+
+    // Стартираме наблюдение на списъците
+    lists.forEach((list) => {
+        observer.observe(list, { childList: true, subtree: false });
+    });
 }
 
-// Updated addListItem function
+/**
+ * Добавя нов елемент към съответния списък (клас или стая)
+ * @param {HTMLInputElement} input
+ */
 function addListItem(input) {
     const listType = input.name === 'class-name' ? 'class-list' : input.name === 'room-name' ? 'rooms-list' : 'declarations-list';
     const listItem = createListItem(input.value, listType);
-
-    // Append the list item to the desired list
     document.getElementById(listType).appendChild(listItem);
-
     input.value = '';
 }
 
-function deleteListItem(element) {
-    // Remove the list item from the list
+/**
+ * Изтрива елемент от списък
+ */
+function deleteListItem() {
     this.parentNode.remove();
 }
 
+/**
+ * Извлича file ID от линк към Google Docs
+ * @param {string} url
+ * @returns {string|null}
+ */
 function extractFileIdFromUrl(url) {
     const match = url.match(/[-\w]{25,}/);
     return match ? match[0] : null;
 }
 
+/**
+ * Добавя нов шаблон за декларация (по линк)
+ */
 function addDeclarationTemplate() {
     const input = document.getElementById("declaration-input");
     const url = input.value.trim();
@@ -130,19 +155,27 @@ function addDeclarationTemplate() {
         div.dataset.name = name;
 
         div.innerHTML = `
-        <a href="${url}" target="_blank" class="form-control">${name}</a>
-        <button class="btn btn-outline-danger" type="button" onclick="removeDeclarationTemplate(this)">🗑️</button>
-      `;
+            <a href="${url}" target="_blank" class="form-control">${name}</a>
+            <button class="btn btn-outline-danger" type="button" onclick="removeDeclarationTemplate(this)">🗑️</button>
+        `;
         list.appendChild(div);
         input.value = "";
     }).getGoogleDocName(fileId);
 }
 
+/**
+ * Премахва декларация от интерфейса
+ * @param {HTMLButtonElement} button
+ */
 function removeDeclarationTemplate(button) {
     const div = button.parentElement;
     div.remove();
 }
 
+/**
+ * Извлича всички шаблони от списъка
+ * @returns {Array<Object>}
+ */
 function getDeclarationTemplates() {
     const list = document.getElementById("declarations-list").children;
     const result = [];
@@ -155,7 +188,9 @@ function getDeclarationTemplates() {
     return result;
 }
 
-
+/**
+ * Запазва текущите настройки към сървъра
+ */
 function saveSettings() {
     const shift = document.querySelector('input[name="shift"]:checked').value;
     const timeCount = document.getElementById('time-count').value;
@@ -166,34 +201,11 @@ function saveSettings() {
     google.script.run.saveSettings(shift, timeCount, declarations, classes, rooms);
 }
 
+// Автоматично запазване при промяна на радио бутони или брой часове
 document.getElementById('shiftCheck-first').addEventListener('change', function () {
-    if (this.checked) {
-        saveSettings();
-    }
+    if (this.checked) saveSettings();
 });
-
 document.getElementById('shiftCheck-second').addEventListener('change', function () {
-    if (this.checked) {
-        saveSettings();
-    }
+    if (this.checked) saveSettings();
 });
-
-document.getElementById('time-count').addEventListener('change', function () {
-    saveSettings();
-});
-
-// Select all relevant lists to observe
-const lists = document.querySelectorAll("#class-list, #declarations-list, #rooms-list");
-
-// Create a MutationObserver instance
-const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-        console.log("Something changed!", mutation);
-        saveSettings(); // Call saveSettings when any list changes
-    });
-});
-
-// Start observing each list for changes
-lists.forEach((list) => {
-    observer.observe(list, { childList: true, subtree: false });
-});
+document.getElementById('time-count').addEventListener('change', saveSettings);

@@ -52,58 +52,60 @@
         <div id="dayContent" class="tab-content mt-3"></div>
     </main>
     <script>
+        // Глобални променливи за настройки и текущото разписание на потребителя
         let globalSettings = null;
         let currentUserTimetable = null;
 
+        // Изпълнява се при зареждане на страницата
         document.addEventListener('DOMContentLoaded', () => {
-            google.script.run.withSuccessHandler(function (settings) {
-                globalSettings = settings;
-
-                google.script.run.withSuccessHandler(function (timetable) {
-                    currentUserTimetable = timetable;
-                    google.script.run.withSuccessHandler(function (weekDates) {
-                        renderTabs(weekDates);
-                        google.script.run.withSuccessHandler(renderGrid).getSubstitutionGridForWeek();
-                    }).getCurrentWeekDates();
-                }).getCurrentUserTimetable();
-
-            }).getSettings();
+            google.script.run.withSuccessHandler(data => {
+                globalSettings = data.settings; // Зарежда глобалните настройки
+                currentUserTimetable = data.timetable; // Зарежда текущото разписание на потребителя
+                renderTabs(data.weekDates); // Рендира табовете за дните от седмицата
+                renderGrid(data.grid); // Рендира таблицата за замествания
+            }).getSubstitutePageDataForTeacher(); // Извлича данни за страницата
         });
 
+        /**
+         * Рендира табовете за дните от седмицата.
+         * @param {Array} weekDates - Дати за текущата седмица.
+         */
         function renderTabs(weekDates) {
-            const days = ['Понеделник', 'Вторник', 'Сряда', 'Четвъртък', 'Петък'];
-            const tabs = document.getElementById('dayTabs');
-            const content = document.getElementById('dayContent');
-            let todayIndex = new Date().getDay() - 1;
-            if (todayIndex < 0) todayIndex = 4; // неделя = петък (по-добре от понеделник)
-            const hasTwoShifts = globalSettings._shift === 'second';
+            const days = ['Понеделник', 'Вторник', 'Сряда', 'Четвъртък', 'Петък']; // Имена на дните
+            const tabs = document.getElementById('dayTabs'); // Контейнер за табовете
+            const content = document.getElementById('dayContent'); // Контейнер за съдържанието
+            let todayIndex = new Date().getDay() - 1; // Индекс на текущия ден
+            if (todayIndex < 0) todayIndex = 4; // Ако е неделя, задава петък
+            const hasTwoShifts = globalSettings._shift === 'second'; // Проверка за две смени
 
             let tabHtml = '<ul class="nav nav-pills mb-3" role="tablist">';
             let bodyHtml = '';
 
             for (let i = 0; i < 5; i++) {
                 const id = `day-${i}`;
-                const isActive = i === todayIndex;
-                const date = new Date(weekDates[i]).toLocaleDateString('bg-BG');
+                const isActive = i === todayIndex; // Активен таб за текущия ден
+                const date = new Date(weekDates[i]).toLocaleDateString('bg-BG'); // Форматирана дата
 
+                // Създава HTML за табовете
                 tabHtml += `<li class="nav-item">
-          <button class="nav-link ${isActive ? 'active' : ''}" data-bs-toggle="tab" data-bs-target="#${id}" type="button">${days[i]}<br><small>${date}</small></button>
-        </li>`;
+                    <button class="nav-link ${isActive ? 'active' : ''}" data-bs-toggle="tab" data-bs-target="#${id}" type="button">${days[i]}<br><small>${date}</small></button>
+                </li>`;
 
+                // Създава съдържание за табовете
                 let innerContent = '';
                 if (hasTwoShifts) {
                     innerContent = `<ul class="nav nav-pills mt-3" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#${id}-first" type="button">Първа смяна</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#${id}-second" type="button">Втора смяна</button></li>
-          </ul>
-          <div class="tab-content mt-3">
-            <div class="tab-pane fade show active" id="${id}-first">
-              <table class="table table-bordered"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-first-body"></tbody></table>
-            </div>
-            <div class="tab-pane fade" id="${id}-second">
-              <table class="table table-bordered"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-second-body"></tbody></table>
-            </div>
-          </div>`;
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#${id}-first" type="button">Първа смяна</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#${id}-second" type="button">Втора смяна</button></li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="${id}-first">
+                            <table class="table table-bordered"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-first-body"></tbody></table>
+                        </div>
+                        <div class="tab-pane fade" id="${id}-second">
+                            <table class="table table-bordered"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-second-body"></tbody></table>
+                        </div>
+                    </div>`;
                 } else {
                     innerContent = `<table class="table table-bordered mt-3"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-single-body"></tbody></table>`;
                 }
@@ -112,19 +114,23 @@
             }
 
             tabHtml += '</ul>';
-            tabs.innerHTML = tabHtml;
-            content.innerHTML = bodyHtml;
+            tabs.innerHTML = tabHtml; // Добавя табовете в DOM
+            content.innerHTML = bodyHtml; // Добавя съдържанието в DOM
         }
 
+        /**
+         * Рендира таблицата за замествания.
+         * @param {Object} grid - Данни за заместванията.
+         */
         function renderGrid(grid) {
-            const hasTwoShifts = globalSettings._shift === 'second';
-            const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+            const hasTwoShifts = globalSettings._shift === 'second'; // Проверка за две смени
+            const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']; // Имена на дните
 
             for (let i = 0; i < 5; i++) {
                 const day = dayNames[i];
-                const entries = grid[day] || [];
+                const entries = grid[day] || []; // Взима записите за текущия ден
 
-                const grouped = {};
+                const grouped = {}; // Групиране на записи по смяна и отсъстващ
                 entries.filter(e => hasTwoShifts || e.shift === 'first').forEach(e => {
                     const shift = hasTwoShifts ? e.shift : 'single';
                     const key = `${shift}-${e.absentTeacher.id}`;
@@ -132,12 +138,14 @@
                     grouped[key].push(e);
                 });
 
+                // Рендира редовете за всяка група
                 Object.entries(grouped).forEach(([key, list]) => {
                     const [shift] = key.split('-');
                     const tbody = document.getElementById(`day-${i}-${shift}-body`);
                     if (!tbody) return;
-                    list.sort((a, b) => a.time - b.time);
+                    list.sort((a, b) => a.time - b.time); // Сортира по час
                     const rowspan = list.length;
+
                     list.forEach((e, index) => {
                         const isBusy = currentUserTimetable.some(t =>
                             t.day === day && t.time == e.time && t.shift === e.shift
@@ -145,36 +153,43 @@
 
                         let substituteCell = '';
                         if (e.substitute) {
-                            substituteCell = e.substitute.name.split(' ').filter((_, i) => i !== 1).join(' ');
+                            substituteCell = e.substitute.name.split(' ').filter((_, i) => i !== 1).join(' '); // Име на заместващия
                         } else if (isBusy) {
-                            substituteCell = "Имате час";
+                            substituteCell = "Имате час"; // Показва, че потребителят е зает
                         } else {
                             const id = `${day}-${e.time}-${e.shift}-${e.group}`;
                             substituteCell = `<input type="checkbox" class="form-check-input substitute-checkbox" data-day="${day}" data-hour="${e.time}" data-shift="${e.shift}" data-group="${e.group}" onchange="checkSelected()">`;
                         }
 
                         tbody.innerHTML += `<tr>
-              ${index === 0 ? `<td class="absent-name" rowspan="${rowspan}">${e.absentTeacher.name.split(' ').filter((_, i) => i !== 1).join(' ')}</td>` : ''}
-              <td>${e.time}</td>
-              <td>${e.group}</td>
-              <td>${e.room}</td>
-              <td>${substituteCell}</td>
-            </tr>`;
+                            ${index === 0 ? `<td class="absent-name" rowspan="${rowspan}">${e.absentTeacher.name.split(' ').filter((_, i) => i !== 1).join(' ')}</td>` : ''}
+                            <td>${e.time}</td>
+                            <td>${e.group}</td>
+                            <td>${e.room}</td>
+                            <td>${substituteCell}</td>
+                        </tr>`;
                     });
                 });
             }
         }
 
+        /**
+         * Проверява дали има избрани замествания и показва/скрива бутона за заявка.
+         */
         function checkSelected() {
-            const checked = document.querySelectorAll(".substitute-checkbox:checked").length;
-            const btn = document.getElementById("submit-request-btn");
-            btn.classList.toggle("d-none", checked === 0);
+            const checked = document.querySelectorAll(".substitute-checkbox:checked").length; // Брой избрани замествания
+            const btn = document.getElementById("submit-request-btn"); // Бутон за заявка
+            btn.classList.toggle("d-none", checked === 0); // Показва или скрива бутона
         }
 
+        /**
+         * Изпраща заявка за заместване за избраните часове.
+         */
         function submitSubstituteRequest() {
-            const checked = document.querySelectorAll(".substitute-checkbox:checked");
+            const checked = document.querySelectorAll(".substitute-checkbox:checked"); // Избраните замествания
             const schedule = [];
 
+            // Събира данните за заместванията
             checked.forEach(cb => {
                 schedule.push({
                     day: cb.dataset.day,
@@ -184,21 +199,13 @@
                 });
             });
 
+            // Изпраща заявката към сървъра
             google.script.run.withSuccessHandler(() => {
-                alert("Заявката е изпратена.");
-                document.getElementById("submit-request-btn").classList.add("d-none");
-                checked.forEach(cb => cb.checked = false);
+                alert("Заявката е изпратена."); // Показва съобщение за успех
+                document.getElementById("submit-request-btn").classList.add("d-none"); // Скрива бутона
+                checked.forEach(cb => cb.checked = false); // Нулира избраните замествания
             }).sendGroupedSubstituteRequest(schedule);
         }
-
-
-        // function sendRequest(day, hour, shift, group, room) {
-        //   if (!confirm('Искаш ли да заявиш заместване за този час?')) return;
-
-        //   google.script.run.withSuccessHandler(() => {
-        //     alert('Заявката е изпратена.');
-        //   }).sendSubstituteRequest(day, hour, shift, group, room);
-        // }
     </script>
     <script>
         <?!= includeEssentialHtmlScripts() ?>
@@ -207,3 +214,4 @@
 </body>
 
 </html>
+``` 

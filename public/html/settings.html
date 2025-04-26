@@ -1,20 +1,57 @@
 <!DOCTYPE html>
-<html data-bs-theme="light" lang="bg">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Заместване</title>
+<html lang="bg" data-bs-theme="light">
+  <head>
+    <base target="_top" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Настройки</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
     <style>
-        <?!= includeEssentialHtmlStyles() ?>
+      <?!= includeEssentialHtmlStyles() ?>
     </style>
-</head>
-<body>
+    <style>
+      html, body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .input-group {
+        flex-wrap: wrap;
+      }
+
+      .input-group .form-control {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      @media (max-width: 576px) {
+        .input-group {
+          flex-direction: column;
+        }
+
+        .input-group .form-control,
+        .input-group .btn {
+          width: 100%;
+        }
+
+        .input-group .btn {
+          margin-top: 0.5rem;
+        }
+
+        #class-list, #rooms-list {
+          max-height: 300px;
+          overflow-y: auto;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
     <?!= navigation(url) ?>
     <div class="offcanvas offcanvas-end visible" tabindex="-1" data-bs-backdrop="false" id="notifications-list" style="z-index: 1051;">
         <div class="offcanvas-header"><span class="fs-4">Известия</span><button class="btn-close" id="close-notifications"
@@ -29,18 +66,18 @@
             </div>
         </div>
     </div>
-    <main class="container-fluid px-3 px-sm-5 py-4">
+    <main class="container px-2 px-sm-4 py-4">
         <h1 class="mb-4 text-center">Настройки</h1>
         <form>
-          <!-- Ред за смени и брой часове -->
+          <!-- Смени и макс часове -->
           <div class="row g-3 mb-4">
             <div class="col-12 col-md-6">
-              <label class="form-label d-block">Смени:</label>
-              <div class="form-check form-check-inline">
+              <label class="form-label">Смени:</label>
+              <div class="form-check">
                 <input id="shiftCheck-first" name="shift" class="form-check-input" type="radio" value="first">
                 <label class="form-check-label" for="shiftCheck-first">Една</label>
               </div>
-              <div class="form-check form-check-inline">
+              <div class="form-check">
                 <input id="shiftCheck-second" name="shift" class="form-check-input" type="radio" value="second">
                 <label class="form-check-label" for="shiftCheck-second">Две</label>
               </div>
@@ -51,49 +88,59 @@
             </div>
           </div>
       
-          <!-- Шаблони за декларации -->
+          <!-- Шаблони -->
           <div class="mb-5">
             <label class="form-label">Добавяне на шаблон за декларация:</label>
-            <div class="row gx-2 gy-2 align-items-center">
-              <div class="col-12 col-sm">
+            <div class="row g-2">
+              <div class="col-12 col-sm-9">
                 <input id="declaration-input" type="text" class="form-control" placeholder="Линк към Google Docs">
               </div>
-              <div class="col-12 col-sm-auto">
+              <div class="col-12 col-sm-3">
                 <button class="btn btn-outline-secondary w-100" type="button" onclick="addDeclarationTemplate()">+</button>
               </div>
             </div>
             <div id="declarations-list" class="mt-3"></div>
           </div>
       
+          <!-- Класове и Стаи -->
           <div class="row gy-4">
             <div class="col-12 col-md-6">
-              <h4 class="text-center text-md-start">Класове</h4>
-              <div class="input-group mb-2">
-                <input name="class-name" class="form-control" type="text">
-                <button class="btn btn-success" type="button" onclick="addListItem(document.getElementsByName('class-name')[0])">
-                  <i class="fa fa-plus"></i>
-                </button>
+              <h4>Класове</h4>
+              <div class="row g-2 mb-2">
+                <div class="col-9 col-sm-10">
+                  <input name="class-name" class="form-control" type="text">
+                </div>
+                <div class="col-3 col-sm-2">
+                  <button class="btn btn-success w-100" type="button" onclick="addListItem(document.getElementsByName('class-name')[0])">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
               </div>
               <ol id="class-list" class="list-group"></ol>
             </div>
       
             <div class="col-12 col-md-6">
-              <h4 class="text-center text-md-start">Стаи</h4>
-              <div class="input-group mb-2">
-                <input name="room-name" class="form-control" type="text">
-                <button class="btn btn-success" type="button" onclick="addListItem(document.getElementsByName('room-name')[0])">
-                  <i class="fa fa-plus"></i>
-                </button>
+              <h4>Стаи</h4>
+              <div class="row g-2 mb-2">
+                <div class="col-9 col-sm-10">
+                  <input name="room-name" class="form-control" type="text">
+                </div>
+                <div class="col-3 col-sm-2">
+                  <button class="btn btn-success w-100" type="button" onclick="addListItem(document.getElementsByName('room-name')[0])">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
               </div>
               <ol id="rooms-list" class="list-group"></ol>
             </div>
           </div>
         </form>
       </main>
-            
+      
     <script>
         <?!= includeEssentialHtmlScripts() ?>
-        <?!= include('public/js/settings.js') ?>
+        <?!= include("public/js/settings.js") ?>
     </script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>

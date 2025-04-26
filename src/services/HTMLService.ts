@@ -28,20 +28,6 @@ function include(filename: string): string {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
-function getAbsentTeachersTable(day: string, shift: string = 'first') {
-  // TODO: Implement this function
-}
-
-function substituteTables() {
-  // TODO: Implement this function
-}
-
-function notificationsOffCanvas(): string{
-  const html = HtmlService.createTemplateFromFile('public/html/templates/notificationsOffCanvas');
-  
-  return html.evaluate().getContent();
-}
-
 function navigation(url): string {
   const html = HtmlService.createTemplateFromFile('public/html/navigation');
   html.role = getCurrentUser_().role;

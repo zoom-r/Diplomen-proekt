@@ -1,132 +1,159 @@
-document.querySelectorAll('.time-section').forEach(function(item) {
-    item.addEventListener('click', function() {
-        item.parentElement.querySelector('.date-list').classList.toggle('collapse');
-        item.querySelector('.collapse-icon').classList.toggle('rotate');
-    });
-});
-document.querySelectorAll('.submit-btn-false').forEach(function(item) {
-    item.addEventListener('click', function() {
-        item.parentElement.setAttribute('data-submitted', 'false');
-    });
-});
-document.querySelectorAll('.submit-btn-true').forEach(function(item) {
-    item.addEventListener('click', function() {
-        item.parentElement.setAttribute('data-submitted', 'true');
-    });
+/**
+ * Добавя събитие за клик върху секциите с времеви периоди.
+ * При клик се показва или скрива списъкът с декларации за съответната дата.
+ */
+document.querySelectorAll('.time-section').forEach(function (item) {
+  item.addEventListener('click', function () {
+    item.parentElement.querySelector('.date-list').classList.toggle('collapse'); // Показва/скрива списъка с декларации.
+    item.querySelector('.collapse-icon').classList.toggle('rotate'); // Завърта иконата за разширяване/свиване.
+  });
 });
 
-let currentUser = null;
+/**
+ * Добавя събитие за клик върху бутоните за маркиране на декларация като "не е завършена".
+ * При клик се задава атрибут `data-submitted` със стойност "false".
+ */
+document.querySelectorAll('.submit-btn-false').forEach(function (item) {
+  item.addEventListener('click', function () {
+    item.parentElement.setAttribute('data-submitted', 'false'); // Задава декларацията като "не е завършена".
+  });
+});
 
-google.script.run.withSuccessHandler(function(data) {
-    currentUser = data.user;
-    renderDeclarations(data.declarations);
-  }).getDeclarationsWithUser();
-  
+/**
+ * Добавя събитие за клик върху бутоните за маркиране на декларация като "завършена".
+ * При клик се задава атрибут `data-submitted` със стойност "true".
+ */
+document.querySelectorAll('.submit-btn-true').forEach(function (item) {
+  item.addEventListener('click', function () {
+    item.parentElement.setAttribute('data-submitted', 'true'); // Задава декларацията като "завършена".
+  });
+});
 
-function loadDeclarations() {
-    google.script.run.withSuccessHandler(renderDeclarations).getDeclarations();
-  }
-  
-  function renderDeclarations(data) {
-    const container = document.getElementById("declarations-container");
-    container.innerHTML = "";
-    console.log(data);
-    // const declarations = data.declarations;
-  
-    const grouped = {};
-    data.forEach(d => {
-      if (!grouped[d.date]) grouped[d.date] = [];
-      grouped[d.date].push(d);
+let currentUser = null; // Променлива за съхранение на текущия потребител.
+
+/**
+ * Извлича данни за текущия потребител и декларациите.
+ * След успешното извличане, извиква функцията `renderDeclarations` за визуализиране на декларациите.
+ */
+google.script.run.withSuccessHandler(function (data) {
+  currentUser = data.user; // Запазва информацията за текущия потребител.
+  renderDeclarations(data.declarations); // Рендира декларациите.
+}).getDeclarationsWithUser();
+
+/**
+ * Рендира декларациите в HTML контейнера.
+ * Групира декларациите по дати и създава HTML елементи за всяка група.
+ * @param data - Масив от декларации.
+ */
+function renderDeclarations(data) {
+  const container = document.getElementById("declarations-container"); // Контейнер за декларациите.
+  container.innerHTML = ""; // Изчиства съдържанието на контейнера.
+
+  const grouped = {}; // Обект за групиране на декларациите по дати.
+  data.forEach(d => {
+    if (!grouped[d.date]) grouped[d.date] = []; // Инициализира масив за датата, ако не съществува.
+    grouped[d.date].push(d); // Добавя декларацията към съответната дата.
+  });
+
+  const sortedDates = Object.keys(grouped).sort(); // Сортира датите.
+  sortedDates.forEach(date => {
+    const section = document.createElement("div"); // Създава секция за датата.
+    section.className = "time-section mb-2 border-bottom pb-2";
+    section.innerHTML = `<b>📅 ${formatDateBG(date)}</b> <span class="collapse-icon">⮟</span>`; // Добавя заглавие с датата.
+
+    const list = document.createElement("div"); // Създава списък за декларациите.
+    list.className = "date-list collapse";
+
+    section.addEventListener("click", function () {
+      list.classList.toggle("collapse"); // Показва/скрива списъка с декларации.
+      section.querySelector(".collapse-icon").classList.toggle("rotate"); // Завърта иконата.
     });
-  
-    const sortedDates = Object.keys(grouped).sort();
-    sortedDates.forEach(date => {
-      const section = document.createElement("div");
-      section.className = "time-section mb-2 border-bottom pb-2";
-      section.innerHTML = `<b>📅 ${formatDateBG(date)}</b> <span class="collapse-icon">⮟</span>`;
-  
-      const list = document.createElement("div");
-      list.className = "date-list collapse";
-  
-      section.addEventListener("click", function () {
-        list.classList.toggle("collapse");
-        section.querySelector(".collapse-icon").classList.toggle("rotate");
-      });
-  
-      grouped[date].forEach(decl => {
-        const row = document.createElement("div");
-        row.className = "document-line";
-  
-        const left = document.createElement("div");
-        left.className = "d-flex align-items-center";
-        left.innerHTML = `
+
+    grouped[date].forEach(decl => {
+      const row = document.createElement("div"); // Създава ред за декларацията.
+      row.className = "document-line";
+
+      const left = document.createElement("div"); // Лява част на реда (икона и линк).
+      left.className = "d-flex align-items-center";
+      left.innerHTML = `
           <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" width="20" height="20" class="icon">
           <a href="${decl.url}" target="_blank" class="ms-2">${decl.title}</a>
         `;
-  
-        const right = document.createElement("div");
-  
-        if (currentUser._role === "teacher") {
-          const btn = document.createElement("button");
-          btn.className = `btn btn-sm ${decl.submitted ? 'btn-success' : 'btn-outline-secondary'}`;
-          btn.textContent = decl.submitted ? "Завършено" : "Не е завършено";
-          btn.onclick = () => toggleDeclarationStatus(decl.id, !decl.submitted, btn);
-          right.appendChild(btn);
-        } else {
-          const label = document.createElement("span");
-          label.className = decl.submitted ? "text-success" : "text-muted";
-          label.textContent = decl.submitted ? "Завършено" : "Не е завършено";
-          right.appendChild(label);
-  
-          const delBtn = document.createElement("button");
-          delBtn.className = "btn btn-sm btn-outline-danger ms-2";
-          delBtn.textContent = "🗑";
-          delBtn.onclick = () => {
-            if (confirm("Сигурен ли си, че искаш да изтриеш декларацията?")) {
-              google.script.run.withSuccessHandler(() => row.remove()).deleteDeclaration(decl.id, decl.doc_id);
-            }
-          };
-          right.appendChild(delBtn);
-        }
-  
-        row.appendChild(left);
-        row.appendChild(right);
-        list.appendChild(row);
-      });
-  
-      container.appendChild(section);
-      container.appendChild(list);
+
+      const right = document.createElement("div"); // Дясна част на реда (бутони или статус).
+
+      if (currentUser._role === "teacher") {
+        // Ако потребителят е учител, добавя бутон за промяна на статуса.
+        const btn = document.createElement("button");
+        btn.className = `btn btn-sm ${decl.submitted ? 'btn-success' : 'btn-outline-secondary'}`;
+        btn.textContent = decl.submitted ? "Завършено" : "Не е завършено";
+        btn.onclick = () => toggleDeclarationStatus(decl.id, !decl.submitted, btn); // Променя статуса при клик.
+        right.appendChild(btn);
+      } else {
+        // Ако потребителят не е учител, показва само статус и бутон за изтриване.
+        const label = document.createElement("span");
+        label.className = decl.submitted ? "text-success" : "text-muted";
+        label.textContent = decl.submitted ? "Завършено" : "Не е завършено";
+        right.appendChild(label);
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn btn-sm btn-outline-danger ms-2";
+        delBtn.textContent = "🗑";
+        delBtn.onclick = () => {
+          if (confirm("Сигурен ли си, че искаш да изтриеш декларацията?")) {
+            google.script.run.withSuccessHandler(() => row.remove()).deleteDeclaration(decl.id, decl.doc_id); // Изтрива декларацията.
+          }
+        };
+        right.appendChild(delBtn);
+      }
+
+      row.appendChild(left); // Добавя лявата част към реда.
+      row.appendChild(right); // Добавя дясната част към реда.
+      list.appendChild(row); // Добавя реда към списъка.
     });
-  }
-  
-  function formatDateBG(dateStr) {
-    const parts = dateStr.split(".");
-    if (parts.length !== 3) return "Невалидна дата";
-    const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-    if (isNaN(d.getTime())) return "Невалидна дата";
-    return d.toLocaleDateString("bg-BG", { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
-  
-  
-  function toggleDeclarationStatus(id, newStatus, btn) {
-    google.script.run.withSuccessHandler(() => {
-      btn.className = `btn btn-sm ${newStatus ? 'btn-success' : 'btn-outline-secondary'}`;
-      btn.textContent = newStatus ? "Завършено" : "Не е завършено";
-    }).updateDeclarationStatus(id, newStatus);
-  }
-  
-  function formatDateBG(dateStr) {
-    // Очаква се формат DD.MM.YYYY
-    const [day, month, year] = dateStr.split(".");
-    const date = new Date(`${year}-${month}-${day}`);
-    if (isNaN(date.getTime())) return "Невалидна дата";
-  
-    return date.toLocaleDateString("bg-BG", {
-      weekday: "long",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric"
-    });
-  }
-  
-  
+
+    container.appendChild(section); // Добавя секцията към контейнера.
+    container.appendChild(list); // Добавя списъка към контейнера.
+  });
+}
+
+/**
+ * Форматира дата във формат "дълъг ден, DD.MM.YYYY" на български език.
+ * @param dateStr - Дата във формат "DD.MM.YYYY".
+ * @returns Форматирана дата или "Невалидна дата", ако форматът е грешен.
+ */
+function formatDateBG(dateStr) {
+  const parts = dateStr.split("."); // Разделя датата на ден, месец и година.
+  if (parts.length !== 3) return "Невалидна дата"; // Проверява дали форматът е валиден.
+  const d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`); // Създава обект за датата.
+  if (isNaN(d.getTime())) return "Невалидна дата"; // Проверява дали датата е валидна.
+  return d.toLocaleDateString("bg-BG", { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }); // Връща форматираната дата.
+}
+
+/**
+ * Променя статуса на декларация (завършена/незавършена).
+ * @param id - ID на декларацията.
+ * @param newStatus - Новият статус (true/false).
+ * @param btn - HTML бутонът, който трябва да се актуализира.
+ */
+function toggleDeclarationStatus(id, newStatus, btn) {
+  google.script.run.withSuccessHandler(() => {
+    btn.className = `btn btn-sm ${newStatus ? 'btn-success' : 'btn-outline-secondary'}`;
+    btn.textContent = newStatus ? "Завършено" : "Не е завършено";
+  }).updateDeclarationStatus(id, newStatus);
+}
+
+function formatDateBG(dateStr) {
+// Очаква се формат DD.MM.YYYY
+  const [day, month, year] = dateStr.split(".");
+  const date = new Date(`${year}-${month}-${day}`);
+  if (isNaN(date.getTime())) return "Невалидна дата";
+
+  return date.toLocaleDateString("bg-BG", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+}
+

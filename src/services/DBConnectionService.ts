@@ -25,32 +25,3 @@ function closeConnection_() {
     conn.close();
   }
 }
-
-// Инициализация – работим в Script‑scope (=> кеш + ScriptProperties)
-// @ts-ignore
-const os = ObjectStore.create();
-
-/**
- * Връща креденшъли → ObjectStore first‑level cache, после Properties.
- * Ако липсват – хвърля грешка.
- */
-/*
-function getDbCredentials() {
-  const url  = os.get('DB_URL');
-  console.log('DB_URL: ', url);
-  const user = os.get('DB_USER');
-  console.log('DB_USER: ', user);
-  const pass = os.get('DB_PASS');
-  console.log('DB_PASS: ', pass);
-  if (!url || !user || !pass) {
-    throw new Error('DB credentials not set');
-  }
-  return { url, user, pass };
-}
-
-function setCreds(){
-  
-  os.set('DB_URL', link);
-  os.set('DB_USER', user);
-  os.set('DB_PASS', pass);
-}*/

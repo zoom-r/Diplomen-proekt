@@ -1,102 +1,119 @@
+/**
+ * Зарежда графика на стаите.
+ * Извиква сървърната функция `getRoomUsageGrid` и предава резултата на `renderRoomSchedule`.
+ */
 function loadRoomSchedule() {
-    google.script.run.withSuccessHandler(renderRoomSchedule).getRoomUsageGrid();
-  }
-  
-  function renderRoomSchedule(data) {
-    const { grid, settings } = data;
-    const container = document.getElementById("room-schedule-container");
-    container.innerHTML = "";
-  
-    const days = ["monday", "tuesday", "wednesday", "thursday", "friday"];
-    const dayNames = {
-      monday: "Понеделник",
-      tuesday: "Вторник",
-      wednesday: "Сряда",
-      thursday: "Четвъртък",
-      friday: "Петък"
+    google.script.run.withSuccessHandler(renderRoomSchedule).getRoomUsageGrid(); // Извиква сървърната функция и обработва резултата.
+}
+
+/**
+ * Рендира графика на стаите в HTML.
+ * Създава табове за дните от седмицата и таблици за всяка смяна и стая.
+ * @param data - Обект с данни за графика на стаите и настройките.
+ */
+function renderRoomSchedule(data) {
+    const { grid, settings } = data; // Извлича графика и настройките от данните.
+    const container = document.getElementById("room-schedule-container"); // Контейнер за графика на стаите.
+    container.innerHTML = ""; // Изчиства съдържанието на контейнера.
+
+    const days = ["monday", "tuesday", "wednesday", "thursday", "friday"]; // Дни от седмицата.
+    const dayNames = { // Преводи на дните от седмицата.
+        monday: "Понеделник",
+        tuesday: "Вторник",
+        wednesday: "Сряда",
+        thursday: "Четвъртък",
+        friday: "Петък"
     };
-  
-    // Tabs for days
+
+    // Създава навигационни табове за дните.
     const tabsNav = document.createElement("ul");
-    tabsNav.className = "nav nav-tabs mb-3";
+    tabsNav.className = "nav nav-tabs mb-3"; // Класове за стилизиране на табовете.
     tabsNav.id = "room-day-tabs";
     tabsNav.role = "tablist";
-  
+
+    // Създава съдържание за табовете.
     const tabsContent = document.createElement("div");
     tabsContent.className = "tab-content";
-  
+
     days.forEach((day, i) => {
-      // Create tab button
-      const tabId = `room-tab-${day}`;
-      const tabButton = document.createElement("li");
-      tabButton.className = "nav-item";
-      tabButton.innerHTML = `
-        <button class="nav-link ${i === 0 ? "active" : ""}" id="${tabId}-tab" data-bs-toggle="tab"
-          data-bs-target="#${tabId}" type="button" role="tab" aria-controls="${tabId}" aria-selected="${i === 0}">
-          ${dayNames[day]}
-        </button>`;
-      tabsNav.appendChild(tabButton);
-  
-      // Create tab pane
-      const tabPane = document.createElement("div");
-      tabPane.className = `tab-pane fade ${i === 0 ? "show active" : ""}`;
-      tabPane.id = tabId;
-      tabPane.role = "tabpanel";
-  
-      const shifts = settings._shift === "second" ? ["first", "second"] : ["first"];
-  
-      shifts.forEach(shift => {
-        const shiftLabel = document.createElement("h6");
-        shiftLabel.className = "mt-3";
-        shiftLabel.textContent = shift === "first" ? "Първа смяна" : "Втора смяна";
-        tabPane.appendChild(shiftLabel);
-  
-        const table = document.createElement("table");
-        table.className = "table table-bordered bg-white";
-  
-        const thead = document.createElement("thead");
-        thead.innerHTML = "<tr><th>Стая</th><th>Час</th><th>Клас</th></tr>";
-        table.appendChild(thead);
-  
-        const tbody = document.createElement("tbody");
-        const shiftData = grid[day][shift];
-  
-        Object.keys(shiftData).forEach(room => {
-          const entries = shiftData[room];
-          const sorted = [...entries].sort((a, b) => Number(a.time) - Number(b.time));
-  
-          if (sorted.length === 0) return;
-  
-          sorted.forEach((entry, index) => {
-            const row = document.createElement("tr");
-  
-            if (index === 0) {
-              const roomCell = document.createElement("td");
-              roomCell.textContent = room;
-              roomCell.rowSpan = sorted.length;
-              row.appendChild(roomCell);
-            }
-  
-            const timeCell = document.createElement("td");
-            timeCell.textContent = entry.time;
-            row.appendChild(timeCell);
-  
-            const groupCell = document.createElement("td");
-            groupCell.textContent = entry.group || "";
-            row.appendChild(groupCell);
-  
-            tbody.appendChild(row);
-          });
+        // Създава бутон за таба на текущия ден.
+        const tabId = `room-tab-${day}`;
+        const tabButton = document.createElement("li");
+        tabButton.className = "nav-item";
+        tabButton.innerHTML = `
+            <button class="nav-link ${i === 0 ? "active" : ""}" id="${tabId}-tab" data-bs-toggle="tab"
+              data-bs-target="#${tabId}" type="button" role="tab" aria-controls="${tabId}" aria-selected="${i === 0}">
+              ${dayNames[day]}
+            </button>`;
+        tabsNav.appendChild(tabButton); // Добавя бутона към навигацията.
+
+        // Създава съдържание за таба на текущия ден.
+        const tabPane = document.createElement("div");
+        tabPane.className = `tab-pane fade ${i === 0 ? "show active" : ""}`; // Активира първия таб.
+        tabPane.id = tabId;
+        tabPane.role = "tabpanel";
+
+        // Определя смените (първа и/или втора).
+        const shifts = settings._shift === "second" ? ["first", "second"] : ["first"];
+
+        shifts.forEach(shift => {
+            // Създава заглавие за смяната.
+            const shiftLabel = document.createElement("h6");
+            shiftLabel.className = "mt-3";
+            shiftLabel.textContent = shift === "first" ? "Първа смяна" : "Втора смяна";
+            tabPane.appendChild(shiftLabel);
+
+            // Създава таблица за графика на стаите.
+            const table = document.createElement("table");
+            table.className = "table table-bordered bg-white";
+
+            // Създава заглавията на таблицата.
+            const thead = document.createElement("thead");
+            thead.innerHTML = "<tr><th>Стая</th><th>Час</th><th>Клас</th></tr>";
+            table.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+            const shiftData = grid[day][shift]; // Взима данните за текущата смяна.
+
+            // Обхожда всяка стая и добавя редове за часовете.
+            Object.keys(shiftData).forEach(room => {
+                const entries = shiftData[room];
+                const sorted = [...entries].sort((a, b) => Number(a.time) - Number(b.time)); // Сортира записите по час.
+
+                if (sorted.length === 0) return; // Пропуска стаи без записи.
+
+                sorted.forEach((entry, index) => {
+                    const row = document.createElement("tr");
+
+                    if (index === 0) {
+                        // Създава клетка за името на стаята (обединена за всички часове).
+                        const roomCell = document.createElement("td");
+                        roomCell.textContent = room;
+                        roomCell.rowSpan = sorted.length; // Обединява клетките за стаята.
+                        row.appendChild(roomCell);
+                    }
+
+                    // Създава клетка за часа.
+                    const timeCell = document.createElement("td");
+                    timeCell.textContent = entry.time;
+                    row.appendChild(timeCell);
+
+                    // Създава клетка за класа.
+                    const groupCell = document.createElement("td");
+                    groupCell.textContent = entry.group || "";
+                    row.appendChild(groupCell);
+
+                    tbody.appendChild(row); // Добавя реда в таблицата.
+                });
+            });
+
+            table.appendChild(tbody); // Добавя тялото на таблицата.
+            tabPane.appendChild(table); // Добавя таблицата в таба.
         });
-  
-        table.appendChild(tbody);
-        tabPane.appendChild(table);
-      });
-  
-      tabsContent.appendChild(tabPane);
+
+        tabsContent.appendChild(tabPane); // Добавя съдържанието на таба.
     });
-  
-    container.appendChild(tabsNav);
-    container.appendChild(tabsContent);
-  }
-  
+
+    container.appendChild(tabsNav); // Добавя навигацията към контейнера.
+    container.appendChild(tabsContent); // Добавя съдържанието на табовете към контейнера.
+}

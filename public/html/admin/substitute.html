@@ -85,102 +85,108 @@
         </div>
     </main>
     <script>
+        // Глобални променливи за настройки и потребители с разписания
         let globalSettings = null;
         let globalUsersWithSchedule = [];
+        let cachedWeekDates = null; // Кеширани дати за седмицата
 
+        // Изпълнява се при зареждане на страницата
         document.addEventListener('DOMContentLoaded', () => {
-            google.script.run.withSuccessHandler(function (settings) {
-                globalSettings = settings;
+            google.script.run.withSuccessHandler(function (data) {
+                globalSettings = data.settings; // Зарежда глобалните настройки
+                globalUsersWithSchedule = data.users; // Зарежда потребителите с разписания
+                cachedWeekDates = data.weekDates; // Кешира дати за седмицата
+                renderSubstitutionTabs(cachedWeekDates); // Рендира табовете за дните
+                renderSubstitutionGrid(data.grid); // Рендира таблицата за замествания
 
-                google.script.run.withSuccessHandler(function (users) {
-                    globalUsersWithSchedule = users;
-                    const select = document.getElementById('userSelect');
-                    users.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u.id;
-                        opt.textContent = `${u.names} (${u.role})`;
-                        select.appendChild(opt);
-                    });
-                }).getAllUsersWithSchedule();
-
-                google.script.run.withSuccessHandler(function (weekDates) {
-                    renderSubstitutionTabs(weekDates);
-                    google.script.run.withSuccessHandler(renderSubstitutionGrid).getSubstitutionGridForWeek();
-                }).getCurrentWeekDates();
-            }).getSettings();
+                // Попълва select елемента в модала с потребители
+                const select = document.getElementById('userSelect');
+                data.users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = `${u.names} (${u.role})`;
+                    select.appendChild(opt);
+                });
+            }).getSubstitutePageDataForAdmin(); // Извлича данни за страницата
         });
 
+        /**
+         * Изпраща данни за нов отсъстващ потребител.
+         */
         function submitAbsent() {
-            const userId = document.getElementById('userSelect').value;
-            const from = document.getElementById('fromDate').value;
-            const to = document.getElementById('toDate').value;
+            const userId = document.getElementById('userSelect').value; // ID на потребителя
+            const from = document.getElementById('fromDate').value; // Начална дата
+            const to = document.getElementById('toDate').value; // Крайна дата
 
+            // Проверка дали всички полета са попълнени
             if (!userId || !from || !to) return alert('Попълни всички полета.');
 
+            // Изпраща данните към сървъра
             google.script.run.withSuccessHandler(() => {
-                bootstrap.Modal.getInstance(document.getElementById('addAbsentModal')).hide();
-                document.getElementById('absentForm').reset();
-                google.script.run.withSuccessHandler(renderSubstitutionGrid).getSubstitutionGridForWeek();
+                bootstrap.Modal.getInstance(document.getElementById('addAbsentModal')).hide(); // Затваря модала
+                document.getElementById('absentForm').reset(); // Нулира формата
+                google.script.run.withSuccessHandler(renderSubstitutionGrid).getSubstitutionGridForWeek(); // Обновява таблицата
             }).createAbsentSubstitution(userId, from, to);
         }
 
-        // function deleteAbsent(userId, day) {
-        //   if (!confirm('Сигурен ли си, че искаш да изтриеш отсъствието?')) return;
-        //   google.script.run.withSuccessHandler(() => {
-        //     alert('Отсъствието беше изтрито.');
-        //     google.script.run.withSuccessHandler(renderSubstitutionGrid).getSubstitutionGridForWeek();
-        //   }).removeAbsent(userId, day);
-        // }
-
+        /**
+         * Изтрива всички отсъствия на даден потребител за седмицата.
+         * @param {string} userId - ID на потребителя.
+         */
         function deleteAbsentFromWeek(userId) {
             if (!confirm('Сигурен ли си, че искаш да изтриеш всички отсъствия на този учител за седмицата?')) return;
+
+            // Изтрива отсъствията и обновява изгледа
             google.script.run.withSuccessHandler(() => {
                 alert('Отсъствията бяха изтрити.');
-                google.script.run.withSuccessHandler(function (weekDates) {
-                    renderSubstitutionTabs(weekDates);
-                    google.script.run.withSuccessHandler(renderSubstitutionGrid).getSubstitutionGridForWeek();
-                }).getCurrentWeekDates();
+                renderSubstitutionTabs(cachedWeekDates); // Обновява табовете
+                google.script.run.withSuccessHandler(renderSubstitutionGrid).getSubstitutionGridForWeek(); // Обновява таблицата
             }).removeAbsentFromWeek(userId);
         }
 
-
+        /**
+         * Рендира табовете за дните от седмицата.
+         * @param {Array} weekDates - Дати за текущата седмица.
+         */
         function renderSubstitutionTabs(weekDates) {
-            const days = ['Понеделник', 'Вторник', 'Сряда', 'Четвъртък', 'Петък'];
-            const dayTabs = document.getElementById('dayTabs');
-            const dayContent = document.getElementById('dayContent');
-            const hasTwoShifts = globalSettings._shift === 'second';
+            const days = ['Понеделник', 'Вторник', 'Сряда', 'Четвъртък', 'Петък']; // Имена на дните
+            const dayTabs = document.getElementById('dayTabs'); // Контейнер за табовете
+            const dayContent = document.getElementById('dayContent'); // Контейнер за съдържанието
+            const hasTwoShifts = globalSettings._shift === 'second'; // Проверка за две смени
 
             let tabs = '<ul class="nav nav-pills mb-3" role="tablist">';
             let content = '';
 
-            let todayIndex = new Date().getDay() - 1;
-            if (todayIndex < 0) todayIndex = 4; // неделя = петък (по-добре от понеделник)
+            let todayIndex = new Date().getDay() - 1; // Индекс на текущия ден
+            if (todayIndex < 0) todayIndex = 4; // Ако е неделя, задава петък
 
             for (let i = 0; i < 5; i++) {
                 const id = `day-${i}`;
-                const isActive = i === todayIndex;
-                const date = new Date(weekDates[i]).toLocaleDateString('bg-BG');
+                const isActive = i === todayIndex; // Активен таб за текущия ден
+                const date = new Date(weekDates[i]).toLocaleDateString('bg-BG'); // Форматирана дата
 
+                // Създава таб за деня
                 tabs += `<li class="nav-item">
-          <button class="nav-link ${isActive ? 'active' : ''}" data-bs-toggle="tab" data-bs-target="#${id}" type="button" role="tab">
-            ${days[i]}<br><small>${date}</small>
-          </button>
-        </li>`;
+                <button class="nav-link ${isActive ? 'active' : ''}" data-bs-toggle="tab" data-bs-target="#${id}" type="button" role="tab">
+                    ${days[i]}<br><small>${date}</small>
+                </button>
+            </li>`;
 
+                // Създава съдържание за деня
                 let innerContent = '';
                 if (hasTwoShifts) {
                     innerContent = `<ul class="nav nav-pills mt-3" id="${id}-shiftTabs" role="tablist">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#${id}-first" type="button">Първа смяна</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#${id}-second" type="button">Втора смяна</button></li>
-          </ul>
-          <div class="tab-content mt-3">
-            <div class="tab-pane fade show active" id="${id}-first">
-              <table class="table table-bordered"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-first-body"></tbody></table>
-            </div>
-            <div class="tab-pane fade" id="${id}-second">
-              <table class="table table-bordered"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-second-body"></tbody></table>
-            </div>
-          </div>`;
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#${id}-first" type="button">Първа смяна</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#${id}-second" type="button">Втора смяна</button></li>
+                </ul>
+                <div class="tab-content mt-3">
+                    <div class="tab-pane fade show active" id="${id}-first">
+                        <table class="table table-bordered"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-first-body"></tbody></table>
+                    </div>
+                    <div class="tab-pane fade" id="${id}-second">
+                        <table class="table table-bordered"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-second-body"></tbody></table>
+                    </div>
+                </div>`;
                 } else {
                     innerContent = `<table class="table table-bordered mt-3"><thead><tr><th>Отсъстващ</th><th>Час</th><th>Клас</th><th>Стая</th><th>Заместващ</th></tr></thead><tbody id="${id}-single-body"></tbody></table>`;
                 }
@@ -189,17 +195,22 @@
             }
 
             tabs += '</ul>';
-            dayTabs.innerHTML = tabs;
-            dayContent.innerHTML = content;
+            dayTabs.innerHTML = tabs; // Добавя табовете в DOM
+            dayContent.innerHTML = content; // Добавя съдържанието в DOM
         }
+
+        /**
+         * Рендира таблицата за замествания.
+         * @param {Object} grid - Данни за заместванията.
+         */
         function renderSubstitutionGrid(grid) {
-            const hasTwoShifts = globalSettings._shift === 'second';
+            const hasTwoShifts = globalSettings._shift === 'second'; // Проверка за две смени
 
             for (const [day, entries] of Object.entries(grid)) {
-                const index = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].indexOf(day);
+                const index = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].indexOf(day); // Индекс на деня
                 if (index < 0) continue;
 
-                const grouped = {}; // shift + absent id
+                const grouped = {}; // Групиране на записи по смяна и отсъстващ
                 entries.filter(e => hasTwoShifts || e.shift === 'first').forEach(e => {
                     const shift = hasTwoShifts ? e.shift : 'single';
                     const key = `${shift}-${e.absentTeacher.id}`;
@@ -207,23 +218,23 @@
                     grouped[key].push(e);
                 });
 
+                // Рендира редовете за всяка група
                 Object.entries(grouped).forEach(([key, list]) => {
                     const [shift] = key.split('-');
                     const tbody = document.getElementById(`day-${index}-${shift}-body`);
                     if (!tbody) return;
 
-                    list.sort((a, b) => a.time - b.time);
+                    list.sort((a, b) => a.time - b.time); // Сортира по час
                     const rowspan = list.length;
-                    const dayKey = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'][index];
 
                     list.forEach((e, i) => {
                         tbody.innerHTML += `<tr>
-              ${i === 0 ? `<td class="absent-name" rowspan="${rowspan}">${e.absentTeacher.name.split(' ').filter((_, i) => i !== 1).join(' ')} <button class="btn btn-sm btn-outline-danger" onclick="deleteAbsentFromWeek('${e.absentTeacher.id}')">🗑️</button></td>` : ''}
-              <td>${e.time}</td>
-              <td>${e.group}</td>
-              <td>${e.room}</td>
-              <td>${e.substitute ? e.substitute.name.split(' ').filter((_, i) => i !== 1).join(' ') : '<em>няма</em>'}</td>
-            </tr>`;
+                        ${i === 0 ? `<td class="absent-name" rowspan="${rowspan}">${e.absentTeacher.name.split(' ').filter((_, i) => i !== 1).join(' ')} <button class="btn btn-sm btn-outline-danger" onclick="deleteAbsentFromWeek('${e.absentTeacher.id}')">🗑️</button></td>` : ''}
+                        <td>${e.time}</td>
+                        <td>${e.group}</td>
+                        <td>${e.room}</td>
+                        <td>${e.substitute ? e.substitute.name.split(' ').filter((_, i) => i !== 1).join(' ') : '<em>няма</em>'}</td>
+                    </tr>`;
                     });
                 });
             }

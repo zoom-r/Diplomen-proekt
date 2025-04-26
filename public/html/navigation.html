@@ -29,7 +29,12 @@
                 <a class="text-reset me-3" href="https://script.google.com/macros/s/AKfycbx2DcdhBNacIHyHPC49yiVVNJOCqq6-SvnHHvLW_7mYNPrumE9nW_BthyAIrYTY0f-p/exec/settings" target="_top"><i class="fas fa-sliders" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Настройки"></i></a>
             <? } ?>
                 <a class="text-reset me-3" href="https://script.google.com/macros/s/AKfycbx2DcdhBNacIHyHPC49yiVVNJOCqq6-SvnHHvLW_7mYNPrumE9nW_BthyAIrYTY0f-p/exec/users" target="_top"><i class="fas fa-chalkboard-teacher" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" title="Учители"></i></a>
-                <a class="text-reset me-4" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" id="notifications" href="#" role="button" title="Известия"><i class="fas fa-bell"></i></a>
+                <a class="text-reset me-4 position-relative" data-bs-toggle="tooltip" data-bss-tooltip="" data-bs-placement="bottom" id="notifications" href="#" role="button" title="Известия">
+                  <i class="fas fa-bell"></i>
+                  <span id="notification-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">
+                    0
+                  </span>
+                </a>
                 <img class="rounded-circle" id="profile-pic" src="" height="25" alt="Профилна снимка" > 
         </div>
     </div>

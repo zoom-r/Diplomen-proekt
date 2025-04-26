@@ -1,0 +1,29 @@
+html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.input-group {
+    flex-wrap: wrap;
+}
+
+.input-group .form-control {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+@media (max-width: 576px) {
+    .input-group {
+    flex-direction: column;
+    }
+
+    .input-group .form-control,
+    .input-group .btn {
+    width: 100%;
+    }
+
+    .input-group .btn {
+    margin-top: 0.5rem;
+    }
+}

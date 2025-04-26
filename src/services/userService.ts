@@ -1,3 +1,69 @@
+/*
+*   Библиотеката ObjectStore за Apps Script ни позволява да запазваме нужната информация в 
+*   CacheService и PropertiesService. Така можем да я използваме без постоянно да отваряме
+*   нови връзки с базата данни, за да използваме информация за текущия потребител.
+*/
+// @ts-ignore
+const userStore = ObjectStore.create('user', { manual: true });
+// @ts-ignore
+//const _ = LodashGS.load();
+
+/**
+ * Проверява дали текущия потребител съществува, дали е запазен в Propeties и дали е актуален - ако не е, го актуализира.
+ * @returns {boolean} Връща true, ако операцията е успешна, в противен случай - false.
+ * @throws {Error} Ако възникне грешка при работа с базата данни.
+ */
+function checkCurrentUser_(): boolean {
+    const conn = getConnection_();
+    let success = false;
+    try {
+        const userData = userStore.get('user');
+        console.log(userData)
+        let user;
+        if (!userData) {
+            user = null;
+        } else {
+            user = new User(userData._email, userData._names, userData._role, userData._position, userData._id, userData._phone, userData._timetable, userData._workspace_id, userData._declarations_key, userData._notifications_key);
+        }
+        const stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ?'); // Използва проверка с email, защото потребителят може да бъде изтрит и добавен отново (тогава id-то ще е различно, но email-ът - същият)
+        if (!user) {
+            stmt.setString(1, getUserEmail_());
+            const rs = stmt.executeQuery();
+            if (rs.next()) {
+                user = User.createFromResultSet(rs);
+                userStore.set('user', user);
+                success = true;
+                userStore.persist(false);
+            }
+        } else {
+            stmt.setString(1, getUserEmail_());
+            const rs = stmt.executeQuery();
+            if (rs.next()) {
+                const newUser = User.createFromResultSet(rs);
+                if (!_.isEqual(user, newUser)) {
+                    userStore.set('user', newUser);
+                    userStore.persist(false);
+                }
+                success = true;
+            }
+        }
+        closeConnection_();
+        return success;
+    }
+    catch (e) {
+        throw new Error('Error while checking current user: ' + e.message);
+    }
+}
+
+/**
+ * Връща текущия потребител.
+ * @returns {User} Текущият потребител.
+ */
+function getCurrentUser_(): User {
+    const data = userStore.get('user');
+    return new User(data._email, data._names, data._role, data._position, data._id, data._phone, JSON.parse(data._timetable), data._workspace_id, data._declarations_key, data._notifications_key);
+}
+
 /**
  * userObj идва от фронтенда и съдържа:
  * {
@@ -35,7 +101,7 @@ function createUser(userObj) {
     st.setString(10, Utilities.getUuid());
 
     const rowsAffected = st.executeUpdate(); // Returns the number of affected rows -> if 0, no new row was added
-        closeConnection_();
+    closeConnection_();
     if (rowsAffected > 0) {
         return { ok: true };
     } else {
@@ -60,23 +126,23 @@ function deleteUser(id: string): boolean {
         // const rs = stmtSelect.executeQuery();
 
         // if (rs.next()) {
-            let affectedRows;
+        let affectedRows;
 
-            const stmtDeleteUser = conn.prepareStatement('DELETE FROM users WHERE id = ?');
-            stmtDeleteUser.setString(1, id);
-            affectedRows = stmtDeleteUser.executeUpdate();
+        const stmtDeleteUser = conn.prepareStatement('DELETE FROM users WHERE id = ?');
+        stmtDeleteUser.setString(1, id);
+        affectedRows = stmtDeleteUser.executeUpdate();
 
-            // const stmtDeleteNotifications = conn.prepareStatement('DELETE FROM notifications WHERE notifications_key = ?');
-            // stmtDeleteNotifications.setString(1, rs.getString('notifications_key'));
-            // affectedRows.push(stmtDeleteNotifications.executeUpdate());
+        // const stmtDeleteNotifications = conn.prepareStatement('DELETE FROM notifications WHERE notifications_key = ?');
+        // stmtDeleteNotifications.setString(1, rs.getString('notifications_key'));
+        // affectedRows.push(stmtDeleteNotifications.executeUpdate());
 
-            // const stmtDeleteDeclarations = conn.prepareStatement('DELETE FROM declarations WHERE declarations_key = ?');
-            // stmtDeleteDeclarations.setString(1, rs.getString('declarations_key'));
-            // affectedRows.push(stmtDeleteDeclarations.executeUpdate());
+        // const stmtDeleteDeclarations = conn.prepareStatement('DELETE FROM declarations WHERE declarations_key = ?');
+        // stmtDeleteDeclarations.setString(1, rs.getString('declarations_key'));
+        // affectedRows.push(stmtDeleteDeclarations.executeUpdate());
 
-            // conn.commit(); // Commit transaction
-            if (affectedRows > 0)
-                success = true;
+        // conn.commit(); // Commit transaction
+        if (affectedRows > 0)
+            success = true;
         // }
 
         closeConnection_();
@@ -200,7 +266,7 @@ function isTimeSlotFree_(wsId: string,
     st.setString(1, wsId);
     const rs = st.executeQuery();
     while (rs.next()) {
-        const tt = JSON.parse(rs.getString(1) || '[]');   
+        const tt = JSON.parse(rs.getString(1) || '[]');
         if (tt.day !== day || !tt.data) continue;
 
         for (const c of tt.data) {
@@ -222,26 +288,66 @@ function isTimeSlotFree_(wsId: string,
  *   ...
  * }
  */
-function getUsedSlotsForAll() {
+function getUsedSlotsForAll_() {
     const sql = 'SELECT timetable FROM users WHERE timetable IS NOT NULL AND timetable != ""';
     const rs = getConnection_().prepareStatement(sql).executeQuery();
-  
+
     const map = {};
-  
+
     while (rs.next()) {
-      const timetable = JSON.parse(rs.getString(1) || '[]');
-  
-      timetable.forEach(entry => {
-        const key = `${entry.day}-${entry.time}-${entry.shift}`;
-        if (!map[key]) {
-          map[key] = { groups: [], rooms: [] };
-        }
-        if (entry.group) map[key].groups.push(entry.group);
-        if (entry.room)  map[key].rooms.push(entry.room);
-      });
+        const timetable = JSON.parse(rs.getString(1) || '[]');
+
+        timetable.forEach(entry => {
+            const key = `${entry.day}-${entry.time}-${entry.shift}`;
+            if (!map[key]) {
+                map[key] = { groups: [], rooms: [] };
+            }
+            if (entry.group) map[key].groups.push(entry.group);
+            if (entry.room) map[key].rooms.push(entry.room);
+        });
     }
-  closeConnection_();
+    closeConnection_();
     return map;
-  }
-  
-  
+}
+
+function getSettingsAndUsedSlots() {
+    const settings = getSettings();
+    const usedSlots = getUsedSlotsForAll_();
+    return { settings, usedSlots };
+}
+
+/**
+* Връща всички потребители с разписание.
+* @returns Масив от обекти с информация за потребителите и техните разписания.
+*/
+function getAllUsersWithSchedule_() {
+    const conn = getConnection_(); // Взима връзка към базата данни.
+    const wsId = getCurrentUser_().workspace_id; // Взима ID на работното пространство на текущия потребител.
+
+    // Подготвя SQL заявка за извличане на потребители с разписание.
+    const stmt = conn.prepareStatement(`
+      SELECT id, names, role, timetable FROM users
+      WHERE workspace_id = ? AND timetable IS NOT NULL AND timetable != '[]'
+    `);
+    stmt.setString(1, wsId); // Задава workspace_id като параметър.
+    const rs = stmt.executeQuery(); // Изпълнява заявката.
+
+    const result = []; // Масив за съхранение на резултатите.
+
+    while (rs.next()) {
+        const timetable = JSON.parse(rs.getString("timetable") || '[]'); // Парсва разписанието.
+        if (timetable && timetable.length > 0) {
+            // Добавя потребителя в резултатите.
+            result.push({
+                id: rs.getString("id"),
+                names: rs.getString("names"),
+                role: rs.getString("role"),
+                timetable
+            });
+        }
+    }
+
+    return result; // Връща масив от потребители с разписание.
+}
+
+
