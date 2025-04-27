@@ -17,6 +17,17 @@ var app = new Gexpress.App(); // Инициализиране на прилож�
  */
 app.use(function (req, res, next){ // Първо проверява дали потребителя има достъп до ресурса (чрез директен DB query)
     try {
+        if(req.url == '/dev'){
+            if(Session.getActiveUser().getEmail() == 'radodimitrov13@gmail.com'){
+                next();
+            }else{
+                res.set('content-type', 'text/html');
+                const html = HtmlService.createTemplateFromFile('public/html/error');
+                html.error = 'Нямате достъп до тази страница.';        
+                res.send(html.evaluate().setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).getContent());
+                res.end();
+            }
+        }
         if (checkCurrentUser_() && checkSettings_()) {
             next();
         } else {
@@ -37,6 +48,14 @@ app.use(function (req, res, next){ // Първо проверява дали п�
 });
 
 // Routes (проверяват се по ред на инициализация)
+
+// Developer
+app.get('/dev', function (req, res){
+    res.set('Content-Type', 'text/html'); // Задава типа на съдържанието като HTML.
+    const html = HtmlService.createTemplateFromFile('public/html/dev'); // Зарежда HTML шаблона за страницата за разработчици.
+    res.send(html.evaluate().setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).getContent()); // Изпраща HTML съдържанието като отговор.
+    res.end(); // Завършва отговора.
+})
 
 // Substitute
 /**

@@ -11,7 +11,6 @@ class Settings {
       public rooms: string[],
       public declaration_templates: string[],
       public substitute_key: string,
-      public rooms_key: string
     ) {}
   
     static createFromResultSet(rs: GoogleAppsScript.JDBC.JdbcResultSet): Settings {
@@ -23,8 +22,7 @@ class Settings {
         JSON.parse(rs.getString('classes') || '[]'),
         JSON.parse(rs.getString('rooms') || '[]'),
         JSON.parse(rs.getString('declaration_templates') || '[]'),
-        rs.getString('substitute_key'),
-        rs.getString('rooms_key')
+        rs.getString('substitute_key')
       );
     }
   }

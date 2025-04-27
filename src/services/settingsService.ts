@@ -16,7 +16,7 @@ function getSettings(): Settings {
     throw new Error("Настройките не са намерени!");
   }
 
-  return new Settings(data.id, data.school, data.shift, data.max_classes, data.classes, data.rooms, data.declaration_templates, data.substitute_key, data.rooms_key);
+  return new Settings(data.id, data.school, data.shift, data.max_classes, data.classes, data.rooms, data.declaration_templates, data.substitute_key);
 }
 
 /**
@@ -85,8 +85,7 @@ function checkSettings_(): boolean {
         settingsData.classes,
         settingsData.rooms,
         settingsData.declaration_templates,
-        settingsData.substitute_key,
-        settingsData.rooms_key
+        settingsData.substitute_key
       )
       : null;
     const stmt = conn.prepareStatement('SELECT * FROM workspace WHERE id = ?');
