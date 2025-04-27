@@ -76,13 +76,13 @@ function renderDeclarations(data) {
       const left = document.createElement("div"); // Лява част на реда (икона и линк).
       left.className = "d-flex align-items-center";
       left.innerHTML = `
-          <img src="https://cdn-icons-png.flaticon.com/512/337/337946.png" width="20" height="20" class="icon">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/01/Google_Docs_logo_%282014-2020%29.svg" width="20" height="20" class="icon">
           <a href="${decl.url}" target="_blank" class="ms-2">${decl.title}</a>
         `;
 
       const right = document.createElement("div"); // Дясна част на реда (бутони или статус).
 
-      if (currentUser._role === "teacher") {
+      if (currentUser.role === "teacher") {
         // Ако потребителят е учител, добавя бутон за промяна на статуса.
         const btn = document.createElement("button");
         btn.className = `btn btn-sm ${decl.submitted ? 'btn-success' : 'btn-outline-secondary'}`;

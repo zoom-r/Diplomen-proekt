@@ -45,6 +45,8 @@ function getHourSuffix(hour) {
     return map[String(hour)] || `${hour}-ти`; // Връща съответния суфикс или генерира такъв по подразбиране.
 }
 
+let activeRequestData = null; // Глобална променлива за активната заявка.
+
 /**
  * Отваря модал за одобрение на заявка за заместване.
  * Попълва информацията за заявката и показва модала.
@@ -61,7 +63,7 @@ function openApproveRequestModal(request) {
 
     // Генерира HTML за преглед на графика.
     const preview = request.schedule.map(e => {
-        const shift = globalSettings._shift === "second" ? `, смяна: ${globalSettings._shift == 'second' ? 'втора' : 'първа'}` : "";
+        const shift = globalSettings.shift === "second" ? `, смяна: ${e.shift == 'second' ? 'втора' : 'първа'}` : "";
         return `<li>${days[e.day]}, ${getHourSuffix(e.hour)} час${shift}, клас: ${e.group}</li>`;
     }).join("");
 
@@ -73,7 +75,7 @@ function openApproveRequestModal(request) {
     const templateSelect = document.getElementById("templateSelect");
     templateSelect.innerHTML = "";
 
-    (globalSettings._declarations_templates || []).forEach(t => {
+    (globalSettings.declaration_templates || []).forEach(t => {
         const opt = document.createElement("option");
         opt.value = t.url;
         opt.textContent = t.name;
@@ -102,7 +104,6 @@ function generateNotifications(notifications, settings) {
     } else {
         badge.style.display = "none"; // Скрива брояча, ако няма нотификации.
     }
-
     // Обхожда всяка нотификация и я добавя в списъка.
     notifications.forEach(n => {
         const li = document.createElement("li");
@@ -110,23 +111,22 @@ function generateNotifications(notifications, settings) {
 
         const textContainer = document.createElement("div");
         textContainer.className = "ms-2 me-auto";
-
         // Ако нотификацията е заявка за заместване.
         if (n.type === "substitute-request") {
             const title = document.createElement("div");
             title.className = "fw-bold";
-            title.textContent = `Заявка от ${n.fromName}`;
+            title.textContent = `Заявка от ${n.fromName.split(" ").filter((_, i) => i != 1).join(" ")}`;
             textContainer.appendChild(title);
 
             const list = document.createElement("ul");
             n.schedule.forEach(s => {
                 const item = document.createElement("li");
-                const shiftPart = (settings._shift === "second") ? `, смяна: ${settings._shift == 'second' ? 'втора' : 'първа'}` : "";
+                const shiftPart = (settings.shift === "second") ? `, смяна: ${s.shift == 'second' ? 'втора' : 'първа'}` : "";
                 item.textContent = `${translateDay(s.day)}, ${s.hour} час, ${s.group}${shiftPart}`;
                 list.appendChild(item);
             });
             textContainer.appendChild(list);
-
+            console.log(list)
             const actions = document.createElement("div");
             actions.className = "mt-2";
 
@@ -149,13 +149,15 @@ function generateNotifications(notifications, settings) {
             actions.appendChild(declineBtn);
 
             textContainer.appendChild(actions);
+
+            li.appendChild(textContainer); // Добавя текстовия контейнер в нотификацията.
         } else {
             // За всички останали нотификации.
             const title = document.createElement("div");
             title.className = "fw-bold";
             title.textContent = n.text || "Нова нотификация";
             textContainer.appendChild(title);
-
+            console.log(n)
             if (n.from) {
                 const who = document.createElement("div");
                 who.textContent = n.from;
@@ -166,7 +168,7 @@ function generateNotifications(notifications, settings) {
                 const list = document.createElement("ul");
                 n.schedule.forEach(s => {
                     const item = document.createElement("li");
-                    const shiftPart = (settings._shift === "second") ? `, смяна: ${s.shift}` : "";
+                    const shiftPart = (settings.shift === "second") ? `, смяна: ${s.shift == 'second' ? 'втора' : 'първа'}` : "";
                     item.textContent = `${translateDay(s.day)}, ${s.hour} час, ${s.group}${shiftPart}`;
                     list.appendChild(item);
                 });

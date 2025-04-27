@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/4.6.3/css/ionicons.min.css">
     <style>
         <?!= includeEssentialHtmlStyles() ?>
     </style>
@@ -146,8 +147,8 @@
     </div>
     <div id="alert-wrapper" class="mt-2"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
     <script>
         let cachedSettings = null;
         let cachedUsedSlots = null;
@@ -161,9 +162,7 @@
             const f = document.getElementById('addUserForm');
 
             const userObj = {
-                firstName: f.firstName.value.trim(),
-                middleName: f.middleName.value.trim(),
-                lastName: f.lastName.value.trim(),
+                names: `${f.firstName.value.trim()} ${f.middleName.value.trim()} ${f.lastName.value.trim()}`,
                 email: f.email.value.trim(),
                 phone: f.phone.value.trim(),
                 role: f.querySelector('input[name="role"]:checked')?.value || 'teacher',
@@ -252,8 +251,13 @@
             event.preventDefault(); // предотвратяване на стандартното поведение на формата
             const userObj = collectForm(); // събери полетата от формата
             google.script.run
-                .withSuccessHandler(() => {
-                    alertSuccess('Потребителят е добавен успешно.');
+                .withFailureHandler(alertError)
+                .withSuccessHandler((success) => {
+                    if(success) {
+                        alertSuccess('Потребителят е добавен успешно.');
+                    } else {
+                        alertError('Потребителят не е добавен. Възникнала е грешка.');
+                    }
                     resetFormAndHideModal();
                     loadUsers();
                     reloadScheduleTables(); // презареждаме таблицата за създаване
@@ -289,34 +293,34 @@
             teacherBody.innerHTML = '';
 
             list.forEach(user => {
-                const rowId = `user-${user._id}`;
-                const collapseId = `collapse-${user._id}`;
+                const rowId = `user-${user.id}`;
+                const collapseId = `collapse-${user.id}`;
 
                 const rowHtml = `
                     <tr>
-                    <td>${user._names}</td>
-                    <td>${user._email}</td>
-                    <td>${user._phone}</td>
-                    <td>${user._position}</td>
+                    <td>${user.names}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone}</td>
+                    <td>${user.position}</td>
                     <td>
                     <button class="btn btn-sm btn-outline-primary"
                     data-bs-toggle="collapse"
-                    data-bs-target="#collapse-${user._id}"
+                    data-bs-target="#collapse-${user.id}"
                     aria-expanded="false"
-                    aria-controls="collapse-${user._id}">
+                    aria-controls="collapse-${user.id}">
                     Разписание
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="delUser('${user._id}')">🗑️</button>
+                    <button class="btn btn-sm btn-danger" onclick="delUser('${user.id}')">🗑️</button>
                     </td>
                     </tr>
-                    <tr class="collapse" id="collapse-${user._id}">
+                    <tr class="collapse" id="collapse-${user.id}">
                     <td colspan="5" style="background-color:#f9f9f9;">
-                    ${renderTimetable(user._timetable)}
+                    ${renderTimetable(user.timetable, user.id)}
                     </td>
                     </tr>
                 `;
 
-                if (user._role === 'admin') {
+                if (user.role === 'admin') {
                     adminBody.innerHTML += rowHtml;
                 } else {
                     teacherBody.innerHTML += rowHtml;
@@ -329,7 +333,7 @@
          * @param {Array|string} table - Разписанието на потребителя.
          * @returns {string} - HTML за визуализация на разписанието.
          */
-        function renderTimetable(table) {
+        function renderTimetable(table, id) {
             try {
                 if (typeof table === 'string') table = JSON.parse(table);
             } catch (e) {
@@ -394,15 +398,15 @@
             return `
                 <ul class="nav nav-tabs" id="shiftTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="first-tab" data-bs-toggle="tab" data-bs-target="#first" type="button" role="tab">Първа смяна</button>
+                <button class="nav-link active" id="first-tab" data-bs-toggle="tab" data-bs-target="#first-${id}" type="button" role="tab">Първа смяна</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                <button class="nav-link" id="second-tab" data-bs-toggle="tab" data-bs-target="#second" type="button" role="tab">Втора смяна</button>
+                <button class="nav-link" id="second-tab" data-bs-toggle="tab" data-bs-target="#second-${id}" type="button" role="tab">Втора смяна</button>
                 </li>
                 </ul>
                 <div class="tab-content mt-2">
-                <div class="tab-pane fade show active" id="first" role="tabpanel">${generateScheduleTable('first')}</div>
-                <div class="tab-pane fade" id="second" role="tabpanel">${generateScheduleTable('second')}</div>
+                <div class="tab-pane fade show active" id="first-${id}" role="tabpanel">${generateScheduleTable('first')}</div>
+                <div class="tab-pane fade" id="second-${id}" role="tabpanel">${generateScheduleTable('second')}</div>
                 </div>
             `;
         }
@@ -435,7 +439,7 @@
             const scheduleTables = document.getElementById('scheduleTables');
 
             scheduleTables.innerHTML = ''; // Изчистване на предишното съдържание
-            if (settings._shift === 'second') {
+            if (settings.shift === 'second') {
                 const tabs = `
                     <ul class="nav nav-tabs" id="shiftTabs" role="tablist">
                         <li class="nav-item">
@@ -452,8 +456,8 @@
                 `;
                 scheduleTables.innerHTML = tabs;
 
-                generateTable(document.getElementById('first-shift'), { ...settings, _shift: 'first' }, usedSlots);
-                generateTable(document.getElementById('second-shift'), { ...settings, _shift: 'second' }, usedSlots);
+                generateTable(document.getElementById('first-shift'), { ...settings, shift: 'first' }, usedSlots);
+                generateTable(document.getElementById('second-shift'), { ...settings, shift: 'second' }, usedSlots);
             } else {
                 generateTable(scheduleTables, settings, usedSlots);
             }
@@ -484,7 +488,7 @@
         // Функция за генериране на редове
         function generateRows(settings, usedSlots) {
             let rows = '';
-            for (let i = 1; i <= settings._max_classes; i++) {
+            for (let i = 1; i <= settings.max_classes; i++) {
                 rows += `
                     <tr>
                         <td>${i}</td>
@@ -500,24 +504,24 @@
             let cells = '';
             for (let i = 0; i < 5; i++) {
                 const day = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'][i];
-                const key = `${day}-${settings.hour}-${settings._shift}`;
+                const key = `${day}-${settings.hour}-${settings.shift}`;
                 const used = usedSlots[key] || { groups: [], rooms: [] };
 
-                const availableClasses = settings._classes.filter(cls => !used.groups.includes(cls));
-                const availableRooms = settings._rooms.filter(r => !used.rooms.includes(r));
+                const availableClasses = settings.classes.filter(cls => !used.groups.includes(cls));
+                const availableRooms = settings.rooms.filter(r => !used.rooms.includes(r));
                 // 5 дни в седмицата
 
                 cells += `
                     <td>
-                        <select id="class-dropdown-${day}-${settings.hour}-${settings._shift}" 
+                        <select id="class-dropdown-${day}-${settings.hour}-${settings.shift}" 
                                 class="form-select mb-2 class-dropdown" 
-                                data-info="${day}-${settings.hour}-${settings._shift}">
+                                data-info="${day}-${settings.hour}-${settings.shift}">
                             <option value="">Избери клас</option>
                     ${availableClasses.map(cls => `<option value="${cls}">${cls}</option>`).join('')}
                         </select>
-                        <select id="room-dropdown-${day}-${settings.hour}-${settings._shift}" 
+                        <select id="room-dropdown-${day}-${settings.hour}-${settings.shift}" 
                                 class="form-select room-dropdown" 
-                                data-info="${day}-${settings.hour}-${settings._shift}">
+                                data-info="${day}-${settings.hour}-${settings.shift}">
                             <option value="">Избери стая</option>
                     ${availableRooms.map(room => `<option value="${room}">${room}</option>`).join('')}
                         </select>

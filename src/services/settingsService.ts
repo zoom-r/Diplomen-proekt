@@ -1,60 +1,53 @@
 // Инициализация на кеш с ObjectStore (в режим "manual persist")
+// @ts-ignore
+const userStore = ObjectStore.create('user', { manual: true });
+// @ts-ignore
 const scriptStore = ObjectStore.create('script', { manual: true });
 // Зареждане на LodashGS библиотеката
+// @ts-ignore
 const _ = LodashGS.load();
 
 /**
  * Връща обекта с настройки от кеша (ObjectStore) за текущото работно пространство.
  */
 function getSettings(): Settings {
-  const data = scriptStore.get(getCurrentUser_().workspace_id);
-  console.log('Settings data: ', data);
+  const data: Settings = scriptStore.get(getCurrentUser_().workspace_id);
   if (!data) {
     throw new Error("Настройките не са намерени!");
   }
 
-  return new Settings(
-    data._id,
-    data._name,
-    data._shift,
-    data._max_classes,
-    data._classes,
-    data._rooms,
-    data._substitute_key,
-    data._rooms_key,
-    data._declarations_templates
-  );
+  return new Settings(data.id, data.school, data.shift, data.max_classes, data.classes, data.rooms, data.declaration_templates, data.substitute_key, data.rooms_key);
 }
 
 /**
  * Запазва настройките в базата данни и обновява кеша.
  */
-function saveSettings(shift, max_classes, declarations_templates, classes, rooms) {
+function saveSettings(shift, max_classes, declaration_templates, classes, rooms) {
   const conn = getConnection_();
   try {
-      const stmt = conn.prepareStatement('UPDATE workspace SET shifts = ?, max_classes = ?, declaration_templates = ?, classes = ?, rooms = ? WHERE id = ?');
-      stmt.setString(1, shift);
-      stmt.setInt(2, parseInt(max_classes));
-      stmt.setString(3, JSON.stringify(declarations_templates));
-      stmt.setString(4, JSON.stringify(classes));
-      stmt.setString(5, JSON.stringify(rooms));
-      stmt.setString(6, getCurrentUser_().workspace_id);
-      const rs = stmt.executeUpdate();
+    const stmt = conn.prepareStatement('UPDATE workspace SET shifts = ?, max_classes = ?, declaration_templates = ?, classes = ?, rooms = ? WHERE id = ?');
+    stmt.setString(1, shift);
+    stmt.setInt(2, parseInt(max_classes));
+    stmt.setString(3, JSON.stringify(declaration_templates));
+    stmt.setString(4, JSON.stringify(classes));
+    stmt.setString(5, JSON.stringify(rooms));
+    stmt.setString(6, getCurrentUser_().workspace_id);
+    const rs = stmt.executeUpdate();
 
-      // Ако записът е успешен, обновяваме кеша
-      if (rs > 0) {
-          let settings = getSettings();
-          settings.shift = shift;
-          settings.max_classes = max_classes;
-          settings.declarations_templates = declarations_templates;
-          settings.classes = classes;
-          settings.rooms = rooms;
-          updateSettings(settings);
-      }
+    // Ако записът е успешен, обновяваме кеша
+    if (rs > 0) {
+      let settings = getSettings();
+      settings.shift = shift;
+      settings.max_classes = max_classes;
+      settings.declaration_templates = declaration_templates;
+      settings.classes = classes;
+      settings.rooms = rooms;
+      updateSettings(settings);
+    }
   } catch (e) {
-      throw new Error('Грешка при запазване на настройките: ' + e.message);
+    throw new Error('Грешка при запазване на настройките: ' + e.message);
   } finally {
-      closeConnection_();
+    closeConnection_();
   }
 }
 
@@ -85,18 +78,17 @@ function checkSettings_(): boolean {
     const settingsData = scriptStore.get(getCurrentUser_().workspace_id);
     let settings = settingsData
       ? new Settings(
-          settingsData.id,
-          settingsData.name,
-          settingsData.shift,
-          settingsData.max_classes,
-          settingsData.classes,
-          settingsData.rooms,
-          settingsData.substitute_key,
-          settingsData.rooms_key,
-          settingsData.declarations_templates
-        )
+        settingsData.id,
+        settingsData.school,
+        settingsData.shift,
+        settingsData.max_classes,
+        settingsData.classes,
+        settingsData.rooms,
+        settingsData.declaration_templates,
+        settingsData.substitute_key,
+        settingsData.rooms_key
+      )
       : null;
-
     const stmt = conn.prepareStatement('SELECT * FROM workspace WHERE id = ?');
     stmt.setString(1, getCurrentUser_().workspace_id);
 

@@ -1,13 +1,5 @@
-/*
-*   Библиотеката ObjectStore за Apps Script ни позволява да запазваме нужната информация в 
-*   CacheService и PropertiesService. Така можем да я използваме без постоянно да отваряме
-*   нови връзки с базата данни, за да използваме информация за текущия потребител.
-*/
 // @ts-ignore
-const userStore = ObjectStore.create('user', { manual: true });
-// @ts-ignore
-//const _ = LodashGS.load();
-
+// const userStore = ObjectStore.create('user', { manual: true });
 /**
  * Проверява дали текущия потребител съществува, дали е запазен в Propeties и дали е актуален - ако не е, го актуализира.
  * @returns {boolean} Връща true, ако операцията е успешна, в противен случай - false.
@@ -18,12 +10,11 @@ function checkCurrentUser_(): boolean {
     let success = false;
     try {
         const userData = userStore.get('user');
-        console.log(userData)
         let user;
         if (!userData) {
             user = null;
         } else {
-            user = new User(userData._email, userData._names, userData._role, userData._position, userData._id, userData._phone, userData._timetable, userData._workspace_id, userData._declarations_key, userData._notifications_key);
+            user = new User(userData.id, userData.email, userData.names, userData.phone, userData.role, userData.position, userData.timetable, userData.workspace_id, userData.notifications_key, userData.declarations_key);
         }
         const stmt = conn.prepareStatement('SELECT * FROM users WHERE email = ?'); // Използва проверка с email, защото потребителят може да бъде изтрит и добавен отново (тогава id-то ще е различно, но email-ът - същият)
         if (!user) {
@@ -31,6 +22,7 @@ function checkCurrentUser_(): boolean {
             const rs = stmt.executeQuery();
             if (rs.next()) {
                 user = User.createFromResultSet(rs);
+                console.log('User from DB:', user);
                 userStore.set('user', user);
                 success = true;
                 userStore.persist(false);
@@ -61,7 +53,7 @@ function checkCurrentUser_(): boolean {
  */
 function getCurrentUser_(): User {
     const data = userStore.get('user');
-    return new User(data._email, data._names, data._role, data._position, data._id, data._phone, JSON.parse(data._timetable), data._workspace_id, data._declarations_key, data._notifications_key);
+    return new User(data.id, data.email, data.names, data.phone, data.role, data.position, data.timetable, data.workspace_id, data.notifications_key, data.declarations_key);
 }
 
 /**
@@ -71,17 +63,16 @@ function getCurrentUser_(): User {
  *   phone, position, role, timetable: Timetable
  * }
  */
-function createUser(userObj) {
+function createUser(userObj: User): boolean {
     const wsId = getCurrentUser_().workspace_id;
 
     // Валидация за конфликт
-    if (userObj.timetable && userObj.timetable.data) {
-        userObj.timetable.data.forEach(t => {
-            if (!isTimeSlotFree_(wsId, userObj.timetable.day, t.time, t.shift, t.group, t.room)) {
-                throw new Error(`Конфликт – ${userObj.timetable.day} ${t.time}ч., смяна ${t.shift}`);
+    if (userObj.timetable) {
+        userObj.timetable.forEach(t => {
+            if (!isTimeSlotFree_(wsId, t.day, t.time, t.shift, t.group, t.room)) {
+                throw new Error(`Конфликт – ${t.day} ${t.time}ч., смяна ${t.shift == 'second' ? 'втора' : 'първа'}`);
             }
-        }
-        );
+        });
     }
 
     const conn = getConnection_();
@@ -91,7 +82,7 @@ function createUser(userObj) {
     `);
     st.setString(1, Utilities.getUuid());
     st.setString(2, userObj.email);
-    st.setString(3, `${userObj.firstName} ${userObj.middleName} ${userObj.lastName}`);
+    st.setString(3, userObj.names);
     st.setString(4, userObj.phone);
     st.setString(5, userObj.role);
     st.setString(6, userObj.position);
@@ -103,9 +94,9 @@ function createUser(userObj) {
     const rowsAffected = st.executeUpdate(); // Returns the number of affected rows -> if 0, no new row was added
     closeConnection_();
     if (rowsAffected > 0) {
-        return { ok: true };
+        return true;
     } else {
-        return { ok: false };
+        return false;
     }
 }
 
@@ -119,36 +110,17 @@ function deleteUser(id: string): boolean {
     const conn = getConnection_();
     let success = false;
     try {
-        // conn.setAutoCommit(false); // Start transaction
-
-        // const stmtSelect = conn.prepareStatement('SELECT notifications_key, declarations_key FROM users WHERE id = ?');
-        // stmtSelect.setString(1, id);
-        // const rs = stmtSelect.executeQuery();
-
-        // if (rs.next()) {
         let affectedRows;
 
         const stmtDeleteUser = conn.prepareStatement('DELETE FROM users WHERE id = ?');
         stmtDeleteUser.setString(1, id);
         affectedRows = stmtDeleteUser.executeUpdate();
 
-        // const stmtDeleteNotifications = conn.prepareStatement('DELETE FROM notifications WHERE notifications_key = ?');
-        // stmtDeleteNotifications.setString(1, rs.getString('notifications_key'));
-        // affectedRows.push(stmtDeleteNotifications.executeUpdate());
-
-        // const stmtDeleteDeclarations = conn.prepareStatement('DELETE FROM declarations WHERE declarations_key = ?');
-        // stmtDeleteDeclarations.setString(1, rs.getString('declarations_key'));
-        // affectedRows.push(stmtDeleteDeclarations.executeUpdate());
-
-        // conn.commit(); // Commit transaction
-        if (affectedRows > 0)
-            success = true;
-        // }
+        if (affectedRows > 0) success = true;
 
         closeConnection_();
         return success;
     } catch (e) {
-        conn.rollback(); // Rollback transaction in case of error
         throw new Error('Error during database query for deleting a user: ' + e.message);
     }
 }
@@ -156,22 +128,14 @@ function deleteUser(id: string): boolean {
 /**
  * Взима профилната снимка на потребителя. 
  * Ако не съществува такава или се изхвърли грешка, връща стандартна снимка.
- * @param {string} [id=null] ID на потребителя. Ако не е предоставено, взима текущия потребител.
  * @returns {string} URL на профилната снимка на потребителя или стандартна снимка.
  */
-function getUserPictureUrl(id: string = null): string {
+function getUserPictureUrl(): string {
     const defaultPictureUrl = 'https://lh3.googleusercontent.com/a-/AOh14Gj-cdUSUVoEge7rD5a063tQkyTDT3mripEuDZ0v=s100';
     let userPictureUrl: string = null;
     try {
-        let email = null;
-        if (!id) {
-            email = getUserEmail_()
-        } else {
-            const user = getUserById_(id);
-            email = user.email;
-        }
         const people = People.People.searchDirectoryPeople({
-            query: email,
+            query: getUserEmail_(),
             readMask: 'photos',
             sources: 'DIRECTORY_SOURCE_TYPE_DOMAIN_PROFILE'
         });
@@ -193,7 +157,7 @@ function getUserPictureUrl(id: string = null): string {
 function getUserById_(id: string): User {
     const conn = getConnection_();
     try {
-        const stmt = conn.prepareStatement('SELECT id, email, names, phone, role, position, timetable, notifications_key, declarations_key, workspace_id FROM users WHERE id = ?');
+        const stmt = conn.prepareStatement('SELECT * FROM users WHERE id = ?');
         stmt.setString(1, id);
         const rs = stmt.executeQuery();
         let user = null;
@@ -228,23 +192,12 @@ function getAllUsers(): User[] {
     const conn = getConnection_();
     const users: User[] = [];
     try {
-        const stmt = conn.prepareStatement('SELECT id, email, names, phone, role, position, timetable FROM users WHERE workspace_id = ?');
+        const stmt = conn.prepareStatement('SELECT * FROM users WHERE workspace_id = ?');
         stmt.setString(1, getCurrentUser_().workspace_id);
         const rs = stmt.executeQuery();
 
         while (rs.next()) {
-            const user = new User(
-                rs.getString('email'),
-                rs.getString('names'),
-                rs.getString('role'),
-                rs.getString('position'),
-                rs.getString('id'),
-                rs.getString('phone'),
-                JSON.parse(rs.getString('timetable')),
-                null, // workspace_id
-                null, // declarations_key
-                null  // notifications_key
-            );
+            const user = User.createFromResultSet(rs);
             users.push(user);
         }
 
@@ -257,7 +210,7 @@ function getAllUsers(): User[] {
 
 function isTimeSlotFree_(wsId: string,
     day: string,
-    time: string,
+    time: number,
     shift: string,
     clazz: string,
     room: string): boolean {
@@ -266,16 +219,17 @@ function isTimeSlotFree_(wsId: string,
     st.setString(1, wsId);
     const rs = st.executeQuery();
     while (rs.next()) {
-        const tt = JSON.parse(rs.getString(1) || '[]');
-        if (tt.day !== day || !tt.data) continue;
-
-        for (const c of tt.data) {
-            if (c.time === time &&
-                c.shift === shift &&
-                (c.group === clazz || c.room === room)) {
-                return false;   // конфликт
+        const tt: ClassEntry[] = JSON.parse(rs.getString('timetable') || '[]');
+        if (!tt || tt.length === 0) continue; // Няма разписание
+        tt.forEach(entry => {
+            if (entry.day == day){
+                if (entry.time === time &&
+                entry.shift === shift &&
+                (entry.group === clazz || entry.room === room)) {
+                    return false;   // конфликт
+                }
             }
-        }
+        });
     }
     return true;
 }
@@ -289,13 +243,13 @@ function isTimeSlotFree_(wsId: string,
  * }
  */
 function getUsedSlotsForAll_() {
-    const sql = 'SELECT timetable FROM users WHERE timetable IS NOT NULL AND timetable != ""';
+    const sql = 'SELECT timetable FROM users WHERE timetable IS NOT NULL AND timetable != "[]"';
     const rs = getConnection_().prepareStatement(sql).executeQuery();
 
     const map = {};
 
     while (rs.next()) {
-        const timetable = JSON.parse(rs.getString(1) || '[]');
+        const timetable: ClassEntry[] = JSON.parse(rs.getString('timetable') || '[]');
 
         timetable.forEach(entry => {
             const key = `${entry.day}-${entry.time}-${entry.shift}`;
@@ -325,10 +279,7 @@ function getAllUsersWithSchedule_() {
     const wsId = getCurrentUser_().workspace_id; // Взима ID на работното пространство на текущия потребител.
 
     // Подготвя SQL заявка за извличане на потребители с разписание.
-    const stmt = conn.prepareStatement(`
-      SELECT id, names, role, timetable FROM users
-      WHERE workspace_id = ? AND timetable IS NOT NULL AND timetable != '[]'
-    `);
+    const stmt = conn.prepareStatement('SELECT * FROM users WHERE workspace_id = ? AND timetable IS NOT NULL AND timetable != "[]"');
     stmt.setString(1, wsId); // Задава workspace_id като параметър.
     const rs = stmt.executeQuery(); // Изпълнява заявката.
 
@@ -338,12 +289,7 @@ function getAllUsersWithSchedule_() {
         const timetable = JSON.parse(rs.getString("timetable") || '[]'); // Парсва разписанието.
         if (timetable && timetable.length > 0) {
             // Добавя потребителя в резултатите.
-            result.push({
-                id: rs.getString("id"),
-                names: rs.getString("names"),
-                role: rs.getString("role"),
-                timetable
-            });
+            result.push(User.createFromResultSet(rs)); // Създава нов потребител от резултата и го добавя в масива.
         }
     }
 

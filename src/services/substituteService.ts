@@ -1,3 +1,5 @@
+const settings = getSettings(); // Взима настройките на системата.
+
 /**
  * Връща масив от дати (YYYY-MM-DD) за текущата седмица (понеделник – петък).
  * Изчислява понеделника от текущата седмица и добавя следващите дни.
@@ -33,15 +35,10 @@ function getSubstitutionGridForWeek() {
     const conn = getConnection_(); // Взима връзка към базата данни.
     const workspaceId = getCurrentUser_().workspace_id; // Взима ID на работното пространство на текущия потребител.
 
-    const settings = getSettings(); // Взима настройките на системата.
     const substituteKey = settings.substitute_key; // Взима ключа за таблицата substitute.
 
     // Подготвя SQL заявка за извличане на данни за заместванията.
-    const stmt = conn.prepareStatement(`
-      SELECT monday, tuesday, wednesday, thursday, friday
-      FROM substitute
-      WHERE substitute_key = ?
-    `);
+    const stmt = conn.prepareStatement('SELECT monday, tuesday, wednesday, thursday, friday FROM substitute WHERE substitute_key = ?');
     stmt.setString(1, substituteKey); // Задава substitute_key като параметър.
     const rs = stmt.executeQuery(); // Изпълнява заявката.
 
@@ -56,7 +53,7 @@ function getSubstitutionGridForWeek() {
         if (!rawJson) continue; // Пропуска, ако няма данни за деня.
 
         try {
-            const entries = JSON.parse(rawJson); // Парсва JSON данните.
+            const entries: SubstitutionEntry[] = JSON.parse(rawJson); // Парсва JSON данните.
             if (!Array.isArray(entries)) continue; // Пропуска, ако данните не са масив.
 
             for (const entry of entries) {
@@ -64,14 +61,15 @@ function getSubstitutionGridForWeek() {
                 if (!grid[day]) grid[day] = []; // Инициализира масив за деня, ако не съществува.
 
                 // Добавя данните за заместването в масива за деня.
-                grid[day].push({
-                    time: entry.time,
-                    shift: entry.shift,
-                    group: entry.group,
-                    room: entry.room,
-                    absentTeacher: entry.absentTeacher,
-                    substitute: entry.substitute || null
-                });
+                grid[day].push(entry);
+                // grid[day].push({
+                //     time: entry.time,
+                //     shift: entry.shift,
+                //     group: entry.group,
+                //     room: entry.room,
+                //     absentTeacher: entry.absentTeacher,
+                //     substitute: entry.substitute || null
+                // });
             }
         } catch (e) {
             Logger.log(`Грешка при JSON парсване за ${day}: ` + e); // Логва грешка при парсване.
@@ -117,7 +115,6 @@ function getDateForWeekday_(day: string): string {
 function createAbsentSubstitution(userId: string, fromDate: string, toDate: string) {
     const conn = getConnection_(); // Взима връзка към базата данни.
     const wsId = getCurrentUser_().workspace_id; // Взима ID на работното пространство на текущия потребител.
-    const settings = getSettings(); // Взима настройките на системата.
     const substituteKey = settings.substitute_key; // Взима substitute_key.
 
     // Подготвя SQL заявка за извличане на разписанието на потребителя.
@@ -127,11 +124,11 @@ function createAbsentSubstitution(userId: string, fromDate: string, toDate: stri
 
     if (!rs.next()) return; // Ако няма резултати, прекратява изпълнението.
 
-    const timetable = JSON.parse(rs.getString("timetable") || '[]'); // Парсва разписанието.
-    const name = rs.getString("names"); // Взима името на потребителя.
-    const position = rs.getString("position"); // Взима позицията на потребителя.
+    const timetable: ClassEntry[] = JSON.parse(rs.getString("timetable") || '[]'); // Парсва разписанието.
+    const name: string = rs.getString("names"); // Взима името на потребителя.
+    const position: string = rs.getString("position"); // Взима позицията на потребителя.
 
-    const substituteData = {
+    const substituteData: Record<string, SubstitutionEntry[]> = {
         monday: [], tuesday: [], wednesday: [], thursday: [], friday: []
     }; // Инициализира обект за заместванията.
 
@@ -143,15 +140,16 @@ function createAbsentSubstitution(userId: string, fromDate: string, toDate: stri
         timetable.forEach(c => {
             if (c.day === day) {
                 // Добавя запис за заместване.
-                substituteData[day].push({
-                    date,
-                    time: c.time,
-                    shift: c.shift,
-                    group: c.group,
-                    room: c.room,
-                    absentTeacher: { id: userId, name, position },
-                    substitute: null
-                });
+                substituteData[day].push(new SubstitutionEntry(date, c.time, c.group, c.shift, c.room, {id: userId, name, position}, null));
+                // substituteData[day].push({
+                //     date,
+                //     time: c.time,
+                //     shift: c.shift,
+                //     group: c.group,
+                //     room: c.room,
+                //     absentTeacher: { id: userId, name, position },
+                //     substitute: null
+                // });
             }
         });
     }
@@ -197,7 +195,6 @@ function getDateDayMap_(from: string, to: string): Record<string, string> {
  */
 function removeAbsentFromWeek(userId: string) {
     const conn = getConnection_(); // Взима връзка към базата данни.
-    const settings = getSettings(); // Взима настройките на системата.
     const key = settings.substitute_key; // Взима substitute_key.
 
     const days = ["monday", "tuesday", "wednesday", "thursday", "friday"]; // Дни от седмицата.
@@ -210,8 +207,8 @@ function removeAbsentFromWeek(userId: string) {
     const data = {}; // Обект за съхранение на данните за заместванията.
     for (const day of days) {
         const raw = rs.getString(day); // Взима JSON данните за текущия ден.
-        const entries = raw ? JSON.parse(raw) : []; // Парсва JSON данните или връща празен масив.
-        data[day] = entries.filter(e => e.absentTeacher?.id !== userId); // Премахва записи за дадения потребител.
+        const entries: SubstitutionEntry[] = raw ? JSON.parse(raw) as SubstitutionEntry[] : []; // Парсва JSON данните или връща празен масив.
+        data[day] = entries.filter(e => e.absentTeacher.id !== userId); // Премахва записи за дадения потребител.
     }
 
     // Подготвя SQL заявка за актуализиране на таблицата substitute.
@@ -228,7 +225,7 @@ function removeAbsentFromWeek(userId: string) {
  * Записва заявката в таблицата `requests` със статус "pending".
  * @param schedule - Масив от записи за заместванията.
  */
-function sendGroupedSubstituteRequest(schedule: any[]) {
+function sendGroupedSubstituteRequest(schedule: {day: string, hour: number, shift: string, group: string}[]) { // FIXME
     const conn = getConnection_(); // Взима връзка към базата данни.
     const user = getCurrentUser_(); // Взима текущия потребител.
 
@@ -242,10 +239,7 @@ function sendGroupedSubstituteRequest(schedule: any[]) {
     };
 
     // Подготвя SQL заявка за записване на заявката в таблицата `requests`.
-    const stmt = conn.prepareStatement(`
-      INSERT INTO requests (id, workspace_id, status, content)
-      VALUES (?, ?, 'pending', ?)
-    `);
+    const stmt = conn.prepareStatement('INSERT INTO requests (id, workspace_id, status, content) VALUES (?, ?, "pending", ?)');
     stmt.setString(1, Utilities.getUuid()); // Генерира уникален ID за заявката.
     stmt.setString(2, user.workspace_id); // Задава workspace_id.
     stmt.setString(3, JSON.stringify(content)); // Задава съдържанието на заявката като JSON.
@@ -261,11 +255,8 @@ function sendGroupedSubstituteRequest(schedule: any[]) {
 function processSubstituteRequestApproval(request: any, templateUrl: string) {
     const conn = getConnection_(); // Взима връзка към базата данни.
     const user = getCurrentUser_(); // Взима текущия потребител.
-    const settings = getSettings(); // Взима настройките на системата.
     const substituteKey = settings.substitute_key; // Взима substitute_key.
-
-    const grouped: Record<string, { day: string, absent: any, entries: any[] }> = {}; // Групира заявки по ден и отсъстващ учител.
-
+    const grouped: Record<string, { day: string, absent: any, entries: SubstitutionEntry[] }> = {}; // Групира заявки по ден и отсъстващ учител.
     // Обхожда графика на заявката.
     for (const slot of request.schedule) {
         const absent = findAbsentTeacher_(slot.day, slot.hour, slot.shift, slot.group, substituteKey); // Намира отсъстващия учител.
@@ -279,63 +270,39 @@ function processSubstituteRequestApproval(request: any, templateUrl: string) {
         };
 
         // Добавя информация за заместването.
-        grouped[key].entries.push({
-            time: slot.hour,
-            shift: slot.shift,
-            group: slot.group,
-            room: absent.room,
-            date: slot.date,
-            absentTeacher: absent,
-            substitute: {
-                id: request.from_id,
-                name: request.fromName,
-                position: getUserById_(request.from_id).position
-            }
-        });
+        let newEntry = new SubstitutionEntry("", slot.hour, slot.group, slot.shift, slot.room, absent, {id: request.from_id, name: request.fromName, position: getUserById_(request.from_id).position});
+        // newEntry.absentTeacher = absent;
+        // newEntry.substitute = {
+        //     id: request.from_id,
+        //     name: request.fromName,
+        //     position: getUserById_(request.from_id).position
+        // }
+        console.log('Slot', slot)
+        console.log('newEntry', newEntry) // Взима новия запис за заместване.
+        grouped[key].entries.push(newEntry); // Добавя новия запис в групата.
     }
-
     // Обработва всяка група.
     for (const key in grouped) {
         const { day, absent, entries } = grouped[key];
 
-        entries.forEach(e => {
-            if (!e.absentTeacher) e.absentTeacher = absent; // Задава отсъстващия учител, ако липсва.
-        });
+        // entries.forEach(e => {
+        //     if (!e.absentTeacher) e.absentTeacher = absent; // Задава отсъстващия учител, ако липсва.
+        // });
 
-        addToSubstituteTable_(conn, substituteKey, day, entries); // Актуализира таблицата `substitute`.
+        addToSubstituteTable_(substituteKey, day, entries); // Актуализира таблицата `substitute`.
 
-        // 1. Генериране на декларация
-        const { docId, url, title, date } = generateDeclarationDoc_(templateUrl, request.fromName, absent.name, day, entries);
-        const declarationContent = {
-            doc_id: docId,
-            url,
-            title,
-            date,
-            submitted: false
-        };
-// 2. Запис в таблицата declarations
-        const stmt = conn.prepareStatement("INSERT INTO declarations (id, workspace_id, substitute_id, content) VALUES (?, ?, ?, ?)");
-        stmt.setString(1, Utilities.getUuid());
-        stmt.setString(2, user.workspace_id);
-        stmt.setString(3, request.from_id);
-        stmt.setString(4, JSON.stringify(declarationContent));
-        stmt.executeUpdate();
-
-        // 3. Споделяне с учителя
-        const teacher = getUserById_(request.from_id);
-        if (teacher?.email) {
-            DriveApp.getFileById(docId).addEditor(teacher.email);
-        }
+        // Генериране на декларация
+        generateDeclarationDoc_(templateUrl, request.fromName, request.from_id, absent.name, day, entries);
     }
 
-    // 4. Нотификация
+    // Нотификация
     createNotificationForUser_(request.from_id, "Заявката ти беше одобрена.", {
         type: "substitute-approved",
         from: `Одобрена от: ${user.names.split(" ").filter((_, i) => i != 1).join(" ")}`,
         schedule: request.schedule
     });
 
-    // 5. Маркираме заявката като одобрена
+    // Маркираме заявката като одобрена
     const update = conn.prepareStatement("UPDATE requests SET status = 'approved' WHERE content LIKE ?");
     update.setString(1, `%${request.created_at}%`);
     update.executeUpdate();
@@ -358,11 +325,11 @@ function findAbsentTeacher_(day: string, hour: number, shift: string, group: str
 
     if (!rs.next()) return null; // Ако няма резултати, връща null.
 
-    const raw = rs.getString(day); // Взима JSON данните за деня.
-    if (!raw) return null; // Ако няма данни, връща null.
+    const raw = rs.getString(day);
+    if (raw == '[]') return null; // Ако няма данни, връща null.
 
-    const data = JSON.parse(raw); // Парсва JSON данните.
-
+    const data: SubstitutionEntry[] = JSON.parse(raw); // Парсва JSON данните.
+    console.log('data', data) // Взима масив от записи за заместванията.
     // Търси запис, който съвпада с деня, часа, смяната и групата.
     for (const entry of data) {
         if (
@@ -385,25 +352,27 @@ function findAbsentTeacher_(day: string, hour: number, shift: string, group: str
  * @param day - Ден от седмицата (например "monday").
  * @param newEntries - Нови записи за добавяне или актуализиране.
  */
-function addToSubstituteTable_(conn: GoogleAppsScript.JDBC.JdbcConnection, substituteKey: string, day: string, newEntries: any[]) {
+function addToSubstituteTable_(substituteKey: string, day: string, newEntries: SubstitutionEntry[]) {
+    const conn = getConnection_(); // Взима връзка към базата данни.
     const select = conn.prepareStatement(`SELECT ${day} FROM substitute WHERE substitute_key = ?`); // Подготвя SQL заявка за извличане на данните за деня.
     select.setString(1, substituteKey); // Задава substituteKey като параметър.
     const rs = select.executeQuery(); // Изпълнява заявката.
 
-    let current = []; // Масив за съхранение на текущите записи.
+    let current: SubstitutionEntry[] = []; // Масив за съхранение на текущите записи.
     if (rs.next()) {
         const raw = rs.getString(day); // Взима JSON данните за деня.
         if (raw) current = JSON.parse(raw); // Парсва JSON данните, ако съществуват.
     }
-
+    console.log('current', current) // Взима текущите записи.
     // Обхожда новите записи и ги добавя или актуализира.
     for (const newEntry of newEntries) {
         const index = current.findIndex(e =>
             e.time == newEntry.time &&
-            e.shift === newEntry.shift &&
-            e.group === newEntry.group
+            e.shift == newEntry.shift &&
+            e.group == newEntry.group
         );
-
+        console.log('newEntry', newEntry) // Взима новия запис.
+        console.log('index', index) // Взима индекса на съществуващия запис.
         if (index >= 0) {
             current[index].substitute = newEntry.substitute; // Актуализира съществуващ запис.
         } else {
@@ -425,7 +394,7 @@ function addToSubstituteTable_(conn: GoogleAppsScript.JDBC.JdbcConnection, subst
  */
 function getSubstitutePageDataForAdmin() {
     return {
-        settings: getSettings(), // Взима настройките на системата.
+        settings: settings, // Взима настройките на системата.
         weekDates: getCurrentWeekDates(), // Взима датите за текущата седмица.
         users: getAllUsersWithSchedule_(), // Взима всички потребители с разписания.
         grid: getSubstitutionGridForWeek() // Взима данните за заместванията за текущата седмица.
@@ -439,7 +408,7 @@ function getSubstitutePageDataForAdmin() {
  */
 function getSubstitutePageDataForTeacher() {
     return {
-        settings: getSettings(), // Взима настройките на системата.
+        settings: settings, // Взима настройките на системата.
         timetable: getCurrentUser_().timetable || [], // Взима разписанието на текущия потребител или празен масив, ако няма разписание.
         weekDates: getCurrentWeekDates(), // Взима датите за текущата седмица.
         grid: getSubstitutionGridForWeek() // Взима данните за заместванията за текущата седмица.

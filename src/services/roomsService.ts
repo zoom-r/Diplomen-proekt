@@ -9,9 +9,7 @@ function getRoomUsageGrid(): any {
     const conn = getConnection_(); // Взима връзка към базата данни.
 
     // Подготвя SQL заявка за извличане на разписанията на потребителите.
-    const stmt = conn.prepareStatement(
-        "SELECT timetable FROM users WHERE workspace_id = ? AND timetable IS NOT NULL AND timetable != '[]'"
-    );
+    const stmt = conn.prepareStatement("SELECT timetable FROM users WHERE workspace_id = ? AND timetable IS NOT NULL AND timetable != '[]'");
     stmt.setString(1, user.workspace_id); // Задава workspace_id като параметър.
     const rs = stmt.executeQuery(); // Изпълнява заявката.
 
@@ -29,8 +27,8 @@ function getRoomUsageGrid(): any {
 
     // Обхожда резултатите от заявката.
     while (rs.next()) {
-        const timetable = JSON.parse(rs.getString("timetable")); // Парсва разписанието на потребителя.
-        timetable.forEach((entry: any) => {
+        const timetable: ClassEntry[] = JSON.parse(rs.getString("timetable")); // Парсва разписанието на потребителя.
+        timetable.forEach((entry) => {
             const { day, time, shift, room, group } = entry; // Извлича данните за деня, часа, смяната, стаята и групата.
             if (!result[day] || !result[day][shift]) return; // Пропуска, ако денят или смяната не са валидни.
             if (!result[day][shift][room]) result[day][shift][room] = []; // Инициализира масив за стаята, ако не съществува.

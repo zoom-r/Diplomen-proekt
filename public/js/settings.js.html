@@ -55,18 +55,19 @@ function createListItem(content, listType) {
  * @param {object} settings - Обект с настройки от сървъра
  */
 function loadSettings(settings) {
+    console.log("Настройки:", settings);
     // Смяна
-    if (settings._shift)
-        document.getElementById('shiftCheck-' + settings._shift).checked = true;
+    if (settings.shift)
+        document.getElementById('shiftCheck-' + settings.shift).checked = true;
 
     // Максимален брой часове
-    if (settings._max_classes && settings._max_classes > 0)
-        document.getElementById('time-count').value = settings._max_classes;
+    if (settings.max_classes && settings.max_classes > 0)
+        document.getElementById('time-count').value = settings.max_classes;
 
     // Декларации
     const declList = document.getElementById("declarations-list");
     declList.innerHTML = "";
-    (settings._declarations_templates || []).forEach(decl => {
+    (settings.declaration_templates || []).forEach(decl => {
         const div = document.createElement("div");
         div.className = "input-group mb-2";
         div.dataset.url = decl.url;
@@ -80,20 +81,20 @@ function loadSettings(settings) {
     });
 
     // Класове
-    if (settings._classes && settings._classes.length > 0) {
+    if (settings.classes && settings.classes.length > 0) {
         const classesList = document.getElementById('class-list');
         classesList.innerHTML = '';
-        settings._classes.forEach(className => {
+        settings.classes.forEach(className => {
             const listItem = createListItem(className, 'class-list');
             classesList.appendChild(listItem);
         });
     }
 
     // Стаи
-    if (settings._rooms && settings._rooms.length > 0) {
+    if (settings.rooms && settings.rooms.length > 0) {
         const roomsList = document.getElementById('rooms-list');
         roomsList.innerHTML = '';
-        settings._rooms.forEach(roomName => {
+        settings.rooms.forEach(roomName => {
             const listItem = createListItem(roomName, 'rooms-list');
             roomsList.appendChild(listItem);
         });

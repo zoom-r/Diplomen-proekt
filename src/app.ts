@@ -91,6 +91,7 @@ app.get('/users', function (req, res) {
  * Зарежда страницата с настройки, ако потребителят е администратор.
  */
 app.get('/settings', function (req, res) {
+    console.log('Settings page loading'); // Логва, че страницата с настройки е заредена
     if (getCurrentUser_().role !== 'admin') {
         res.set('Content-Type', 'text/html');
         const html = HtmlService.createTemplateFromFile('public/html/error');

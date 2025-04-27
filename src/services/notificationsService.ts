@@ -6,21 +6,18 @@
 function getSubstituteRequestsForAdmin_() {
     const conn = getConnection_(); // Взима връзка към базата данни.
     const user = getCurrentUser_(); // Взима текущия потребител.
-
-    if (user.role !== 'admin') return []; // Ако потребителят не е администратор, връща празен масив.
-
+    console.log(1)
+    if (user.role != 'admin') return []; // Ако потребителят не е администратор, връща празен масив.
+    console.log(2)
     // Подготвя SQL заявка за извличане на заявки със статус "pending".
-    const stmt = conn.prepareStatement(`
-      SELECT content
-      FROM requests
-      WHERE workspace_id = ? AND status = 'pending'
-    `);
+    const stmt = conn.prepareStatement(`SELECT content FROM requests WHERE workspace_id = ? AND status = 'pending'`);
     stmt.setString(1, user.workspace_id); // Задава workspace_id като параметър.
     const rs = stmt.executeQuery(); // Изпълнява заявката.
 
     const result = []; // Масив за съхранение на резултатите.
 
     while (rs.next()) {
+        console.log("in")
         try {
             const content = JSON.parse(rs.getString('content')); // Парсва JSON съдържанието на заявката.
             result.push(content); // Добавя заявката в резултатите.
@@ -28,7 +25,8 @@ function getSubstituteRequestsForAdmin_() {
             Logger.log("Грешка при парсване на заявка: " + e); // Логва грешка при парсване.
         }
     }
-
+    console.log(3)
+    console.log("result: ", result)
     return result; // Връща масив от заявки.
 }
 
@@ -46,7 +44,7 @@ function createNotificationForUser_(userId: string, message: string, options?: P
 
     // Създава обект за нотификацията.
     const notification = {
-        id: Utilities.getUuid(), // Генерира уникален ID за нотификацията.
+        id: Utilities.getUuid(), // Генерира уникално ID за нотификацията.
         type: options?.type || "info", // Тип на нотификацията (по подразбиране "info").
         text: message, // Текст на нотификацията.
         from: options?.from || null, // Източник на нотификацията (ако е зададен).
@@ -74,20 +72,19 @@ function getUserNotifications_(): any[] {
     if (user.role == "admin") return getSubstituteRequestsForAdmin_(); // Ако потребителят е администратор, връща заявките за заместване.
 
     const conn = getConnection_(); // Взима връзка към базата данни.
-    const stmt = conn.prepareStatement("SELECT content FROM notifications WHERE notifications_key = ?"); // Подготвя SQL заявка за извличане на нотификациите.
+    const stmt = conn.prepareStatement('SELECT content FROM notifications WHERE notifications_key = ?'); // Подготвя SQL заявка за извличане на нотификациите.
     stmt.setString(1, user.notifications_key); // Задава ключа за нотификациите на потребителя.
     const rs = stmt.executeQuery(); // Изпълнява заявката.
 
     const result: any[] = []; // Масив за съхранение на резултатите.
-
     while (rs.next()) {
+        console.log("in")
         try {
             result.push(JSON.parse(rs.getString("content"))); // Парсва JSON съдържанието на нотификацията и го добавя в резултатите.
         } catch (_) {
             // Игнорира грешки при парсване.
         }
     }
-
     return result; // Връща масив от нотификации.
 }
 
@@ -99,7 +96,7 @@ function deleteNotification(id: string) {
     const conn = getConnection_(); // Взима връзка към базата данни.
 
     // Подготвя SQL заявка за изтриване на нотификацията.
-    const stmt = conn.prepareStatement("DELETE FROM notifications WHERE id = ?");
+    const stmt = conn.prepareStatement('DELETE FROM notifications WHERE id = ?');
     stmt.setString(1, id); // Задава ID на нотификацията.
     stmt.executeUpdate(); // Изпълнява заявката.
 }
@@ -121,7 +118,7 @@ function declineSubstituteRequest(request: any) {
     });
 
     // Подготвя SQL заявка за актуализиране на статуса на заявката.
-    const update = conn.prepareStatement("UPDATE requests SET status = 'declined' WHERE content LIKE ?");
+    const update = conn.prepareStatement(`UPDATE requests SET status = 'declined' WHERE content LIKE ?`);
     update.setString(1, `%${request.created_at}%`); // Търси заявката по дата на създаване.
     update.executeUpdate(); // Изпълнява заявката.
 }
@@ -131,6 +128,7 @@ function declineSubstituteRequest(request: any) {
  * @returns Обект с нотификациите и настройките.
  */
 function getNotificationsAndSettings() {
+    console.log(getUserNotifications_())
     return {
         notifications: getUserNotifications_(), // Взима нотификациите за текущия потребител.
         settings: getSettings() // Взима настройките на системата.

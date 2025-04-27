@@ -4,7 +4,7 @@
  * Ако файлът липсва или е изтрит, премахва декларацията от базата.
  * @returns Масив от декларации.
  */
-function getDeclarations_(): any[] {
+function getDeclarations_(): Declaration[] {
     const conn = getConnection_(); // Взима връзка към базата данни.
     const user = getCurrentUser_(); // Взима текущия потребител.
     const isAdmin = user.role === "admin"; // Проверява дали потребителят е администратор.
@@ -25,7 +25,7 @@ function getDeclarations_(): any[] {
         const contentRaw = rs.getString("content"); // Взима съдържанието на декларацията.
 
         try {
-            const content = JSON.parse(contentRaw); // Парсва съдържанието на декларацията.
+            const content: Declaration = JSON.parse(contentRaw) as Declaration; // Парсва съдържанието на декларацията.
             try {
                 const file = DriveApp.getFileById(content.doc_id); // Взима файла от Google Drive.
                 if (!file.isTrashed()) {
@@ -94,7 +94,7 @@ function updateDeclarationStatus(id: string, newStatus: boolean) {
 
     if (!rs.next()) return; // Ако няма резултати, прекратява изпълнението.
 
-    const content = JSON.parse(rs.getString("content")); // Парсва съдържанието на декларацията.
+    const content: Declaration = JSON.parse(rs.getString("content")); // Парсва съдържанието на декларацията.
     content.submitted = newStatus; // Актуализира статуса на декларацията.
 
     const update = conn.prepareStatement("UPDATE declarations SET content = ? WHERE id = ?"); // Подготвя SQL заявка за актуализиране.
@@ -120,26 +120,25 @@ function getGoogleDocName(fileId: string): string {
  * @param entries - Записи за заместванията.
  * @returns Обект с информация за създадената декларация (ID, URL, заглавие и дата).
  */
-function generateDeclarationDoc_(templateUrl: string, substituteName: string, absentName: string, day: string, entries: any[]) {
+function generateDeclarationDoc_(templateUrl: string, substituteName: string, substituteId: string, absentName: string, day: string, entries: any[]) {
     const fileId = extractFileIdFromUrl_(templateUrl); // Извлича ID на файла от URL.
     const template = DriveApp.getFileById(fileId); // Взима шаблона от Google Drive.
 
-    const date = getDateForWeekday_(day); // Взима датата за дадения ден от седмицата.
-    const folder = getOrCreateFolderByDate_(fileId, new Date(date)); // Взима или създава папка за датата.
+    const date = new Date(getDateForWeekday_(day)); // Взима датата за дадения ден от седмицата.
+    const folder = getOrCreateFolderByDate_(fileId, date); // Взима или създава папка за датата.
     const copy = template.makeCopy(`Декларация - ${substituteName}`, folder); // Създава копие на шаблона.
 
     const doc = DocumentApp.openById(copy.getId()); // Отваря копието като Google документ.
     const body = doc.getBody(); // Взима тялото на документа.
 
     const currentUser = getCurrentUser_(); // Взима текущия потребител.
-    const settings = getSettings(); // Взима настройките на системата.
 
     // Замества плейсхолдърите в документа с реални данни.
     body.replaceText("{{names}}", substituteName);
     body.replaceText("{{absent}}", absentName);
     body.replaceText("{{position}}", currentUser.position || "");
     body.replaceText("{{names_admin}}", getCurrentUser_().names || "");
-    body.replaceText("{{date}}", formatDateForDocument_(new Date(date)));
+    body.replaceText("{{date}}", formatDateForDocument_(date));
 
     const tables = body.getTables(); // Взима всички таблици в документа.
     if (tables.length > 0) {
@@ -150,12 +149,11 @@ function generateDeclarationDoc_(templateUrl: string, substituteName: string, ab
         for (let i = 1; i < entries.length; i++) {
             table.appendTableRow(modelRow.copy()); // Копира модела на реда и го добавя.
         }
-
         // Попълва данните за всеки запис в таблицата.
         entries.forEach((e, i) => {
             const row = table.getRow(i + 1); // Взима текущия ред.
             if (row.getNumCells() >= 3) {
-                const subject = (e.substitute?.position === e.absentTeacher?.position) ? "" : "Гражданско образование"; // Определя предмета.
+                const subject = (e.substitute?.position == e.absentTeacher?.position) ? "" : "Гражданско образование"; // Определя предмета.
                 row.getCell(0).setText(String(e.time)); // Попълва часа.
                 row.getCell(1).setText(subject); // Попълва предмета.
                 row.getCell(2).setText(e.group); // Попълва класа.
@@ -165,14 +163,21 @@ function generateDeclarationDoc_(templateUrl: string, substituteName: string, ab
     }
 
     doc.saveAndClose(); // Запазва и затваря документа.
-
-    // Връща информация за създадената декларация.
-    return {
-        docId: copy.getId(),
-        url: copy.getUrl(),
-        title: `Декларация - ${substituteName}`,
-        date: formatDateForDocument_(new Date(date))
-    };
+    const declaration = new Declaration(`Декларация - ${substituteName}`, copy.getUrl(), copy.getId(), formatDateForDocument_(date), false); // Създава декларация с информация за документа.
+    
+    const conn = getConnection_(); // Взима връзка към базата данни.
+    const stmt = conn.prepareStatement('INSERT INTO declarations (id, workspace_id, substitute_id, content) VALUES (?, ?, ?, ?)');
+    stmt.setString(1, Utilities.getUuid());
+    stmt.setString(2, currentUser.workspace_id);
+    stmt.setString(3, substituteId);
+    stmt.setString(4, JSON.stringify(declaration)); // Записва декларацията в базата данни.
+    stmt.executeUpdate();
+    
+    // Споделяне с учителя
+    const teacher = getUserById_(substituteId);
+    if (teacher?.email) {
+        DriveApp.getFileById(copy.getId()).addEditor(teacher.email);
+    }
 }
 
 /**
